@@ -299,6 +299,17 @@ main{flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-b
   padding:10px 14px;border-radius:10px;cursor:pointer}
 .tmr .tx{background:transparent;color:var(--mid);border-color:transparent}
 /* Schwebender Player: frei verschiebbar, auf jeder Seite sichtbar */
+/* Schwebender Hinweis auf eine angefangene Einheit */
+#woresume{position:fixed;left:14px;z-index:185;display:none;align-items:center;gap:10px;
+  padding:10px 14px 10px 12px;background:var(--surf2);border:1px solid var(--me);
+  border-radius:24px;box-shadow:0 6px 20px rgba(0,0,0,.5);cursor:pointer;max-width:70vw}
+#woresume.on{display:flex}
+#woresume .wrsym{width:26px;height:26px;border-radius:50%;background:var(--me);color:#0E1116;
+  display:grid;place-items:center;font-size:14px;flex-shrink:0}
+#woresume .wrtxt{font-size:12.5px;line-height:1.35;min-width:0}
+#woresume .wrtxt b{display:block;font-size:13.5px;font-weight:600;white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis}
+#woresume .wrtxt span{color:var(--mid)}
 #player{position:fixed;z-index:190;display:none;touch-action:none;
   background:var(--surf2);border:1px solid var(--line2);border-radius:26px;
   box-shadow:0 6px 20px rgba(0,0,0,.5);overflow:hidden;
@@ -361,11 +372,15 @@ main{flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-b
   align-items:center;justify-content:center;z-index:5}
 .wrest.on{display:flex}
 .wrest .rl{font-size:12.5px;color:var(--mid);margin-bottom:8px}
-.wrest .rt{font-size:78px;font-weight:700;line-height:1;color:var(--ok)}
+.wrest .rt{font-size:78px;font-weight:700;line-height:1;color:var(--ok);cursor:pointer;
+  padding:10px 24px;border-radius:18px}
+.wrest .rt:active{background:var(--surf2)}
+.wrest .rhint{font-size:11.5px;color:var(--dim);margin-top:14px}
+.wrest.mini .rhint{display:none}
 .wrest .rb{margin-top:26px;display:flex;gap:9px}
 .wrest .rb button{padding:12px 20px;border-radius:11px;border:1px solid var(--line);background:var(--surf);
   color:var(--ink);font-size:14px;cursor:pointer}
-.wrest .rmin{position:absolute;top:14px;right:14px;width:38px;height:38px;border-radius:50%;
+.wrest .rmin{position:absolute;top:10px;right:10px;width:52px;height:52px;border-radius:50%;
   background:var(--surf2);border:1px solid var(--line);color:var(--mid);font-size:17px;cursor:pointer}
 /* Verkleinert: schwebende Pille, frei verschiebbar, Rest der Seite bedienbar */
 .wrest.mini{position:fixed;inset:auto;width:auto;background:none;display:block;z-index:180;
@@ -498,6 +513,11 @@ main{flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-b
   <div class="page" id="p-mehr"></div>
 </main>
 
+<div id="woresume">
+  <div class="wrsym">▶</div>
+  <div class="wrtxt"><b id="wrsname">Einheit</b><span id="wrsinfo">Übung 1 von 7</span></div>
+</div>
+
 <div id="player" class="mini">
   <div class="pmini" id="pmini">♪</div>
   <div class="pbody">
@@ -542,7 +562,8 @@ main{flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-b
     <button class="rmin" id="wrmin" title="Verkleinern">⤡</button>
     <div class="rl" id="wrl">Pause</div>
     <div class="rt num" id="wrt">2:00</div>
-    <div class="rb"><button id="wr30">+30 s</button><button id="wrs">Überspringen</button></div>
+    <div class="rb"><button id="wr30">+30 s</button><button id="wrmin2">Verkleinern</button><button id="wrs">Überspringen</button></div>
+    <div class="rhint">Tippe auf die Zeit, um die Anzeige zu verkleinern</div>
   </div>
 </div>
 
@@ -1296,7 +1317,7 @@ const ANAME={yuan:"Yuan",yara:"Yara"};
 /* ══════════ SPEICHER ══════════ */
 /* Versionsstand – steht unter Mehr ganz unten. Damit lässt sich prüfen,
    ob auf einem Gerät wirklich die aktuelle Datei läuft. */
-const BUILD={datum:"23.10.2026",nr:57};
+const BUILD={datum:"23.10.2026",nr:61};
 const DEF={
  me:"yuan", start:"2026-10-18", gyms:null, gym:"citygate",
  log:{}, archive:[], checkins:{yuan:{},yara:{}}, protein:{yuan:{},yara:{}},
@@ -1411,7 +1432,7 @@ const CYCLE_DEF={
      verknüpft waren. Da sich diese Nummern mit neuen Vorlagen verschieben,
      zeigten solche Pläne später falsche Übungen. Diese eingefrorenen Reste
      werden entfernt; von Hand gesetzte Pläne mit Namensbezug bleiben. */
-  if(DB.cycleV>=3&&DB.cycle){
+  if(DB.cycleV>=4&&DB.cycle){
     let geaendert=false;
     ATH.forEach(a=>{
       const c=DB.cycle[a]; if(!c)return;
@@ -1425,16 +1446,21 @@ const CYCLE_DEF={
     ATH.forEach(a=>{
       const c=DB.cycle[a]; if(!c)return;
       delete c.phasePlans;
+      /* Die rollierende Woche stammt aus einer früheren Vorgabe. Dort wandern
+         die Krafteinheiten durch den Katalog – genau das führte dazu, dass
+         derselbe Wochentag unterschiedliche Übungen zeigte. */
+      if(c.plan)delete c.plan;
+      if(c.mode==="week")delete c.mode;
       ["fixPlan","rollPlan"].forEach(k=>{
         const arr=c[k];
         if(Array.isArray(arr)&&arr.some(v=>alteNummer(v)||(typeof v==="string"&&v.indexOf("alt:p")===0)))
           delete c[k];
       });
-      if(!Object.keys(c).filter(x=>x!=="mode").length)delete DB.cycle[a];
+      if(!Object.keys(c).length)delete DB.cycle[a];
     });
     if(!Object.keys(DB.cycle).length)delete DB.cycle;
   }
-  DB.cycleV=3;
+  DB.cycleV=4;
   try{localStorage.setItem("hybrid_v1",JSON.stringify(DB));}catch(e){}
   if(DB.cycleV>=2)return;
   if(DB.cycle){
@@ -2123,25 +2149,32 @@ const repBounds=r=>{
 };
 /* Doppelte Progression: erst Wiederholungen hoch, dann Gewicht.
    Das ist die verlässlichste Methode, um über Monate zu steigern. */
-function progression(ath,it,date){
+function progression(ath,it,date,eqJetzt){
   if(it.sch)return null;                       // Hauptlifts laufen über die Welle
   if(!it.sets||it.unit)return null;
   if(isErg(LR(date,ath)[it.key+"-eq"]))return null;
-  const p=lastPerf(ath,it.ex,date);
   const {lo,hi}=repBounds(it.rep);
+  /* Ein Vorschlag aus der Chest Press taugt nicht für die Langhantel.
+     Deshalb zuerst die letzte Ausführung am selben Gerät suchen. */
+  let p=eqJetzt?lastPerf(ath,it.ex,date,eqJetzt):null;
+  const alle=lastPerf(ath,it.ex,date);
+  if(!p&&alle&&alle.all&&eqJetzt&&alle.eq&&alle.eq!==eqJetzt)
+    return {kg:0,txt:`An ${eqLabel(eqJetzt)} noch nichts eingetragen. Zuletzt ${alle.top} kg an ${eqLabel(alle.eq)} – such hier ein Gewicht für ${hi} saubere Wiederholungen.`};
+  if(!p)p=alle;
   if(!p||!p.all)return {kg:0,txt:`Erstes Mal – such ein Gewicht, bei dem ${hi} Wiederholungen gerade noch sauber gehen.`};
   if(!p.top)return {kg:0,txt:`Letztes Mal ohne Gewichtsangabe. Trag es diesmal mit ein, dann rechnet die App weiter.`};
+  const amGeraet=p.eq?` an ${eqLabel(p.eq)}`:"";
   const inc=p.top<20?1.25:p.top<40?2.5:5;
   if(p.minR>=hi)
-    return {kg:p.top+inc,txt:`Letztes Mal alle Sätze auf ${hi} – heute ${(p.top+inc).toLocaleString("de-DE")} kg und zurück auf ${lo} Wiederholungen.`};
+    return {kg:p.top+inc,txt:`Letztes Mal${amGeraet} alle Sätze auf ${hi} – heute ${(p.top+inc).toLocaleString("de-DE")} kg und zurück auf ${lo} Wiederholungen.`};
   if(p.maxR<lo)
-    return {kg:Math.max(inc,p.top-inc),txt:`Letztes Mal nur ${p.maxR} statt ${lo} – heute ${Math.max(inc,p.top-inc).toLocaleString("de-DE")} kg, dafür sauber.`};
+    return {kg:Math.max(inc,p.top-inc),txt:`Letztes Mal${amGeraet} nur ${p.maxR} statt ${lo} – heute ${Math.max(inc,p.top-inc).toLocaleString("de-DE")} kg, dafür sauber.`};
   // Starker Abfall über die Sätze: das Einstiegsgewicht war zu hoch
   if(p.all>=2&&p.minR<=Math.ceil(lo*0.6)){
     const red=Math.max(inc,Math.round((p.top-inc)*2)/2);
-    return {kg:red,txt:`Letztes Mal fiel es von ${p.maxR} auf ${p.minR} ab – das Startgewicht war zu hoch. Heute ${red.toLocaleString("de-DE")} kg und alle Sätze auf ${lo}.`};
+    return {kg:red,txt:`Letztes Mal${amGeraet} fiel es von ${p.maxR} auf ${p.minR} ab – das Startgewicht war zu hoch. Heute ${red.toLocaleString("de-DE")} kg und alle Sätze auf ${lo}.`};
   }
-  return {kg:p.top,txt:`Gewicht halten bei ${p.top.toLocaleString("de-DE")} kg und je Satz eine Wiederholung mehr als letztes Mal.`};
+  return {kg:p.top,txt:`Gewicht halten bei ${p.top.toLocaleString("de-DE")} kg${amGeraet} und je Satz eine Wiederholung mehr als letztes Mal.`};
 }
 /* Kurzfassung der letzten Ausführung für die Übungskarte */
 function lastLine(ath,it,date){
@@ -2328,10 +2361,18 @@ function renderHeute(){
   }
   const upd=DB.ghLast;
   if(upd&&upd.nr>BUILD.nr&&DB.ghAuto!==false){
-    h+=`<div class="together" style="border-left-color:var(--ok)">
-      <div class="avat" style="background:rgba(106,196,139,.16);color:var(--ok)">↻</div>
-      <div class="tw">Fassung ${upd.nr} liegt bereit – du hast ${BUILD.nr}.
-      <button class="opt" style="margin-top:7px" onclick="doUpdate()">Jetzt aktualisieren</button></div>
+    h+=`<div class="card" style="border-color:var(--ok);background:rgba(106,196,139,.07);margin-bottom:14px">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="font-size:24px;line-height:1;color:var(--ok)">↻</div>
+        <div style="flex:1">
+          <div style="font-size:14.5px;font-weight:600">Neue Fassung verfügbar</div>
+          <div style="font-size:12.5px;color:var(--mid);line-height:1.5;margin-top:2px">
+          Fassung ${upd.nr} vom ${esc(upd.datum||"")} · du hast ${BUILD.nr}</div>
+        </div>
+      </div>
+      <button class="btn btn-go" style="margin:12px 0 0" onclick="doUpdate()">Jetzt aktualisieren</button>
+      <div style="font-size:11.5px;color:var(--dim);line-height:1.5;margin-top:7px;text-align:center">
+      Dauert ein paar Sekunden. Deine Eintragungen bleiben erhalten.</div>
     </div>`;
   }
   if(ses.restSwap){
@@ -2545,13 +2586,13 @@ function exCard(it,ath,lg,ses){
 
   if(it.type==="lift"||it.type==="circuit"){
     h+=`<div class="trk">`;
-    const ll=lastLine(ath,it,selDate);
+    const ll=lastLine(ath,it,selDate,selEq);
     if(ll)h+=ll;
     if(it.sch){
       h+=`<div class="hintl">${waveHint(it,ath)}</div>`;
       if(it.target)h+=`<button class="fillbtn" data-fill="${k}" data-kg="${it.target}">Alle Sätze mit ${it.target} kg vorbelegen</button>`;
     } else {
-      const pr=progression(ath,it,selDate);
+      const pr=progression(ath,it,selDate,selEq);
       if(pr){
         h+=`<div class="hintl">${esc(pr.txt)}</div>`;
         if(pr.kg)h+=`<button class="fillbtn" data-fill="${k}" data-kg="${pr.kg}">Alle Sätze mit ${pr.kg.toLocaleString("de-DE")} kg vorbelegen</button>`;
@@ -2727,6 +2768,7 @@ function openWO(ses,ath,items){
   woSes=ses;woAth=ath;
   woI=woResume(selDate,ath);
   document.getElementById("wo").classList.add("on");renderWO();
+  woResumeShow();
   if(woI>0)toast("Weiter bei Übung "+(woI+1)+" von "+woL.length);
 }
 function renderWO(){
@@ -2785,9 +2827,9 @@ function renderWO(){
   }
   if(wErg)h+=`<div style="font-size:12px;color:var(--dim);line-height:1.5;margin-top:8px">Zeit als Ziffern tippen: 205 wird zu 2:05.</div>`;
   else if(wwm.lang)h+=`<div style="font-size:12px;color:var(--me);line-height:1.5;margin-top:8px">${wwm.lang}</div>`;
-  const ll=lastLine(woAth,it,selDate);
+  const ll=lastLine(woAth,it,selDate,wEq);
   if(ll)h+=`<div style="margin-top:14px">${ll}</div>`;
-  const pr=it.sch?null:progression(woAth,it,selDate);
+  const pr=it.sch?null:progression(woAth,it,selDate,wEq);
   const hint=it.sch?waveHint(it,woAth):(pr?pr.txt:"");
   if(hint)h+=`<div style="font-size:12.5px;color:var(--me);line-height:1.55;margin-top:8px">${esc(hint)}</div>`;
   const fkg=it.sch?it.target:(pr?pr.kg:0);
@@ -2957,11 +2999,20 @@ function wrDragInit(){
     drag=false;
     if(moved)save(true); else wrSetMini(false);   // Tippen vergrößert wieder
   };
+  // Im großen Zustand verkleinert ein Tipp auf die Zeit, im kleinen zieht er
+  const tippen=e=>{
+    if(wrMini)return;
+    e.preventDefault();e.stopPropagation();
+    wrSetMini(true);
+  };
+  ["click"].forEach(ev=>t.addEventListener(ev,tippen));
   ["mousedown","touchstart"].forEach(ev=>t.addEventListener(ev,start,{passive:false}));
   ["mousemove","touchmove"].forEach(ev=>document.addEventListener(ev,move,{passive:false}));
   ["mouseup","touchend"].forEach(ev=>document.addEventListener(ev,end));
-  document.getElementById("wrmin")?.addEventListener("click",e=>{
-    e.stopPropagation();wrSetMini(true);});
+  ["wrmin","wrmin2"].forEach(id=>{
+    document.getElementById(id)?.addEventListener("click",e=>{
+      e.preventDefault();e.stopPropagation();wrSetMini(true);});
+  });
   window.addEventListener("resize",()=>setTimeout(wrPos,60));
 }
 function wrEnd(){
@@ -5600,7 +5651,10 @@ async function checkUpdate(silent){
     const nr=+m[2];
     updState={status:nr>BUILD.nr?"neu":"aktuell",nr,datum:m[1]};
     DB.ghLast={at:Date.now(),nr,datum:m[1]};save(true);
-    if(nr>BUILD.nr&&silent)updBanner();
+    if(nr>BUILD.nr){
+      if(page==="heute")renderHeute();
+      if(silent&&!updGezeigt){updGezeigt=true;updBanner();}
+    }
   }catch(e){
     updState={status:"fehler",fehler:e.message||"Abruf fehlgeschlagen"};
   }
@@ -6194,6 +6248,7 @@ function rMusik(){
     setTimeout(spNow,400);});
   if(spOK()||s.ref)spNow();
   plShow();
+  woResumeShow();
 }
 
 /* ─── Protokoll & Archiv ─── */
@@ -7134,6 +7189,51 @@ async function startDictation(k,btn){
   }catch(e){dictMsg(k,"Kein Zugriff auf das Mikrofon.",1);}
 }
 
+/* ══════════ ANGEFANGENE EINHEIT ══════════
+   Sobald eine Einheit begonnen und nicht beendet wurde, schwebt ein Knopf
+   über allen Seiten, der genau dort weitermacht. */
+function woOffen(){
+  const a=me(), d=todayISO();
+  const ses=sessionFor(d,a);
+  if(ses.k==="rest"||ses.pre)return null;
+  const items=buildSession(ses,a).filter(i=>i.type==="lift"||i.type==="circuit");
+  if(!items.length)return null;
+  const lg=LR(d,a);
+  const fertig=items.filter(x=>lg[x.key+"-done"]).length;
+  const begonnen=((DB.woPos||{})[d+"|"+a]!==undefined)||
+    items.some(x=>Object.keys(lg).some(k=>k.startsWith(x.key+"-")&&k!==x.key+"-eq"&&lg[k]));
+  if(!begonnen||fertig>=items.length)return null;
+  const pos=(DB.woPos||{})[d+"|"+a];
+  const idx=(pos!==undefined&&pos<items.length)?pos
+    :Math.max(0,items.findIndex(x=>!lg[x.key+"-done"]));
+  return {ses,items,idx,fertig,ges:items.length,date:d};
+}
+function woResumeShow(){
+  const el=document.getElementById("woresume");
+  if(!el)return;
+  const offen=(document.getElementById("wo")?.classList.contains("on"))?null:woOffen();
+  el.classList.toggle("on",!!offen);
+  if(!offen)return;
+  document.getElementById("wrsname").textContent=offen.ses.n;
+  document.getElementById("wrsinfo").textContent=
+    `weiter bei Übung ${offen.idx+1} von ${offen.ges} · ${offen.fertig} erledigt`;
+  // Über der unteren Leiste, links neben dem Player
+  const bot=document.getElementById("bot");
+  const h=bot?bot.getBoundingClientRect().height:70;
+  el.style.bottom=(h+14)+"px";
+}
+function woResumeInit(){
+  const el=document.getElementById("woresume");
+  if(!el)return;
+  el.addEventListener("click",()=>{
+    const o=woOffen();
+    if(!o){woResumeShow();return;}
+    selDate=o.date;
+    openWO(o.ses,me(),buildSession(o.ses,me()));
+    woResumeShow();
+  });
+}
+
 /* ══════════ SCHWEBENDER PLAYER ══════════ */
 const PL=()=>document.getElementById("player");
 let plOpen=false, plTimer=null;
@@ -7239,9 +7339,10 @@ document.querySelectorAll(".whoswitch button").forEach(b=>b.onclick=()=>{
   plToggle(false);plShow();
   toast("Profil: "+ANAME[DB.me]);});
 plInit();
+woResumeInit();
 document.getElementById("tp").onclick=pauseTimer;
 document.getElementById("tx").onclick=stopTimer;
-document.getElementById("wx").onclick=()=>{wrEnd();document.getElementById("wo").classList.remove("on");render();};
+document.getElementById("wx").onclick=()=>{wrEnd();document.getElementById("wo").classList.remove("on");render();woResumeShow();};
 document.getElementById("wprev").onclick=()=>{if(woI>0){woI--;renderWO();}};
 document.getElementById("wnext").onclick=()=>{
   const it=woL[woI];const o=L(selDate,woAth);o[it.key+"-done"]=true;saveDay(o);
@@ -7296,7 +7397,7 @@ wrDragInit();
       setTimeout(()=>{
         wo.classList.remove("on");
         wo.style.transition="";wo.style.transform="";wo.style.opacity="";
-        render();
+        render();woResumeShow();
       },210);
     } else {
       wo.style.transform="";wo.style.opacity="";
@@ -7437,24 +7538,30 @@ function msgReminder(){
 setTimeout(msgReminder,2600);
 setTimeout(prReminder,3400);
 
-/* Beim Öffnen und beim Zurückkehren aus dem Hintergrund nach einer neueren
-   Fassung sehen – höchstens alle zehn Minuten, damit es nicht bremst. */
-function updAutoCheck(){
+/* Beim Öffnen immer nachsehen, beim Zurückkehren aus dem Hintergrund
+   höchstens alle zwei Minuten. */
+let updGezeigt=false;
+function updZeigen(nr,datum){
+  updState={status:"neu",nr,datum};
+  if(page==="heute")renderHeute();
+  if(!updGezeigt){updGezeigt=true;updBanner();}
+}
+function updAutoCheck(sofort){
   if(DB.ghAuto===false||!ghRaw())return;
   const l=DB.ghLast;
-  if(l&&Date.now()-l.at<10*60*1000){
-    if(l.nr>BUILD.nr){updState={status:"neu",nr:l.nr,datum:l.datum};updBanner();}
+  if(!sofort&&l&&Date.now()-l.at<2*60*1000){
+    if(l.nr>BUILD.nr)updZeigen(l.nr,l.datum);
     return;
   }
   checkUpdate(true);
 }
-setTimeout(updAutoCheck,2400);
+setTimeout(()=>updAutoCheck(true),900);
 window.addEventListener("online",()=>{
   toast("Wieder online");
   if(DB.sync&&DB.sync.prov&&DB.sync.auto!==false)syncNow(true);
 });
 window.addEventListener("offline",()=>toast("Offline – die App läuft weiter"));
-document.addEventListener("visibilitychange",()=>{if(!document.hidden)updAutoCheck();});
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)updAutoCheck(false);});
 
 /* Beim Öffnen und beim Zurückkehren in die App abgleichen */
 if(DB.sync&&DB.sync.prov&&DB.sync.auto!==false){
