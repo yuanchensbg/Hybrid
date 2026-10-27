@@ -1296,7 +1296,7 @@ const ANAME={yuan:"Yuan",yara:"Yara"};
 /* ══════════ SPEICHER ══════════ */
 /* Versionsstand – steht unter Mehr ganz unten. Damit lässt sich prüfen,
    ob auf einem Gerät wirklich die aktuelle Datei läuft. */
-const BUILD={datum:"23.10.2026",nr:55};
+const BUILD={datum:"23.10.2026",nr:57};
 const DEF={
  me:"yuan", start:"2026-10-18", gyms:null, gym:"citygate",
  log:{}, archive:[], checkins:{yuan:{},yara:{}}, protein:{yuan:{},yara:{}},
@@ -1406,6 +1406,36 @@ const CYCLE_DEF={
    Entfernt wird nur, was keine eigene Belegung enthält – von Hand gesetzte
    Wochen- oder Zykluspläne bleiben unangetastet. */
 (function migrateCycle(){
+  /* Fassung 3: In älteren Fassungen wurde beim Antippen der Zyklusseite der
+     komplette damalige Stand gespeichert – samt Vorlagen, die über Nummern
+     verknüpft waren. Da sich diese Nummern mit neuen Vorlagen verschieben,
+     zeigten solche Pläne später falsche Übungen. Diese eingefrorenen Reste
+     werden entfernt; von Hand gesetzte Pläne mit Namensbezug bleiben. */
+  if(DB.cycleV>=3&&DB.cycle){
+    let geaendert=false;
+    ATH.forEach(a=>{
+      const c=DB.cycle[a]; if(!c)return;
+      if(c.phasePlans){delete c.phasePlans;geaendert=true;}
+    });
+    if(geaendert){try{localStorage.setItem("hybrid_v1",JSON.stringify(DB));}catch(e){}}
+    return;
+  }
+  if(DB.cycle){
+    const alteNummer=v=>typeof v==="string"&&/^p\d+$/.test(v);
+    ATH.forEach(a=>{
+      const c=DB.cycle[a]; if(!c)return;
+      delete c.phasePlans;
+      ["fixPlan","rollPlan"].forEach(k=>{
+        const arr=c[k];
+        if(Array.isArray(arr)&&arr.some(v=>alteNummer(v)||(typeof v==="string"&&v.indexOf("alt:p")===0)))
+          delete c[k];
+      });
+      if(!Object.keys(c).filter(x=>x!=="mode").length)delete DB.cycle[a];
+    });
+    if(!Object.keys(DB.cycle).length)delete DB.cycle;
+  }
+  DB.cycleV=3;
+  try{localStorage.setItem("hybrid_v1",JSON.stringify(DB));}catch(e){}
   if(DB.cycleV>=2)return;
   if(DB.cycle){
     ATH.forEach(a=>{
@@ -4249,14 +4279,16 @@ function pickerHTML(title,call,extra){
 function setRoll(i,v){
   const a=me(), c=cyc(a), RP=[...rollPlanOf(a)];
   RP[i]=v;
-  DB.cycle=DB.cycle||{};DB.cycle[a]=Object.assign({},c,{rollPlan:RP});
+  DB.cycle=DB.cycle||{};
+  DB.cycle[a]=Object.assign({},DB.cycle[a]||{},{rollPlan:RP});
   save();closeModal();rZyklus();
 }
 function rmRoll(i){
   const a=me(), c=cyc(a), RP=[...rollPlanOf(a)];
   if(RP.length<=3){toast("Mindestens drei Plätze");closeModal();return;}
   RP.splice(i,1);
-  DB.cycle=DB.cycle||{};DB.cycle[a]=Object.assign({},c,{rollPlan:RP});
+  DB.cycle=DB.cycle||{};
+  DB.cycle[a]=Object.assign({},DB.cycle[a]||{},{rollPlan:RP});
   save();closeModal();rZyklus();toast("Platz entfernt");
 }
 function setFix(wd,v){
@@ -4264,7 +4296,7 @@ function setFix(wd,v){
   const fp=[...(c.fixPlan||["long",0,"rest",2,1,3,"rest"])];
   fp[wd]=v;
   DB.cycle=DB.cycle||{};
-  DB.cycle[a]=Object.assign({},c,{fixPlan:fp});
+  DB.cycle[a]=Object.assign({},DB.cycle[a]||{},{fixPlan:fp});
   save();closeModal();rZyklus();
 }
 function rZyklus(){
@@ -4427,9 +4459,14 @@ const riZ=raceInfo(a);
   h+=`</div><button class="btn" id="creset">Auf Standard zurücksetzen</button>`;
   document.getElementById("p-mehr").innerHTML=h;
 
+  /* Nur die tatsächlich geänderten Werte ablegen. Würde hier der ganze
+     zusammengesetzte Stand gespeichert, fröre jede Berührung die damaligen
+     Vorgaben ein – spätere Planänderungen kämen nie mehr an. */
   const setC=(patch)=>{
     DB.cycle=DB.cycle||{};
-    DB.cycle[a]=Object.assign({},cyc(a),patch);
+    const eigen=Object.assign({},DB.cycle[a]||{},patch);
+    delete eigen.phasePlans;
+    DB.cycle[a]=eigen;
     save();rZyklus();
   };
   document.getElementById("sdate").onchange=ev=>{
@@ -5530,7 +5567,9 @@ function rMsgs(){
    ausgeliefert. Beim Prüfen holt sie die Rohdatei, liest deren Fassungsnummer
    und vergleicht sie mit der eigenen. Ist eine neuere da, lädt ein Knopf die
    Seite mit angehängter Fassungsnummer neu – damit umgeht sie den Zwischenspeicher. */
-const GH_DEF={user:"",repo:"",branch:"main",file:"index.html"};
+const GH_DEF={user:"yuanchensbg",repo:"Hybrid",branch:"main",file:"index.html"};
+/* Falls die Datei im Repository anders heißt, werden diese Namen mitprobiert */
+const GH_ALT=["index.html","hybrid.html","Hybrid.html","tandem-training.html"];
 const gh=()=>Object.assign({},GH_DEF,DB.gh||{});
 const ghRaw=()=>{const g=gh();
   return g.user&&g.repo?`https://raw.githubusercontent.com/${g.user}/${g.repo}/${g.branch}/${g.file}`:"";};
@@ -5542,9 +5581,20 @@ async function checkUpdate(silent){
   updState={status:"pruefe"};
   if(!silent&&mehrView==="update")rUpdate();
   try{
-    const r=await fetch(url+"?t="+Date.now(),{cache:"no-store"});
-    if(!r.ok)throw new Error("HTTP "+r.status);
-    const txt=await r.text();
+    const g=gh();
+    const basis=`https://raw.githubusercontent.com/${g.user}/${g.repo}/${g.branch}/`;
+    // Zuerst den eingetragenen Dateinamen, dann die üblichen Alternativen
+    const namen=[g.file,...GH_ALT.filter(n=>n!==g.file)];
+    let txt=null,genutzt=null,letzter="";
+    for(const n of namen){
+      try{
+        const rr=await fetch(basis+n+"?t="+Date.now(),{cache:"no-store"});
+        if(rr.ok){txt=await rr.text();genutzt=n;break;}
+        letzter="HTTP "+rr.status;
+      }catch(e){letzter=e.message||"Abruf fehlgeschlagen";}
+    }
+    if(txt===null)throw new Error(letzter||"Datei nicht gefunden");
+    if(genutzt!==g.file){DB.gh=Object.assign({},g,{file:genutzt});save(true);}
     const m=txt.match(/const BUILD=\{datum:"([^"]+)",nr:(\d+)\}/);
     if(!m)throw new Error("Keine Fassungsnummer gefunden");
     const nr=+m[2];
