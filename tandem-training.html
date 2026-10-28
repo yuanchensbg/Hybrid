@@ -87,9 +87,23 @@ header{flex:0 0 auto;background:var(--bg);border-bottom:1px solid var(--line);
 .whoswitch button.on[data-w="yara"]{background:var(--yara);color:#06101F}
 
 /* ─── CYCLE RAIL ─── */
+.rmon{flex:0 0 auto;align-self:center;font-size:10px;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--dim);padding:0 6px;writing-mode:vertical-rl}
+.rtile.past{opacity:.55}
+.rtile.past.filled{opacity:1}
+.rtile.filled::after{content:"";position:absolute;bottom:5px;left:50%;transform:translateX(-50%);
+  width:16px;height:2px;border-radius:1px;background:var(--ok)}
+.jump{display:flex;align-items:center;gap:7px;padding:0 15px 9px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.jump.off{padding-bottom:9px}
+.jump button{flex:0 0 auto;padding:6px 12px;border-radius:9px;border:1px solid var(--line);
+  background:var(--surf);color:var(--mid);font-size:12px;cursor:pointer}
+.jump button#jtoday{color:var(--me);border-color:var(--me)}
+.jump .jdate{flex:1 1 auto;position:relative;font-size:12px;color:var(--dim);text-align:right;
+  white-space:nowrap;cursor:pointer}
+.jump .jdate input{position:absolute;inset:0;opacity:0;width:100%;height:100%}
 .rail{display:flex;gap:4px;overflow-x:auto;padding:0 12px 11px;scrollbar-width:none}
 .rail::-webkit-scrollbar{display:none}
-.rtile{flex:0 0 auto;width:58px;border-radius:11px;border:1px solid var(--line);background:var(--surf);
+.rtile{position:relative;flex:0 0 auto;width:58px;border-radius:11px;border:1px solid var(--line);background:var(--surf);
   padding:7px 4px 8px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;position:relative}
 .rtile .rd{font-size:9.5px;color:var(--dim);letter-spacing:.06em;text-transform:uppercase}
 .rtile .rn{font-size:17px;font-weight:700;line-height:1}
@@ -503,6 +517,7 @@ main{flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-b
     </div>
   </div>
   <div class="rail" id="rail"></div>
+  <div class="jump off" id="jump"></div>
 </header>
 
 <main>
@@ -696,6 +711,14 @@ const EX={
  burpee:{n:"Burpee Broad Jumps",o:[],a:["burpeeplain","boxjump"],
   h:"<b>Wettkampf: 80 m, Körpergewicht.</b><br><br>Brust zum Boden, aufstehen, beidbeinig weit nach vorn springen. <b>Flach und weit springen statt hoch</b> – jeder Zentimeter Höhe ist verschenkte Zeit und Puls.<br><br>Gleichmäßiger Rhythmus schlägt Sprints mit Pausen. Beim Hochkommen ausatmen."},
  burpeeplain:{n:"Burpees",o:[],a:["burpee","boxjump"],h:"Brust zum Boden, hoch, Hände über dem Kopf zusammen."},
+ jumpsquat:{n:"Sprungkniebeuge",o:["matten"],a:["boxjump","wallballs","goblet"],
+  h:"Tiefe Kniebeuge, explosiv nach oben, weich landen und direkt in die nächste gehen.<br><br><b>Warum:</b> Auf Reisen der nächste Verwandte zum Wall Ball – gleiche Bewegung, gleiche Ermüdung in den Oberschenkeln, nur ohne Ball und ohne Wand."},
+ boxjumpein:{n:"Box Jumps einbeinig",o:["box"],a:["boxjump","stepup"],
+  h:"Niedrige Box, ein Bein. Weich landen, das Knie bleibt über dem Fuß.<br><br><b>Warum:</b> Deckt Seitenunterschiede in der Sprungkraft auf, die beidbeinig verborgen bleiben – und genau diese Unterschiede zeigen sich später beim Laufen."},
+ bulgarianjump:{n:"Bulgarian Split Squat Jumps",o:["box","bank"],a:["bulgarian","lunge"],
+  h:"Hinterer Fuß erhöht, aus der tiefen Position abspringen, weich wieder landen.<br><br><b>Warum:</b> Verbindet die einbeinige Kraftposition mit Schnellkraft. Für den Sled Push und die Lunges im Wettkampf unmittelbar übertragbar."},
+ quickfeet:{n:"Quick Feet",o:["stepper","box","matten"],a:["jumprope","boxjump"],
+  h:"So schnelle Fußwechsel wie möglich, kurzer Bodenkontakt, aufrechter Oberkörper. Angabe in Sekunden.<br><br><b>Warum:</b> Trainiert die Kontaktzeit, nicht die Kraft. Kurze Bodenkontaktzeit ist einer der stärksten Einzelfaktoren der Laufökonomie."},
  boxjump:{n:"Box Jumps",o:["box"],a:["burpee","lunge"],h:"Beidbeinig hoch, oben voll aufrichten, runtersteigen statt springen."},
  sledpush:{n:"Sled Push",o:["sled","schlitten"],a:["lunge","beinpresse","stepup","bulgarian"],
   h:"<b>Wettkampf: 50 m in vier Bahnen à 12,5 m, Damen Open 102 kg inklusive Schlitten.</b><br><br>Tief bleiben, Arme gestreckt und blockiert, Blick nach unten. Kurze schnelle Schritte statt langer Züge. Nicht stehenbleiben – den Schlitten wieder anzuschieben kostet mehr Kraft als durchgehendes Schieben.<br><br><b>Für Frauen meist die schwerste Station.</b> Was hier hilft: schwere Kniebeugen, Beinpresse, Ausfallschritte und Wadenarbeit – also genau das, was im Beintag steht."},
@@ -930,15 +953,16 @@ const PRESETS=[
         {e:"ohp",s:3,r:"10",p:"1:30"},{e:"chestrow",s:3,r:"12",p:"1:30"},
         {e:"straightarm",s:3,r:"14",p:"1:00"},{e:"overheadtri",s:3,r:"12",p:"1:00"},
         {e:"pallof",s:3,r:"12",p:"1:00"}]},
-{n:"Beine · Kraft und Aufbau",w:"leg",d:"Schwere Kniebeuge für die Laufökonomie, danach gedehnte Positionen, ein plyometrischer Reiz und Bauchbeugearbeit.",
- items:[{e:"squat",sch:"main",p:"3:00"},{e:"beincurlsitz",s:3,r:"12",p:"1:30"},
-        {e:"hacksq",s:3,r:"12",p:"2:00"},{e:"hipthrust",s:3,r:"10",p:"1:30"},
-        {e:"rdl",s:3,r:"10",p:"1:30"},{e:"wade",s:4,r:"12",p:"1:00"},
-        {e:"boxjump",s:3,r:"5",p:"1:30"},{e:"cablecrunch",s:3,r:"15",p:"1:00"}]},
+{n:"Beine · Kraft und Aufbau",w:"leg",d:"Sprungkraft zuerst, dann schwere Kniebeuge, danach Rückseite und Rumpf. Die Reihenfolge ist entscheidend – Sprünge auf müde Beine bringen nichts.",
+ items:[{e:"boxjump",s:3,r:"6",p:"1:30"},{e:"boxjumpein",s:2,r:"6",p:"1:30"},
+        {e:"bulgarianjump",s:2,r:"6",p:"1:30"},
+        {e:"squat",sch:"main",p:"3:00"},{e:"rdl",s:3,r:"10",p:"2:00"},
+        {e:"beincurlsitz",s:3,r:"12",p:"1:30"},{e:"hipthrust",s:3,r:"10",p:"1:30"},
+        {e:"wade",s:4,r:"12",p:"1:00"},{e:"cablecrunch",s:3,r:"15",p:"1:00"}]},
 {n:"Oberkörper · Zugschwerpunkt",w:"pull",d:"Klimmzug als Hauptziel, obere Brust, konstante Spannung über Kabel, Rumpfrotation zum Abschluss.",
  items:[{e:"pullup",s:4,r:"6–8",p:"2:30"},{e:"incline",s:4,r:"10",p:"2:00"},
-        {e:"tbarrow",s:3,r:"10",p:"1:30"},{e:"cablelow",s:3,r:"14",p:"1:00"},
-        {e:"seitheben",s:3,r:"15",p:"1:00"},{e:"inclinecurl",s:3,r:"12",p:"1:00"},
+        {e:"tbarrow",s:3,r:"10",p:"1:30"},{e:"onerow",s:3,r:"10",p:"1:30"},
+        {e:"reversefly",s:3,r:"15",p:"1:00"},{e:"inclinecurl",s:3,r:"12",p:"1:00"},
         {e:"woodchopper",s:3,r:"12",p:"1:00"}]},
 {n:"Kraft · Bankdrücken schwer",w:"push",d:"Bankdrücken nach Prozenten, danach Volumen und ein kurzer Stationsabschluss.",
  items:[{e:"bench",sch:"main",p:"3:30"},{e:"incline",s:3,r:"8",p:"2:00",rpe:8},
@@ -961,6 +985,46 @@ const PRESETS=[
 {n:"Lauf locker & Rumpf",w:"mixed",d:"Dritter Lauf der Woche, betont locker. Hält die Marathonbasis, ohne die Beine für den Krafttag zu belasten.",
  items:[{e:"run1k",s:1,r:"8000",p:"0:30",unit:"m"},{e:"cablecrunch",s:3,r:"15",p:"1:00"},
         {e:"pallof",s:3,r:"10",p:"1:00"},{e:"deadhang",s:3,r:"45",p:"1:00",unit:"s"}]},
+{n:"Reise · Ganzkörper ohne Geräte",w:"mixed",d:"Funktioniert im Hotelzimmer. Körpergewicht, ein Band im Gepäck reicht. Erhält die Kraft, baut sie nicht auf – das ist in vier Wochen auch nicht das Ziel.",
+ items:[{e:"bulgarian",s:3,r:"12",p:"1:30"},{e:"pushup",s:4,r:"12",p:"1:30"},
+        {e:"walkinglunge",s:3,r:"16",p:"1:30"},{e:"pushupfeet",s:3,r:"10",p:"1:30"},
+        {e:"glutebridge",s:3,r:"15",p:"1:00"},{e:"sideplank",s:3,r:"40",p:"0:45",unit:"s"},
+        {e:"hollow",s:3,r:"30",p:"0:45",unit:"s"}]},
+{n:"Reise · Kraft im Hotelgym",w:"mixed",d:"Für die Tage, an denen ein Studio da ist. Zwei Grundübungen, sonst Maschinen – egal welche vorhanden sind.",
+ items:[{e:"squat",s:4,r:"8",p:"2:30"},{e:"bench",s:4,r:"8",p:"2:30"},
+        {e:"latzugbreit",s:3,r:"12",p:"1:30"},{e:"ohp",s:3,r:"10",p:"1:30"},
+        {e:"rdl",s:3,r:"10",p:"1:30"},{e:"cablecrunch",s:3,r:"15",p:"1:00"}]},
+{n:"Reise · HYROX ohne Geräte",w:"mixed",d:"Fünf der acht Stationen lassen sich auf Reisen ersetzen. Burpee Broad Jumps brauchen nur Platz, Lunges einen Rucksack, Wall Balls werden zu Sprungkniebeugen, der Farmers Carry zu zwei Koffern.",
+ items:[{e:"burpee",s:4,r:"20",p:"1:30",unit:"m"},{e:"walkinglunge",s:4,r:"20",p:"1:30"},
+        {e:"jumpsquat",s:4,r:"20",p:"1:30"},{e:"farmerwalk",s:3,r:"50",p:"1:30",unit:"m"},
+        {e:"pushup",s:3,r:"15",p:"1:00"},{e:"hollow",s:3,r:"40",p:"0:45",unit:"s"}]},
+{n:"Reise · Renntempo kurz",w:"mixed",d:"Vier Kilometer im geplanten Renntempo, dazwischen jeweils ein Satz Burpee Broad Jumps. Der wichtigste Übertrag aufs Rennen – und überall machbar, wo man laufen kann.",
+ items:[{e:"run1k",s:4,r:"1000",p:"0:30",unit:"m"},{e:"burpee",s:3,r:"20",p:"0:20",unit:"m"},
+        {e:"jumpsquat",s:3,r:"20",p:"0:20"}]},
+{n:"Reise · Intervalle kurz",w:"mixed",d:"Draußen, ohne Bahn, ohne Uhr am Boden. Sechs mal eine Minute zügig, dazwischen zwei Minuten traben – reicht, um die Schärfe zu halten.",
+ items:[{e:"run1k",s:1,r:"2000",p:"0:30",unit:"m"},{e:"quickfeet",s:6,r:"60",p:"2:00",unit:"s"},
+        {e:"burpeeplain",s:3,r:"10",p:"1:00"},{e:"hollow",s:3,r:"30",p:"0:45",unit:"s"}]},
+{n:"HYROX Doubles · Stationen",w:"mixed",d:"Alle acht Stationen in Rennreihenfolge, Volumen auf den Doubles-Anteil halbiert. Technik und Krafteinsatz lernen, bevor es unter Puls geht.",
+ items:[{e:"skierg",s:3,r:"500",p:"2:00",unit:"m"},{e:"sledpush",s:3,r:"25",p:"2:00",unit:"m"},
+        {e:"sledpull",s:3,r:"25",p:"2:00",unit:"m"},{e:"burpee",s:3,r:"20",p:"1:30",unit:"m"},
+        {e:"row",s:3,r:"500",p:"2:00",unit:"m"},{e:"farmerwalk",s:3,r:"50",p:"1:30",unit:"m"},
+        {e:"sandbaglunge",s:3,r:"25",p:"1:30",unit:"m"},{e:"wallballs",s:3,r:"25",p:"1:30"}]},
+{n:"HYROX Doubles · Renntempo allein",w:"mixed",d:"Acht mal ein Kilometer im vereinbarten Renntempo, dazwischen jeweils eine halbe Station. Simuliert genau das, was im Rennen passiert – und funktioniert ohne Partnerin.",
+ items:[{e:"run1k",s:8,r:"1000",p:"0:30",unit:"m"},{e:"wallballs",s:4,r:"25",p:"0:20"},
+        {e:"sledpush",s:2,r:"25",p:"0:20",unit:"m"},{e:"burpee",s:2,r:"20",p:"0:20",unit:"m"}]},
+{n:"HYROX Doubles · Laufen unter Last",w:"mixed",d:"Station, dann sofort einen Kilometer im Renntempo. Im Doubles halbiert sich die Stationsarbeit, das Laufen nicht – deshalb liegt hier der Schwerpunkt.",
+ items:[{e:"run1k",s:4,r:"1000",p:"0:20",unit:"m"},{e:"sledpush",s:4,r:"25",p:"0:20",unit:"m"},
+        {e:"wallballs",s:4,r:"25",p:"0:20"},{e:"burpee",s:4,r:"20",p:"0:20",unit:"m"}]},
+{n:"HYROX Doubles · Simulation halbe Distanz",w:"mixed",d:"Vier Kilometer, vier Stationen, Wettkampfreihenfolge, Stationsvolumen wie im Doubles. Zum Einteilen lernen, etwa 85 Prozent Renntempo.",
+ items:[{e:"run1k",s:4,r:"1000",p:"0:20",unit:"m"},{e:"skierg",s:1,r:"500",p:"0:20",unit:"m"},
+        {e:"sledpush",s:1,r:"25",p:"0:20",unit:"m"},{e:"burpee",s:1,r:"40",p:"0:20",unit:"m"},
+        {e:"wallballs",s:1,r:"50",p:"0:20"}]},
+{n:"HYROX Doubles · Generalprobe",w:"mixed",d:"Volle acht Kilometer, Stationen im Doubles-Anteil. Zwei bis drei Wochen vor dem Rennen einmal – am besten mit der Partnerin, um Übergaben und Tempo abzustimmen.",
+ items:[{e:"run1k",s:8,r:"1000",p:"0:20",unit:"m"},{e:"skierg",s:1,r:"500",p:"0:20",unit:"m"},
+        {e:"sledpush",s:1,r:"25",p:"0:20",unit:"m"},{e:"sledpull",s:1,r:"25",p:"0:20",unit:"m"},
+        {e:"burpee",s:1,r:"40",p:"0:20",unit:"m"},{e:"row",s:1,r:"500",p:"0:20",unit:"m"},
+        {e:"farmerwalk",s:1,r:"100",p:"0:20",unit:"m"},{e:"sandbaglunge",s:1,r:"50",p:"0:20",unit:"m"},
+        {e:"wallballs",s:1,r:"50",p:"0:20"}]},
 {n:"HYROX · Stationen",w:"mixed",d:"Die acht Wettkampfstationen in Rennreihenfolge, mit Pause dazwischen. Technik und Krafteinsatz lernen, bevor es unter Puls geht.",
  items:[{e:"skierg",s:3,r:"500",p:"2:00",unit:"m"},{e:"sledpush",s:4,r:"25",p:"2:00",unit:"m"},
         {e:"sledpull",s:4,r:"25",p:"2:00",unit:"m"},{e:"burpee",s:4,r:"20",p:"1:30",unit:"m"},
@@ -1120,7 +1184,7 @@ const EXCATS=[
  ["Arme",["curl","hammer","scottcurl","inclinecurl","spidercurl","concentration","reversecurl","trizeps","skullcrusher","overheadtri","kickback","jmpress","dips","wristcurl"]],
  ["Rumpf",["beinheben","kneeraise","pallof","plank","sideplank","hollow","deadbug","abwheel","cablecrunch","russian","woodchopper","copenhagen"]],
  ["Griff & Carry",["farmerwalk","suitcase","deadhang","platepinch","wristroller"]],
- ["Kondition",["skierg","row","assaultbikeex","stair","crosstrainerex","jumprope","battleropeex","burpee","burpeeplain","boxjump","mountainclimber","bearcrawl","wallballs","medballslam","sledpush","sledpull","sandbaglunge","sandbagcarry","kbclean","kbsnatch","run1k"]]
+ ["Kondition",["skierg","row","assaultbikeex","stair","crosstrainerex","jumprope","battleropeex","burpee","burpeeplain","boxjump","boxjumpein","bulgarianjump","jumpsquat","quickfeet","mountainclimber","bearcrawl","wallballs","medballslam","sledpush","sledpull","sandbaglunge","sandbagcarry","kbclean","kbsnatch","run1k"]]
 ];
 
 /* ══════════ 9-TAGE-ZYKLUS ══════════
@@ -1141,9 +1205,10 @@ const SLOTS=[
  extra:[{e:"pallof",s:3,r:"10",p:"1:00"},{e:"sideplank",s:3,r:"40",p:"0:45",unit:"s"}]},
 
 {k:"lauf",n:"Intervalle",note:"VO2max",
- why:"<b>Die einzige wirklich harte Laufeinheit.</b> Kurz, intensiv, mit genug Pause – so hebt sie die Decke, ohne die Beine für den nächsten Krafttag zu ruinieren. Gleiche Streckenlänge, unterschiedliches Tempo: ihr startet zusammen und trefft euch nach jedem Intervall wieder.",
+ why:"<b>Gesteuert wird über den Puls, nicht über das Tempo.</b> Helgerud und Kollegen verglichen 2007 vier Protokolle bei gleicher Gesamtarbeit: Vier mal vier Minuten bei 90 bis 95 Prozent der maximalen Herzfrequenz steigerten die VO2max um 7,2 Prozent, kürzere Intervalle um 5,5 Prozent, Dauerlauf und Schwellentraining brachten keine signifikante Veränderung.<br><br><b>Über 95 Prozent gibt es keinen zusätzlichen Reiz</b>, nur zusätzliche Erholungskosten. Wer die ersten Blöcke zu schnell angeht, verliert die letzten – und genau dort entsteht der Großteil der Wirkung.<br><br>In der Pause wird getrabt, nicht gegangen. Dann fällt der Puls nicht zu tief und der nächste Block erreicht den Zielbereich schneller.",
  run:{t:"intervall",warm:"10 Min locker einlaufen, 4 × 20 s Steigerung",
-   main:"5 × 800 m",rest:"2:30 Trabpause",cool:"8 Min auslaufen",zone:"ivl"}},
+   main:"4 × 4 Min",rest:"3:00 traben",cool:"8 Min auslaufen",zone:"ivl",
+   hr:[.90,.95],hrRest:[.68,.73]}},
 
 {k:"kraft",n:"Brust & Schulter",note:"Hauptlift Bankdrücken",warm:"push",
  why:"<b>Schwer drücken, dann aufbauen.</b> Nach dem Bankdrücken nach Prozenten folgt Volumen in verschiedenen Winkeln: schräg für die obere Brust, Fliegende oder Überzug für die Dehnung, hintere Schulter als Gegengewicht. Dreimal dasselbe Drücken wäre verschenkte Zeit.",
@@ -1303,7 +1368,7 @@ const BIG3=["squat","bench","deadlift"];
 
 /* Lauf-Zonen je Athlet (Minuten pro Kilometer) */
 const ZONES={
- yuan:{esy:[6,20,6,50],tmp:[4,40,4,50],ivl:[4,5,4,15],name:"Yuan"},
+ yuan:{esy:[6,20,6,50],tmp:[5,0,5,15],ivl:[4,35,4,50],name:"Yuan"},
  yara:{esy:[6,15,6,45],tmp:[5,25,5,40],ivl:[4,55,5,10],name:"Yara"}
 };
 const MODES={
@@ -1317,7 +1382,7 @@ const ANAME={yuan:"Yuan",yara:"Yara"};
 /* ══════════ SPEICHER ══════════ */
 /* Versionsstand – steht unter Mehr ganz unten. Damit lässt sich prüfen,
    ob auf einem Gerät wirklich die aktuelle Datei läuft. */
-const BUILD={datum:"23.10.2026",nr:61};
+const BUILD={datum:"23.10.2026",nr:71};
 const DEF={
  me:"yuan", start:"2026-10-18", gyms:null, gym:"citygate",
  log:{}, archive:[], checkins:{yuan:{},yara:{}}, protein:{yuan:{},yara:{}},
@@ -1328,7 +1393,8 @@ const DEF={
  sync:{prov:"jsonbin",binId:"6acf9725ac6210605a311174",
    key:"$2a$10$7H8UEB5mTyvwzGbDMMMF7Of3ii1ilQ1AexrMGo4RLxAJYWAHTdRWa",
    auto:true,dev:""},
- bw:{yuan:78,yara:60}, maxes:{yuan:{bench:113,deadlift:130,squat:130},yara:{squat:45,bench:43}}, longBase:{yuan:14,yara:11}, longMax:{yuan:22,yara:19},
+ bw:{yuan:78,yara:60}, maxes:{yuan:{bench:113,deadlift:130,squat:130},yara:{squat:45,bench:43}},
+ hrmax:{yuan:200,yara:0}, longBase:{yuan:14,yara:11}, longMax:{yuan:22,yara:19},
  pullStage:{yuan:5,yara:0}, autoBottom:true, waNum:"", zones:null
 };
 let DB=Object.assign({},DEF);
@@ -1398,7 +1464,9 @@ const CYCLE_DEF={
             "alt:P:Lauf locker & Rumpf|rest",
             "alt:P:Kraft · Kniebeuge schwer|P:Kraft · Kreuzheben schwer",
             "P:Kraft · Zug & Bank leicht","rest"]},
- yara:{mode:"fix",longDay:0,rest:[3,6],
+ /* Ruhetage stehen als "rest" im Wochenplan selbst, nicht in einer eigenen
+    Liste – sonst könnte die Wettkampfautomatik den Mittwoch nicht belegen. */
+ yara:{mode:"fix",longDay:0,rest:[6],
    plan:["long","kraft","rest","kraft","lauf","kraft","rest"],
    /* Feste Woche nach Erholungslogik:
       So Long Run · Mo Oberkörper Druck · Di Intervalle · Mi frei
@@ -1412,11 +1480,12 @@ const CYCLE_DEF={
      basis:      ["long","P:Oberkörper · Druckschwerpunkt",1,"rest",
                   "P:Beine · Kraft und Aufbau","P:Oberkörper · Zugschwerpunkt","rest"],
      // Stationen lernen: Freitag wird Stationentag, die Krafttage bleiben
-     technik:    ["long","P:Oberkörper · Druckschwerpunkt",1,"rest",
-                  "P:Beine · Kraft und Aufbau","P:HYROX · Stationen","rest"],
+     technik:    ["long","P:Oberkörper · Druckschwerpunkt",1,"P:Lauf locker & Rumpf",
+                  "P:Beine · Kraft und Aufbau","P:HYROX Doubles · Stationen","rest"],
      // Spezifisch: Montag Wall Balls, Dienstag Laufen unter Last, Freitag Simulation
-     spezifisch: ["long","P:HYROX · Wall Balls EMOM","P:HYROX · Laufen unter Last","rest",
-                  "P:Beine · Kraft und Aufbau","P:HYROX · Simulation halbe Distanz","rest"],
+     spezifisch: ["long","P:HYROX · Wall Balls EMOM","P:HYROX Doubles · Laufen unter Last",
+                  "P:Lauf locker & Rumpf","P:Beine · Kraft und Aufbau",
+                  "P:HYROX Doubles · Renntempo allein","rest"],
      // Wettkampfwoche: wenig Volumen, Renntempo antippen
      peak:       ["rest","P:Wettkampfwoche · Schärfen",1,"rest",
                   "P:Wettkampfwoche · Schärfen","rest","rest"]
@@ -1493,15 +1562,46 @@ const cyc=a=>Object.assign({},CYCLE_DEF[a],(DB.cycle||{})[a]||{});
 /* ══════════ WETTKAMPF-PERIODISIERUNG ══════════
    Der Plan verschiebt sich automatisch Richtung Rennen:
    zuerst Grundlage und Muskelaufbau, dann Stationen, zuletzt Spezifik. */
-const RACE_DEF={yara:{date:"2027-03-13",name:"HYROX"},yuan:null};
+/* ══════════ REISEN ══════════
+   In einem Reisezeitraum greift ein eigener Wochenplan: weniger Geräte,
+   mehr Laufen, kürzere Einheiten. Das Ziel ist Erhalt, nicht Aufbau. */
+const TRAVEL_DEF=[{von:"2026-12-16",bis:"2027-01-12",n:"Asienreise",
+  wer:["yuan","yara"],
+  /* Für Yara wettkampfspezifisch: Die Reise fällt in ihre Stationsphase,
+     deshalb Stationsersatz und Renntempo statt allgemeiner Kräftigung. */
+  planFor:{
+    yara:["long","P:Reise · HYROX ohne Geräte","P:Reise · Renntempo kurz","rest",
+          "P:Reise · Kraft im Hotelgym","P:Reise · HYROX ohne Geräte","rest"],
+    yuan:["long","P:Reise · Ganzkörper ohne Geräte","P:Reise · Intervalle kurz","rest",
+          "P:Reise · Kraft im Hotelgym","rest","rest"]},
+  plan:["long","P:Reise · Ganzkörper ohne Geräte","P:Reise · Intervalle kurz","rest",
+        "P:Reise · Kraft im Hotelgym","rest","rest"]}];
+const travels=()=>(DB.travel||TRAVEL_DEF);
+function travelInfo(a,dateStr){
+  const d=dateStr||todayISO();
+  const t=travels().find(x=>(!x.wer||x.wer.includes(a))&&d>=x.von&&d<=x.bis);
+  if(!t)return null;
+  const tage=Math.round((new Date(t.bis+"T12:00:00")-new Date(d+"T12:00:00"))/86400000);
+  return {t,restTage:tage,
+    gesamt:Math.round((new Date(t.bis+"T12:00:00")-new Date(t.von+"T12:00:00"))/86400000)+1};
+}
+/* Erste Woche nach der Rückkehr: bewusst zurückhaltend einsteigen */
+function wiederEinstieg(a,dateStr){
+  const d=dateStr||todayISO();
+  const t=travels().find(x=>!x.wer||x.wer.includes(a));
+  if(!t)return 0;
+  const n=Math.round((new Date(d+"T12:00:00")-new Date(t.bis+"T12:00:00"))/86400000);
+  return (n>0&&n<=7)?n:0;
+}
+const RACE_DEF={yara:{date:"2027-03-17",name:"HYROX Madrid · Women\u2019s Doubles",format:"doubles"},yuan:null};
 const race=a=>((DB.race||{})[a]!==undefined?DB.race[a]:RACE_DEF[a]);
 const PHASES=[
  {id:"basis",n:"Grundlage",min:13,
   d:"Muskelaufbau und Laufgrundlage. Das Rennen ist zur Hälfte ein Lauf – was hier an Grundlagenausdauer und Beinkraft entsteht, trägt später alle acht Stationen."},
- {id:"technik",n:"Stationen lernen",min:7,
-  d:"Der Freitag wird Stationentag: alle acht Stationen in Rennreihenfolge, aber mit Pausen. Es geht um Technik und Krafteinsatz, nicht um Zeit. Die Krafttage bleiben – der Schlitten wird mit Kniebeugen gewonnen, nicht mit Schlittenschieben."},
+ {id:"technik",n:"Stationen auffrischen",min:9,
+  d:"Kurze Phase, weil die Stationen bekannt sind. Der Freitag wird Stationentag – Volumen im Doubles-Anteil, mit Pausen. Es geht ums Wiederfinden der Technik nach längerer Pause, nicht ums Lernen.<br><br>Die Gewichte werden sich leicht anfühlen: In Mixed Doubles galten Männergewichte, in Women's Doubles sind es 102 statt 152 kg am Schlitten und 4 statt 6 kg am Ball."},
  {id:"spezifisch",n:"Spezifisch",min:1,
-  d:"Laufen unter Last und Simulationen. Jetzt zählt der Übergang von der Station aufs Laufband und die Einteilung über acht Kilometer, nicht mehr das Einzelgewicht. Montags Wall Balls als EMOM, um die hundert Wiederholungen aufzubauen."},
+  d:"Laufen unter Last und Simulationen, und zwar früher als sonst. Die Stationen sitzen, die Begrenzung liegt im Laufen: acht Kilometer legt jede selbst zurück, höchstens fünfzehn Sekunden auseinander. Deshalb steht hier das Laufen im Renntempo direkt nach einer Station im Mittelpunkt – acht Wochen lang statt sechs."},
  {id:"peak",n:"Wettkampfwoche",min:0,
   d:"Volumen deutlich runter, Renntempo nur antippen. Die Form ist gemacht – hier geht es nur noch darum, frisch an die Startlinie zu kommen."}
 ];
@@ -1642,7 +1742,44 @@ const PRESTART={k:"rest",n:"Noch nicht gestartet",note:"Der Zyklus beginnt spät
 function sessionFor(dateStr,ath){
   ath=ath||me();
   if(dayNum(dateStr)<0)return {...PRESTART,fixed:1,slot:-1,date:dateStr,cyc:0,pre:1,ath};
+  const tr=travelInfo(ath,dateStr);
+  if(tr){
+    const wd=new Date(dateStr+"T12:00:00").getDay();
+    const v=(((tr.t.planFor||{})[ath])||tr.t.plan||[])[wd];
+    const e=entryToMap(v,-1,dateStr);
+    if(e.fix==="rest")return {...SAT,fixed:1,slot:-1,date:dateStr,cyc:0,ath,reise:tr,
+      n:"Ruhetag auf Reise",note:tr.t.n,
+      why:"<b>Kein Training heute.</b> Auf einer Rundreise kommen schnell fünfzehn bis zwanzig Kilometer Gehen am Tag zusammen – das ist Belastung, auch wenn es sich nicht so anfühlt.<br><br>Zählt als Grundlagenausdauer. Nutz den Tag, iss ordentlich und schlaf genug."};
+    if(e.fix==="long"){
+      const s={...SUN,fixed:1,slot:-1,date:dateStr,cyc:0,ath,reise:tr};
+      s.why="<b>Der wichtigste Erhalt auf der Reise.</b> Ein längerer lockerer Lauf pro Woche hält die Grundlage, auch wenn alles andere wegfällt. Distanz nach Gelegenheit – zehn Kilometer sind genug.";
+      return s;
+    }
+    if(e.fix==="preset"){
+      const p=PRESETS[e.ix];
+      if(p)return {k:"kraft",n:p.n,note:tr.t.n,warm:p.w||"mixed",tpl:1,items:p.items,
+        reise:tr,why:"<b>Reisefassung.</b> "+(p.d||"")+"<br><br>Wenn der Tag es nicht hergibt, lass die Einheit ausfallen statt sie zu hetzen. Vier Wochen Erhalt sind kein Rückschritt.",
+        fixed:1,slot:-1,date:dateStr,cyc:0,ath};
+    }
+  }
   const rc=race(ath);
+  /* Die beiden Tage vor dem Rennen und der Tag danach richten sich nach dem
+     Renndatum, nicht nach dem Wochentag – sonst stünde dort je nach Lage
+     des Wettkampfs eine harte Einheit. */
+  if(rc&&rc.date&&rc.date!==dateStr){
+    const diff=Math.round((new Date(rc.date+"T12:00:00")-new Date(dateStr+"T12:00:00"))/86400000);
+    if(diff===1)return {k:"rest",n:"Tag vor dem Wettkampf",note:"Ruhe und Vorbereitung",
+      fixed:1,slot:-1,date:dateStr,cyc:0,ath,
+      why:"<b>Heute wird nichts mehr besser, nur noch schlechter.</b> Zwanzig Minuten locker gehen oder traben, ein paar Wall Balls und ein kurzer Sled Push zum Wachhalten – mehr nicht.<br><br>Startnummer, Schuhe, Verpflegung und die Absprache mit deiner Partnerin heute klären, nicht morgen früh. Besprecht die Aufteilung jeder Station und ein Zeichen für den Wechsel.<br><br>Früh essen, früh schlafen."};
+    if(diff===2)return {k:"kraft",n:"Zwei Tage vor dem Wettkampf",note:"Kurz schärfen",
+      warm:"mixed",tpl:1,fixed:1,slot:-1,date:dateStr,cyc:0,ath,
+      items:[{e:"run1k",s:2,r:"1000",p:"2:00",unit:"m"},{e:"wallballs",s:2,r:"10",p:"1:30"},
+             {e:"skierg",s:2,r:"250",p:"1:30",unit:"m"}],
+      why:"<b>Kurz, zügig, wenig Volumen.</b> Zwei Kilometer im geplanten Renntempo, dazu ein paar Wiederholungen an zwei Stationen. Die Form ist gemacht – das hier hält nur die Spannung."};
+    if(diff===-1)return {k:"rest",n:"Tag nach dem Wettkampf",note:"Regeneration",
+      fixed:1,slot:-1,date:dateStr,cyc:0,ath,
+      why:"<b>Heute nichts.</b> Spazieren, essen, schlafen. Trag im Protokoll ein, wie das Rennen gelaufen ist – Zeiten, was gut lief, was nicht. Das ist die wertvollste Information für den nächsten Block."};
+  }
   if(rc&&rc.date===dateStr)return {k:"hybrid",n:rc.name,note:"Wettkampftag",fixed:1,slot:-1,
     date:dateStr,cyc:0,ath,raceday:1,
     why:"<b>Heute zählt nichts von dem, was du noch machen könntest – nur das, was du über Monate gemacht hast.</b><br><br>Aufwärmen wie an jedem Trainingstag: fünf Minuten locker, Mobilität, ein paar leichte Wiederholungen an der ersten Station. Dann warm bleiben.<br><br>Die ersten tausend Meter fühlen sich zu langsam an. Genau so sollen sie sich anfühlen."};
@@ -1693,6 +1830,14 @@ function longRun(ath,dateStr){
   let km=Math.min(max,base+build);
   if(deload)km=Math.round(km*0.7);
   return km;
+}
+/* Die wirksame Intensität für VO2max-Intervalle liegt bei 90 bis 95 Prozent
+   der maximalen Herzfrequenz (Helgerud et al. 2007, Med Sci Sports Exerc 39(4)).
+   Darüber entsteht kein zusätzlicher Reiz, nur zusätzliche Erholungskosten. */
+const hrMax=a=>((DB.hrmax||{})[a]||0);
+function hrTxt(a,von,bis){
+  const m=hrMax(a);
+  return m?`${Math.round(m*von)}–${Math.round(m*bis)} bpm`:"";
 }
 function paceTxt(ath,zone){
   const z=(DB.zones[ath]||ZONES[ath])[zone];
@@ -1882,10 +2027,16 @@ function buildSession(ses,ath,raw,modeArg){
       out.push({key:"run1",type:"free",name:"Auslaufen & Dehnen",sub:ses.run.cool,figs:[["Dauer","10 Min"]]});
     } else {
       out.push({key:"run0",type:"free",name:"Einlaufen",sub:ses.run.warm,figs:[["Dauer","10–12 Min"]]});
+      const hrZiel=ses.run.hr?hrTxt(ath,ses.run.hr[0],ses.run.hr[1]):"";
+      const hrPause=ses.run.hrRest?hrTxt(ath,ses.run.hrRest[0],ses.run.hrRest[1]):"";
+      const figs=[["Umfang",ses.run.main]];
+      if(hrZiel)figs.push(["Puls",hrZiel.replace(" bpm","")]);
+      figs.push(["Pace",paceTxt(ath,z)]);
       out.push({key:"run1",type:"run",name:ses.run.main,
-        sub:`Pause dazwischen: ${ses.run.rest} · Zieltempo ${paceTxt(ath,z)} /km`,
-        figs:[["Umfang",ses.run.main],["Pace",paceTxt(ath,z)]],
-        cardio:["dist","pace","time","hr"],how:z==="ivl"?"ivl":"tmp"});
+        sub:hrZiel
+          ? `Puls ${hrZiel} · Pause ${ses.run.rest}${hrPause?" bei "+hrPause:""} · Tempo etwa ${paceTxt(ath,z)} /km`
+          : `Pause dazwischen: ${ses.run.rest} · Zieltempo ${paceTxt(ath,z)} /km`,
+        figs,cardio:["dist","pace","time","hr"],how:z==="ivl"?"ivl":"tmp"});
       out.push({key:"run2",type:"free",name:"Auslaufen",sub:ses.run.cool,figs:[["Dauer","8–10 Min"]]});
     }
     return out;
@@ -2009,7 +2160,7 @@ function buildSession(ses,ath,raw,modeArg){
 const RUNHOW={
  easy:"<b>Steuerung:</b> Durchgehend so langsam, dass ein vollständiges Gespräch möglich ist. Wenn du Sätze abbrechen musst, bist du zu schnell.<br><br><b>Warum das wichtig ist:</b> Der Trainingseffekt des Long Runs kommt aus der Dauer, nicht aus dem Tempo. Zu schnell gelaufen kostet nur Erholung und bringt nichts dazu.",
  tmp:"<b>Gefühl:</b> Angenehm hart. Du könntest Dreiwortsätze sprechen, aber keine Unterhaltung führen.<br><br><b>Häufigster Fehler:</b> Das erste Intervall zu schnell angehen. Das letzte soll das schnellste sein, nicht das erste.",
- ivl:"<b>Gefühl:</b> Hart, aber bis zum Ende gleichmäßig. Die Pause ist Traben, kein Stehenbleiben – das hält den Puls oben und ist Teil des Reizes.<br><br><b>Abbruch:</b> Wenn ein Intervall mehr als fünf Sekunden pro Kilometer langsamer wird als das erste, ist die Einheit vorbei.",
+ ivl:"<b>Der Zielbereich ist der Puls, nicht die Uhr.</b> Vier Minuten so laufen, dass du am Ende jedes Blocks im angegebenen Bereich liegst – das sind 90 bis 95 Prozent deines Maximums.<br><br>Der erste Block fühlt sich zu leicht an. Das ist richtig so: Der Puls braucht etwa 60 bis 90 Sekunden, um den Zielbereich zu erreichen, und die Wirkung entsteht über die gesammelte Zeit dort oben – nicht über den Spitzenwert.<br><br><b>In der Pause traben, nicht gehen.</b> Drei Minuten locker, der Puls soll nicht unter den angegebenen Bereich fallen.<br><br>Wenn du im letzten Block langsamer wirst, war der erste zu schnell.",
  comp:"<b>Darum geht es:</b> Nach der Station fühlen sich die ersten zweihundert Meter falsch an – schwere Beine, hoher Puls, kurzer Schritt. Genau diesen Übergang trainierst du hier.<br><br><b>Technik:</b> Schrittfrequenz bewusst hochhalten statt die Schritte zu verlängern. Das bringt dich schneller zurück in den Rhythmus."
 };
 function HOWOF(k,eq){
@@ -2300,14 +2451,30 @@ function renderHead(){
         ? `${WDL[d.getDay()]} · ${tail}`
         : (s.cyc?`Tag ${s.cyc} von ${rollPlanOf(me()).length} · `:"")+tail;
     })();
+  /* Die Leiste liegt um den gewählten Tag herum, nicht um heute. Dadurch
+     lässt sich beliebig weit zurück- und vorblättern, indem man am Rand
+     weitertippt – und der Monat steht dabei, sobald er wechselt. */
   const rail=document.getElementById("rail");
   rail.innerHTML="";
-  for(let i=-2;i<=8;i++){
-    const dt=new Date(); dt.setDate(dt.getDate()+i);
+  const anker=new Date(selDate+"T12:00:00");
+  let letzterMonat=-1;
+  for(let i=-21;i<=35;i++){
+    const dt=new Date(anker); dt.setDate(dt.getDate()+i);
     const ds=iso(dt), ss=sessionFor(ds);
+    if(dt.getMonth()!==letzterMonat){
+      letzterMonat=dt.getMonth();
+      const m=document.createElement("div");
+      m.className="rmon";
+      m.textContent=dt.toLocaleDateString("de-DE",{month:"short"})+
+        (dt.getFullYear()!==new Date().getFullYear()?" "+String(dt.getFullYear()).slice(2):"");
+      rail.appendChild(m);
+    }
     const b=document.createElement("button");
+    const vergangen=ds<todayISO();
+    const eintrag=vergangen&&((DB.log[ds]||{})[me()])&&
+      Object.keys((DB.log[ds]||{})[me()]).some(k=>k!=="_t");
     b.className="rtile"+(ds===todayISO()?" today":"")+(ds===selDate?" sel":"")
-      +(ss.k==="rest"?" rest":"")+(ss.k!=="rest"?" dual":"");
+      +(ss.k==="rest"?" rest":" dual")+(vergangen?" past":"")+(eintrag?" filled":"");
     const short={kraft:"Kraft",lauf:"Lauf",hybrid:"Hybrid",rest:"Frei"}[ss.k];
     b.innerHTML=`<span class="cyc num">${ss.cyc}</span><span class="rd">${WD[dt.getDay()]}</span>
       <span class="rn num">${dt.getDate()}</span><span class="rk">${short}</span>`;
@@ -2316,6 +2483,22 @@ function renderHead(){
   }
   const act=rail.querySelector(".sel");
   if(act)rail.scrollLeft=Math.max(0,act.offsetLeft-110);
+  // Sprungleiste: zu heute und zu einem beliebigen Datum
+  const jump=document.getElementById("jump");
+  if(jump){
+    const heute=selDate===todayISO();
+    jump.innerHTML=`${heute?"":`<button id="jtoday">Heute</button>`}
+      <button id="jminus">− 7 Tage</button>
+      <button id="jplus">+ 7 Tage</button>
+      <label class="jdate">${new Date(selDate+"T12:00:00").toLocaleDateString("de-DE",{day:"numeric",month:"long",year:"numeric"})}
+        <input type="date" id="jpick" value="${selDate}"></label>`;
+    jump.classList.toggle("off",heute);
+    const schieb=n=>{const d=new Date(selDate+"T12:00:00");d.setDate(d.getDate()+n);selDate=iso(d);render();};
+    document.getElementById("jtoday")?.addEventListener("click",()=>{selDate=todayISO();render();});
+    document.getElementById("jminus").onclick=()=>schieb(-7);
+    document.getElementById("jplus").onclick=()=>schieb(7);
+    document.getElementById("jpick").onchange=e=>{if(e.target.value){selDate=e.target.value;render();}};
+  }
 }
 
 /* ══════════ HEUTE ══════════ */
@@ -2357,6 +2540,20 @@ function renderHeute(){
         ? `Ihr lauft dieselbe Einheit, nur in eurem jeweiligen Tempo. <b>${paceTxt("yuan",ses.run?ses.run.zone:"esy")}</b> und <b>${paceTxt("yara",ses.run?ses.run.zone:"esy")}</b> pro Kilometer.`
         : ses.circuit ? `Gleicher Zirkel, versetzter Start. Fangt an unterschiedlichen Stationen an, dann blockiert ihr euch nicht.`
         : `Gleiche Hauptübungen, im Wechsel am selben Rack. Danach laufen die Zusatzübungen getrennt.`}</div>
+    </div>`;
+  }
+  const trv=travelInfo(ath,selDate), zurueck=wiederEinstieg(ath,selDate);
+  if(trv){
+    h+=`<div class="together" style="border-left-color:var(--both)">
+      <div class="avat" style="background:rgba(232,197,71,.18);color:var(--both)">✈</div>
+      <div class="tw"><b>${esc(trv.t.n)}</b> · noch ${trv.restTage} Tage<br>
+      <span style="font-size:11.5px">Reisefassung des Plans: weniger Geräte, mehr Laufen. Erhalten statt aufbauen.</span></div>
+    </div>`;
+  } else if(zurueck){
+    h+=`<div class="together" style="border-left-color:var(--warn)">
+      <div class="avat" style="background:rgba(214,169,74,.18);color:var(--warn)">${zurueck}</div>
+      <div class="tw"><b>Tag ${zurueck} nach der Reise</b><br>
+      <span style="font-size:11.5px">Erste Woche zurück: mit dem Leicht-Modus einsteigen und beim Hauptlift zehn Prozent abziehen. Nach vier Wochen ohne schwere Lasten ist die Sehne nicht dort, wo der Muskel ist.</span></div>
     </div>`;
   }
   const upd=DB.ghLast;
@@ -3679,6 +3876,12 @@ function renderForm(){
   Die Zahlen sind nicht zum Vergleichen gedacht, sondern zum Abgleichen: Wenn einer von euch deutlich mehr Umfang fährt, passt die gemeinsame Planung nicht mehr.</div></div>`;
   document.getElementById("p-form").innerHTML=h;
   document.querySelectorAll("[data-fv]").forEach(b=>b.onclick=()=>{formView=b.dataset.fv;renderForm();scrollTop();});
+  document.getElementById("hrm")?.addEventListener("input",e=>{
+    DB.hrmax=DB.hrmax||{};
+    const v=parseInt(e.target.value,10);
+    DB.hrmax[a]=(v>120&&v<230)?v:0;
+    save();});
+  document.getElementById("hrm")?.addEventListener("blur",()=>rProfil());
   document.getElementById("cuetog")?.addEventListener("click",()=>{
     DB.cueOff=(DB.cueOff!==true);save();rProfil();});
   document.getElementById("ttstog")?.addEventListener("click",()=>{
@@ -3934,6 +4137,8 @@ function renderMehr(){
   if(v==="vorlagen")return rTemplates();
   if(v==="update")return rUpdate();
   if(v==="swaps")return rSwaps();
+  if(v==="split")return rSplit();
+  if(v==="reisen")return rTravel();
   if(v==="race")return rRace();
   if(v==="msgs")return rMsgs();
   if(v==="tests")return (testEdit?rTestEdit():rTests());
@@ -3943,6 +4148,8 @@ function renderMehr(){
     <div class="sec">Training</div>
     <button class="mi" data-v="gyms"><span class="mg">⌁</span><span class="md">Gyms & Geräte<div class="ms">${esc(curGym().n)} · ${curGym().eq.length} Geräte hinterlegt</div></span><span class="ma">›</span></button>
     <button class="mi" data-v="msgs"><span class="mg">✉</span><span class="md">Nachrichten${(()=>{const n=unread(ath);return n?` <span style="background:var(--me);color:#0E1116;border-radius:9px;padding:1px 7px;font-size:11px;margin-left:5px">${n}</span>`:"";})()}<div class="ms">${(()=>{const l=msgs().slice().sort((a,b)=>b.at-a.at)[0];return l?esc(l.txt.slice(0,38))+(l.txt.length>38?"…":""):"noch keine";})()}</div></span><span class="ma">›</span></button>
+    ${race(ath)?`<button class="mi" data-v="split"><span class="mg">⇄</span><span class="md">Rennplan Doubles<div class="ms">Aufteilung der Stationen und Renntempo</div></span><span class="ma">›</span></button>`:""}
+    <button class="mi" data-v="reisen"><span class="mg">✈</span><span class="md">Reisen<div class="ms">${(()=>{const t=travelInfo(ath);if(t)return esc(t.t.n)+" · noch "+t.restTage+" Tage";const n=travels().filter(x=>x.bis>=todayISO()).length;return n?n+" geplant":"keine geplant";})()}</div></span><span class="ma">›</span></button>
     <button class="mi" data-v="race"><span class="mg">◎</span><span class="md">Wettkampf<div class="ms">${(()=>{const r=raceInfo(ath);return r&&!r.past?esc(r.r.name)+" in "+r.days+" Tagen · "+esc(r.phase.n):"kein Ziel eingetragen";})()}</div></span><span class="ma">›</span></button>
     <button class="mi" data-v="tests"><span class="mg">⌁</span><span class="md">Messungen<div class="ms">${(()=>{const w=weeksSinceTest(ath);return w===999?"noch keine Messung":w>=TESTIVL?"fällig – letzte vor "+w+" Wochen":"zuletzt vor "+w+" Wochen";})()}</div></span><span class="ma">›</span></button>
     <button class="mi" data-v="swaps"><span class="mg">⇄</span><span class="md">Getauschte Übungen<div class="ms">${(()=>{const n=Object.keys(DB.swaps||{}).length;return n?n+" aktiv – weicht vom Plan ab":"keine";})()}</div></span><span class="ma">›</span></button>
@@ -4216,6 +4423,21 @@ function rProfil(){
       <div class="frow" style="margin-bottom:0"><label>Intervalle</label><div class="r2">
         <input class="inp" id="z4" value="${f(z.ivl[0],z.ivl[1])}" placeholder="4:05">
         <input class="inp" id="z5" value="${f(z.ivl[2],z.ivl[3])}" placeholder="4:15"></div></div>
+    </div>
+    <div class="card"><h4>Maximale Herzfrequenz</h4>
+      <div style="font-size:12.5px;color:var(--mid);line-height:1.65;margin-bottom:11px">
+      Darauf beziehen sich die Pulsbereiche der Intervalle. Trag den höchsten Wert ein,
+      den du in einer harten Einheit tatsächlich gesehen hast – nicht die Faustformel
+      220 minus Alter, die liegt bei vielen zehn bis fünfzehn Schläge daneben.</div>
+      <div class="erow"><span class="elbl">Maximalpuls</span>
+        <input class="inp num" type="number" inputmode="numeric" id="hrm" value="${hrMax(a)||""}" placeholder="z.B. 195">
+        <span class="u">bpm</span></div>
+      ${hrMax(a)?`<div style="font-size:12.5px;color:var(--mid);line-height:1.8;margin-top:11px">
+        Intervalle 90–95 %: <b style="color:var(--me)">${hrTxt(a,.90,.95)}</b><br>
+        Trabpause 68–73 %: ${hrTxt(a,.68,.73)}<br>
+        Long Run bis 75 %: unter ${Math.round(hrMax(a)*.75)} bpm</div>`
+        :`<div style="font-size:12px;color:var(--warn);line-height:1.55;margin-top:9px">
+        Ohne Maximalpuls laufen die Intervalle nur über das Tempo – das ist ungenauer.</div>`}
     </div>
     <div class="card"><h4>Signale in der Satzpause</h4>
       <div style="font-size:12.5px;color:var(--mid);line-height:1.6;margin-bottom:11px">
@@ -5004,6 +5226,8 @@ const TESTS=[
   h:"10 Min einlaufen, 4 Steigerungen. Gleichmäßig laufen, zweite Hälfte schneller als die erste. Zeit und Durchschnittspuls notieren."},
  {id:"runlong",t:"Basis-Long-Run",g:"lauf",unit:"km",
   h:"Betont locker, durchgehend Gesprächstempo. Distanz, Pace und Durchschnittspuls eintragen."},
+ {id:"hrmax",t:"Höchster Puls der letzten Wochen",g:"lauf",unit:"bpm",
+  h:"Der höchste Wert aus einer harten Einheit, etwa dem Ende eines Intervalls oder eines Zeitlaufs. Darauf beziehen sich alle Pulsbereiche."},
  {id:"bw",t:"Körpergewicht",g:"koerper",unit:"kg",h:"Morgens nüchtern, vor dem Frühstück."},
  {id:"thigh",t:"Oberschenkelumfang",g:"koerper",unit:"cm",h:"Entspannt, in der Mitte zwischen Knie und Hüfte. Immer dieselbe Stelle messen."},
  {id:"glute",t:"Gesäßumfang",g:"koerper",unit:"cm",h:"An der breitesten Stelle."},
@@ -5050,6 +5274,8 @@ function applyTest(tid){
     const mx=testMax(t.v[k]);
     if(mx){DB.maxes=DB.maxes||{};DB.maxes[a]=DB.maxes[a]||{};DB.maxes[a][k]=mx;n++;}
   });
+  const hm=parseInt((t.v.hrmax||{}).kg,10);
+  if(hm>120&&hm<230){DB.hrmax=DB.hrmax||{};DB.hrmax[a]=hm;n++;}
   const bw=parseFloat((t.v.bw||{}).kg);
   if(bw){DB.bw[a]=bw;n++;}
   const z=zonesFrom2k((t.v.run2k||{}).val);
@@ -5887,6 +6113,118 @@ function rSwaps(){
     save();rSwaps();toast("Übung entfernt");});
 }
 
+/* Aufteilung der Stationen. Ohne gemeinsames Training muss sie vorher
+   feststehen und ohne Übung funktionieren – also feste Anteile mit klarem
+   Wechselpunkt statt freiem Tagging. */
+const SPLIT_DEF=[
+ ["SkiErg","1000 m","Yara 600 m, dann Wechsel","Oberkörper – schont die Beine fürs Laufen"],
+ ["Sled Push","50 m","Partnerin 2 Bahnen, Yara 2","Beinlastig, Partnerin beginnt"],
+ ["Sled Pull","50 m","Partnerin 2 Bahnen, Yara 2","Partnerin beginnt"],
+ ["Burpee Broad Jumps","80 m","Partnerin 50 m, Yara 30 m","Teuerste Station für die Beine"],
+ ["Rudern","1000 m","Yara 600 m, dann Wechsel","Oberkörper – Yaras Anteil"],
+ ["Farmers Carry","200 m","Partnerin 120 m, Yara 80 m","Griffkraft, Partnerin stärker"],
+ ["Sandbag Lunges","100 m","Partnerin 60 m, Yara 40 m","Direkt vor den Wall Balls"],
+ ["Wall Balls","100 Wdh","Partnerin 60, Yara 40","Wechsel bei 30 / 60 / 80"]
+];
+function rSplit(){
+  const a=me();
+  const sp=DB.splitPlan||SPLIT_DEF;
+  const tempo=DB.racePace||"6:00";
+  let h=back+`<h1 style="font-size:25px;font-weight:800;letter-spacing:-.02em;margin-bottom:5px">Rennplan Doubles</h1>
+    <div style="font-size:13px;color:var(--mid);line-height:1.6;margin-bottom:16px">
+    Ohne gemeinsames Training muss die Aufteilung vorher feststehen. Feste Anteile mit
+    klarem Wechselpunkt – kein spontanes Abwechseln, das übt man sonst wochenlang.</div>
+    <div class="card">
+      <div class="lbl">Gemeinsames Renntempo</div>
+      <div class="erow"><span class="elbl">pro Kilometer</span>
+        <input class="inp num" type="text" inputmode="numeric" id="rpace" value="${esc(tempo)}" placeholder="6:00">
+        <span class="u">/km</span></div>
+      <div style="font-size:12px;color:var(--mid);line-height:1.65;margin-top:10px">
+      Das ist <b>Yaras</b> Tempo, nicht das Mittel aus beiden. Beim Doubles kostet Vorauslaufen
+      eine Strafminute – das Team ist so schnell wie die Langsamere. Acht Kilometer in diesem
+      Tempo ergeben ${(()=>{const p=(tempo||"6:00").split(":");const s=(+p[0]*60+ +(p[1]||0))*8;
+        return Math.floor(s/60)+":"+String(s%60).padStart(2,"0");})()} reine Laufzeit.</div>
+    </div>
+    <div class="sec">Aufteilung je Station</div>`;
+  sp.forEach((r,i)=>{
+    h+=`<div class="ex"><div class="exh"><div class="exn">
+      <div class="nm">${esc(r[0])} <span style="color:var(--dim);font-weight:400">· ${esc(r[1])}</span></div>
+      <div class="sb">${esc(r[3])}</div></div></div>
+      <div style="padding:9px 13px 12px">
+        <input class="inp" data-sp="${i}" value="${esc(r[2])}" style="width:100%;font-size:13.5px">
+      </div></div>`;
+  });
+  h+=`<div style="height:12px"></div>
+    <button class="btn btn-go" id="spshare">Rennplan an die Partnerin schicken</button>
+    <button class="btn" id="spreset">Auf Vorschlag zurücksetzen</button>
+    <div class="card" style="margin-top:14px"><h4>Was ihr ohne gemeinsames Training klären müsst</h4>
+      <div style="font-size:13px;color:var(--mid);line-height:1.85">
+      <b style="color:var(--ink)">Wer beginnt jede Station.</b> Steht oben, auswendig lernen.<br>
+      <b style="color:var(--ink)">Ein Wort für den Wechsel.</b> Ein kurzes Kommando, das in der Halle hörbar ist.<br>
+      <b style="color:var(--ink)">Das Lauftempo vorher festlegen</b> und beide allein darauf trainieren.
+      Die Partnerin muss bewusst langsamer laufen, als sie könnte – das ist schwerer als es klingt.<br>
+      <b style="color:var(--ink)">Einen Treffpunkt am Vortag.</b> Zwanzig Minuten vor Ort, jede Station
+      einmal ansehen und die Übergabe trocken durchgehen. Das ersetzt kein gemeinsames Training,
+      verhindert aber die teuersten Fehler.</div></div>`;
+  document.getElementById("p-mehr").innerHTML=h;
+  const schreib=()=>{DB.splitPlan=sp;save();};
+  document.getElementById("rpace").oninput=e=>{DB.racePace=e.target.value;save();};
+  document.getElementById("rpace").onblur=e=>{DB.racePace=clockFmt(e.target.value);save();rSplit();};
+  document.querySelectorAll("[data-sp]").forEach(el=>el.oninput=()=>{
+    sp[+el.dataset.sp][2]=el.value;schreib();});
+  document.getElementById("spreset").onclick=()=>{
+    delete DB.splitPlan;save();rSplit();toast("Zurückgesetzt");};
+  document.getElementById("spshare").onclick=()=>{
+    const txt="HYROX Doubles – unser Rennplan\n\nTempo: "+(DB.racePace||"6:00")+" /km, zusammen bleiben\n\n"+
+      sp.map(r=>r[0]+" ("+r[1]+"): "+r[2]).join("\n")+
+      "\n\nWechselwort vereinbaren. Treffpunkt am Vortag zum Durchgehen.";
+    shareText(txt);};
+}
+
+/* ─── Reisen ─── */
+function rTravel(){
+  const list=travels();
+  let h=back+`<h1 style="font-size:25px;font-weight:800;letter-spacing:-.02em;margin-bottom:5px">Reisen</h1>
+    <div style="font-size:13px;color:var(--mid);line-height:1.6;margin-bottom:16px">
+    In einem Reisezeitraum greift ein eigener Wochenplan: Körpergewicht statt Hanteln,
+    mehr Laufen, kürzere Einheiten. Das Ziel ist Erhalt – vier Wochen ohne Zuwachs sind
+    kein Rückschritt, vier Wochen mit schlechtem Gewissen schon.</div>`;
+  list.forEach((t,i)=>{
+    const drin=todayISO()>=t.von&&todayISO()<=t.bis;
+    const tage=Math.round((new Date(t.bis+"T12:00:00")-new Date(t.von+"T12:00:00"))/86400000)+1;
+    h+=`<div class="card" style="${drin?"border-color:var(--both)":""}">
+      <div class="lbl">${drin?"Läuft gerade":"Geplant"}</div>
+      <div style="font-size:17px;font-weight:650;margin:2px 0 8px">${esc(t.n)}</div>
+      <div class="r2">
+        <div><div class="lbl">Von</div><input class="inp" type="date" data-tvvon="${i}" value="${t.von}" style="width:100%"></div>
+        <div><div class="lbl">Bis</div><input class="inp" type="date" data-tvbis="${i}" value="${t.bis}" style="width:100%"></div>
+      </div>
+      <div style="font-size:12px;color:var(--mid);line-height:1.6;margin-top:9px">
+      ${tage} Tage · gilt für ${(t.wer||ATH).map(x=>ANAME[x]).join(" und ")}</div>
+      <div style="font-size:12.5px;color:var(--mid);line-height:1.8;margin-top:11px">
+        ${[1,2,3,4,5,6,0].map(wd=>{const [n]=entryLabel((((t.planFor||{})[me()])||t.plan||[])[wd]);
+          return WD[wd]+" "+(n==="Ruhetag"?"frei":esc(n.replace("Reise · ","")));}).join("<br>")}</div>
+      <button class="btn btn-r" data-tvdel="${i}" style="margin:12px 0 0">Reise entfernen</button>
+    </div>`;
+  });
+  h+=`<button class="btn" id="tvadd">Reisezeitraum hinzufügen</button>`;
+  document.getElementById("p-mehr").innerHTML=h;
+  const schreib=()=>{DB.travel=list;save();rTravel();};
+  document.querySelectorAll("[data-tvvon]").forEach(el=>el.onchange=()=>{
+    list[+el.dataset.tvvon].von=el.value;schreib();});
+  document.querySelectorAll("[data-tvbis]").forEach(el=>el.onchange=()=>{
+    list[+el.dataset.tvbis].bis=el.value;schreib();});
+  document.querySelectorAll("[data-tvdel]").forEach(b=>b.onclick=()=>{
+    list.splice(+b.dataset.tvdel,1);schreib();});
+  document.getElementById("tvadd").onclick=()=>{
+    const heute=todayISO();
+    const bis=new Date(heute+"T12:00:00");bis.setDate(bis.getDate()+14);
+    list.push({von:heute,bis:iso(bis),n:"Reise",wer:[...ATH],
+      plan:["long","P:Reise · Ganzkörper ohne Geräte","P:Reise · Intervalle kurz","rest",
+            "P:Reise · Kraft im Hotelgym","rest","rest"]});
+    schreib();};
+}
+
 /* ─── Wettkampf ─── */
 function rRace(){
   const a=me(), r=race(a), ri=raceInfo(a);
@@ -6371,6 +6709,12 @@ function fullExport(){
       ` · noch ${ri.days} Tage · Phase ${ri.phase.n}`+(phaseAuto(a)?" (Automatik aktiv)":" (von Hand gesetzt)"));
   });
   out.push("");
+  out.push("── REISEN ──");
+  const tl=travels().filter(x=>x.bis>=DB.start);
+  if(!tl.length)out.push("  keine");
+  else tl.forEach(t=>out.push("  "+t.n+": "+new Date(t.von+"T12:00:00").toLocaleDateString("de-DE")+
+    " bis "+new Date(t.bis+"T12:00:00").toLocaleDateString("de-DE")+" · "+(t.wer||ATH).map(x=>ANAME[x]).join(", ")));
+  out.push("");
   out.push("── AKTUELLE WOCHENSTRUKTUR ──");
   ATH.forEach(a=>{
     const c=cyc(a);
@@ -6633,7 +6977,7 @@ function mergeRemote(r){
     if(DB.msgs.length>200)DB.msgs=DB.msgs.sort((a,b)=>a.at-b.at).slice(-200);
   }
   // Einstellungen: der zuletzt gespeicherte Stand gewinnt
-  const cfg=["gyms","customEq","customEx","exEq","tests","race","gh","bestStreak","planSince","waveOff","best","cycle","start","maxes","bw","zones","longBase","longMax",
+  const cfg=["gyms","customEq","customEx","exEq","tests","race","travel","gh","hrmax","bestStreak","planSince","waveOff","best","cycle","start","maxes","bw","zones","longBase","longMax",
     "pullStage","swaps","waNum","archive","reviewDone","gym","templates","custom"];
   if((r.cfgTs||0)>(DB.cfgTs||0)){
     cfg.forEach(k=>{if(r[k]!==undefined){DB[k]=r[k];changed++;}});
