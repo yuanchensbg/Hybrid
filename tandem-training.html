@@ -93,6 +93,10 @@ header{flex:0 0 auto;background:var(--bg);border-bottom:1px solid var(--line);
 .rtile.past.filled{opacity:1}
 .rtile.filled::after{content:"";position:absolute;bottom:5px;left:50%;transform:translateX(-50%);
   width:16px;height:2px;border-radius:1px;background:var(--ok)}
+.scibtn{display:block;width:100%;text-align:left;background:var(--surf2);border:1px solid var(--line);
+  border-radius:10px;padding:9px 11px;margin-bottom:7px;color:var(--ink);font:inherit;font-size:12.5px;
+  line-height:1.5;cursor:pointer}
+.scibtn span{color:var(--mid);font-size:12px}
 .jump{display:flex;align-items:center;gap:7px;padding:0 15px 9px;overflow-x:auto;-webkit-overflow-scrolling:touch}
 .jump.off{padding-bottom:9px}
 .jump button{flex:0 0 auto;padding:6px 12px;border-radius:9px;border:1px solid var(--line);
@@ -713,6 +717,11 @@ const EX={
  burpeeplain:{n:"Burpees",o:[],a:["burpee","boxjump"],h:"Brust zum Boden, hoch, Hände über dem Kopf zusammen."},
  jumpsquat:{n:"Sprungkniebeuge",o:["matten"],a:["boxjump","wallballs","goblet"],
   h:"Tiefe Kniebeuge, explosiv nach oben, weich landen und direkt in die nächste gehen.<br><br><b>Warum:</b> Auf Reisen der nächste Verwandte zum Wall Ball – gleiche Bewegung, gleiche Ermüdung in den Oberschenkeln, nur ohne Ball und ohne Wand."},
+ slrdl:{n:"Einbeiniges Kreuzheben",o:["kurzhantel","kettlebell","langhantel","matten"],
+  a:["rdl","goodmorning","beincurlsitz"],
+  h:"Standbein leicht gebeugt, Hüfte nach hinten schieben, freies Bein streckt nach hinten. Rücken flach, Becken bleibt waagrecht.<br><br><b>Warum:</b> Trainiert die Oberschenkelrückseite in derselben einbeinigen Position, in der sie beim Laufen arbeitet, und deckt Seitenunterschiede auf. Ohne Gewicht reisetauglich, mit Kurzhantel voll belastbar."},
+ bound:{n:"Einbeinige Sprünge nach vorn",o:["matten"],a:["boxjumpein","boxjump","bulgarianjump"],
+  h:"Aus dem Stand auf einem Bein so weit wie möglich nach vorn, weich landen, kurz stabilisieren, zurück. Pro Seite die angegebene Zahl.<br><br><b>Warum diese und nicht Box Jumps einbeinig:</b> Laufen ist eine einbeinige Bewegung nach vorn, kein beidbeiniger Sprung nach oben. Die Metaanalyse von 2025 (Sports Biomechanics) zeigt: Einbeiniges Sprungtraining verbessert einbeinige Sprungleistung, beidbeiniges die beidbeinige – der Übertrag ist richtungs- und beinspezifisch.<br><br>Für die Laufökonomie waren beide Formen in der Elfwochenstudie von Greenwood gleichwertig (5,6 gegenüber 4,9 Prozent), einbeiniges Training steigerte zusätzlich die einbeinige Maximalkraft um vierzehn Prozent."},
  boxjumpein:{n:"Box Jumps einbeinig",o:["box"],a:["boxjump","stepup"],
   h:"Niedrige Box, ein Bein. Weich landen, das Knie bleibt über dem Fuß.<br><br><b>Warum:</b> Deckt Seitenunterschiede in der Sprungkraft auf, die beidbeinig verborgen bleiben – und genau diese Unterschiede zeigen sich später beim Laufen."},
  bulgarianjump:{n:"Bulgarian Split Squat Jumps",o:["box","bank"],a:["bulgarian","lunge"],
@@ -948,32 +957,31 @@ const PRESETS=[
 {n:"Pull · Ziehen",w:"pull",d:"Rücken, hintere Schulter, Bizeps.",
  items:[{e:"pullup",s:4,r:"6",p:"2:00"},{e:"rudern",s:4,r:"10",p:"2:00"},{e:"latzugbreit",s:3,r:"12",p:"1:30"},
         {e:"facepull",s:3,r:"15",p:"1:00"},{e:"curl",s:3,r:"12",p:"1:00"}]},
-{n:"Oberkörper · Druckschwerpunkt",w:"push",d:"Schweres Drücken, Zugvolumen als Gegengewicht, zum Schluss Rumpfstabilität gegen Rotation.",
+{n:"Oberkörper · Druckschwerpunkt",w:"push",sci:["blagrove","eihara"],d:"Schweres Drücken, Zugvolumen als Gegengewicht, zum Schluss Rumpfstabilität gegen Rotation.",
  items:[{e:"bench",sch:"main",p:"2:30"},{e:"latzugengex",s:4,r:"10",p:"2:00"},
         {e:"ohp",s:3,r:"10",p:"1:30"},{e:"chestrow",s:3,r:"12",p:"1:30"},
-        {e:"straightarm",s:3,r:"14",p:"1:00"},{e:"overheadtri",s:3,r:"12",p:"1:00"},
+        {e:"straightarm",s:3,r:"14",p:"1:00"},{e:"dips",s:3,r:"8",p:"1:30"},
         {e:"pallof",s:3,r:"12",p:"1:00"}]},
-{n:"Beine · Kraft und Aufbau",w:"leg",d:"Sprungkraft zuerst, dann schwere Kniebeuge, danach Rückseite und Rumpf. Die Reihenfolge ist entscheidend – Sprünge auf müde Beine bringen nichts.",
- items:[{e:"boxjump",s:3,r:"6",p:"1:30"},{e:"boxjumpein",s:2,r:"6",p:"1:30"},
-        {e:"bulgarianjump",s:2,r:"6",p:"1:30"},
-        {e:"squat",sch:"main",p:"3:00"},{e:"rdl",s:3,r:"10",p:"2:00"},
-        {e:"beincurlsitz",s:3,r:"12",p:"1:30"},{e:"hipthrust",s:3,r:"10",p:"1:30"},
-        {e:"wade",s:4,r:"12",p:"1:00"},{e:"cablecrunch",s:3,r:"15",p:"1:00"}]},
-{n:"Oberkörper · Zugschwerpunkt",w:"pull",d:"Klimmzug als Hauptziel, obere Brust, konstante Spannung über Kabel, Rumpfrotation zum Abschluss.",
+{n:"Beine · Kraft und Aufbau",w:"leg",sci:["blagrove","eihara","freq","plyoRE","plyoUni","plyoVol"],d:"Sprünge zuerst, dann schwere Kniebeuge, danach Rückseite und Rumpf. Zwei Sprungübungen statt drei – sechzig Bodenkontakte sind der Bereich, in dem die Wirkung nachgewiesen ist, mehr bringt nichts und kostet Erholung.",
+ items:[{e:"boxjump",s:3,r:"6",p:"1:30"},{e:"bound",s:3,r:"7",p:"1:30"},
+        {e:"squat",sch:"main",p:"3:00"},{e:"beincurlsitz",s:3,r:"10",p:"1:30"},
+        {e:"hipthrust",s:3,r:"8",p:"1:30"},{e:"wade",s:4,r:"12",p:"1:00"},
+        {e:"cablecrunch",s:3,r:"15",p:"1:00"}]},
+{n:"Oberkörper · Zugschwerpunkt",w:"pull",sci:["blagrove","freq"],d:"Klimmzug als Hauptziel, obere Brust, konstante Spannung über Kabel, Rumpfrotation zum Abschluss.",
  items:[{e:"pullup",s:4,r:"6–8",p:"2:30"},{e:"incline",s:4,r:"10",p:"2:00"},
-        {e:"tbarrow",s:3,r:"10",p:"1:30"},{e:"onerow",s:3,r:"10",p:"1:30"},
+        {e:"tbarrow",s:3,r:"10",p:"1:30"},{e:"kabelrudern",s:3,r:"10",p:"1:30"},
         {e:"reversefly",s:3,r:"15",p:"1:00"},{e:"inclinecurl",s:3,r:"12",p:"1:00"},
-        {e:"woodchopper",s:3,r:"12",p:"1:00"}]},
-{n:"Kraft · Bankdrücken schwer",w:"push",d:"Bankdrücken nach Prozenten, danach Volumen und ein kurzer Stationsabschluss.",
+        {e:"rdl",s:3,r:"8",p:"2:00"},{e:"hyperext",s:3,r:"12",p:"1:00"},{e:"beinheben",s:3,r:"12",p:"1:00"}]},
+{n:"Kraft · Bankdrücken schwer",w:"push",sci:["eihara"],d:"Bankdrücken nach Prozenten, danach Volumen und ein kurzer Stationsabschluss.",
  items:[{e:"bench",sch:"main",p:"3:30"},{e:"incline",s:3,r:"8",p:"2:00",rpe:8},
         {e:"latzugengex",s:4,r:"10",p:"1:30"},{e:"ohp",s:3,r:"8",p:"2:00"},
         {e:"closegrip",s:3,r:"8",p:"1:30"},{e:"facepull",s:3,r:"15",p:"1:00"},
         {e:"skierg",s:3,r:"250",p:"1:30",unit:"m"}]},
-{n:"Kraft · Kniebeuge schwer",w:"leg",d:"Kniebeuge nach Prozenten, danach Rückseite und Waden. Kreuzheben bleibt heute draußen.",
+{n:"Kraft · Kniebeuge schwer",w:"leg",sci:["blagrove","eihara"],d:"Kniebeuge nach Prozenten, danach Rückseite und Waden. Kreuzheben bleibt heute draußen.",
  items:[{e:"squat",sch:"main",p:"3:30"},{e:"rdl",s:3,r:"8",p:"2:00"},
         {e:"beinpresse",s:3,r:"12",p:"1:30"},{e:"beincurlsitz",s:3,r:"12",p:"1:30"},
         {e:"wade",s:4,r:"12",p:"1:00"}]},
-{n:"Kraft · Kreuzheben schwer",w:"hinge",d:"Kreuzheben nach Prozenten, Frontkniebeuge leicht als Gegenstück, danach Rückseite.",
+{n:"Kraft · Kreuzheben schwer",w:"hinge",sci:["blagrove"],d:"Kreuzheben nach Prozenten, Frontkniebeuge leicht als Gegenstück, danach Rückseite.",
  items:[{e:"deadlift",sch:"main",p:"3:30"},{e:"front",s:3,r:"6",p:"2:30"},
         {e:"beincurlsitz",s:3,r:"12",p:"1:30"},{e:"hyperext",s:3,r:"12",p:"1:00"},
         {e:"wade",s:4,r:"12",p:"1:00"}]},
@@ -988,31 +996,31 @@ const PRESETS=[
 {n:"Reise · Ganzkörper ohne Geräte",w:"mixed",d:"Funktioniert im Hotelzimmer. Körpergewicht, ein Band im Gepäck reicht. Erhält die Kraft, baut sie nicht auf – das ist in vier Wochen auch nicht das Ziel.",
  items:[{e:"bulgarian",s:3,r:"12",p:"1:30"},{e:"pushup",s:4,r:"12",p:"1:30"},
         {e:"walkinglunge",s:3,r:"16",p:"1:30"},{e:"pushupfeet",s:3,r:"10",p:"1:30"},
-        {e:"glutebridge",s:3,r:"15",p:"1:00"},{e:"sideplank",s:3,r:"40",p:"0:45",unit:"s"},
+        {e:"slrdl",s:3,r:"10",p:"1:00"},{e:"sideplank",s:3,r:"40",p:"0:45",unit:"s"},
         {e:"hollow",s:3,r:"30",p:"0:45",unit:"s"}]},
 {n:"Reise · Kraft im Hotelgym",w:"mixed",d:"Für die Tage, an denen ein Studio da ist. Zwei Grundübungen, sonst Maschinen – egal welche vorhanden sind.",
  items:[{e:"squat",s:4,r:"8",p:"2:30"},{e:"bench",s:4,r:"8",p:"2:30"},
         {e:"latzugbreit",s:3,r:"12",p:"1:30"},{e:"ohp",s:3,r:"10",p:"1:30"},
         {e:"rdl",s:3,r:"10",p:"1:30"},{e:"cablecrunch",s:3,r:"15",p:"1:00"}]},
-{n:"Reise · HYROX ohne Geräte",w:"mixed",d:"Fünf der acht Stationen lassen sich auf Reisen ersetzen. Burpee Broad Jumps brauchen nur Platz, Lunges einen Rucksack, Wall Balls werden zu Sprungkniebeugen, der Farmers Carry zu zwei Koffern.",
+{n:"Reise · HYROX ohne Geräte",w:"mixed",sci:["doubles"],d:"Fünf der acht Stationen lassen sich auf Reisen ersetzen. Burpee Broad Jumps brauchen nur Platz, Lunges einen Rucksack, Wall Balls werden zu Sprungkniebeugen, der Farmers Carry zu zwei Koffern.",
  items:[{e:"burpee",s:4,r:"20",p:"1:30",unit:"m"},{e:"walkinglunge",s:4,r:"20",p:"1:30"},
         {e:"jumpsquat",s:4,r:"20",p:"1:30"},{e:"farmerwalk",s:3,r:"50",p:"1:30",unit:"m"},
         {e:"pushup",s:3,r:"15",p:"1:00"},{e:"hollow",s:3,r:"40",p:"0:45",unit:"s"}]},
-{n:"Reise · Renntempo kurz",w:"mixed",d:"Vier Kilometer im geplanten Renntempo, dazwischen jeweils ein Satz Burpee Broad Jumps. Der wichtigste Übertrag aufs Rennen – und überall machbar, wo man laufen kann.",
+{n:"Reise · Renntempo kurz",w:"mixed",sci:["doubles","helgerud"],d:"Vier Kilometer im geplanten Renntempo, dazwischen jeweils ein Satz Burpee Broad Jumps. Der wichtigste Übertrag aufs Rennen – und überall machbar, wo man laufen kann.",
  items:[{e:"run1k",s:4,r:"1000",p:"0:30",unit:"m"},{e:"burpee",s:3,r:"20",p:"0:20",unit:"m"},
         {e:"jumpsquat",s:3,r:"20",p:"0:20"}]},
 {n:"Reise · Intervalle kurz",w:"mixed",d:"Draußen, ohne Bahn, ohne Uhr am Boden. Sechs mal eine Minute zügig, dazwischen zwei Minuten traben – reicht, um die Schärfe zu halten.",
  items:[{e:"run1k",s:1,r:"2000",p:"0:30",unit:"m"},{e:"quickfeet",s:6,r:"60",p:"2:00",unit:"s"},
         {e:"burpeeplain",s:3,r:"10",p:"1:00"},{e:"hollow",s:3,r:"30",p:"0:45",unit:"s"}]},
-{n:"HYROX Doubles · Stationen",w:"mixed",d:"Alle acht Stationen in Rennreihenfolge, Volumen auf den Doubles-Anteil halbiert. Technik und Krafteinsatz lernen, bevor es unter Puls geht.",
+{n:"HYROX Doubles · Stationen",w:"mixed",sci:["doubles"],d:"Alle acht Stationen in Rennreihenfolge, Volumen auf den Doubles-Anteil halbiert. Technik und Krafteinsatz lernen, bevor es unter Puls geht.",
  items:[{e:"skierg",s:3,r:"500",p:"2:00",unit:"m"},{e:"sledpush",s:3,r:"25",p:"2:00",unit:"m"},
         {e:"sledpull",s:3,r:"25",p:"2:00",unit:"m"},{e:"burpee",s:3,r:"20",p:"1:30",unit:"m"},
         {e:"row",s:3,r:"500",p:"2:00",unit:"m"},{e:"farmerwalk",s:3,r:"50",p:"1:30",unit:"m"},
         {e:"sandbaglunge",s:3,r:"25",p:"1:30",unit:"m"},{e:"wallballs",s:3,r:"25",p:"1:30"}]},
-{n:"HYROX Doubles · Renntempo allein",w:"mixed",d:"Acht mal ein Kilometer im vereinbarten Renntempo, dazwischen jeweils eine halbe Station. Simuliert genau das, was im Rennen passiert – und funktioniert ohne Partnerin.",
+{n:"HYROX Doubles · Renntempo allein",w:"mixed",sci:["doubles"],d:"Acht mal ein Kilometer im vereinbarten Renntempo, dazwischen jeweils eine halbe Station. Simuliert genau das, was im Rennen passiert – und funktioniert ohne Partnerin.",
  items:[{e:"run1k",s:8,r:"1000",p:"0:30",unit:"m"},{e:"wallballs",s:4,r:"25",p:"0:20"},
         {e:"sledpush",s:2,r:"25",p:"0:20",unit:"m"},{e:"burpee",s:2,r:"20",p:"0:20",unit:"m"}]},
-{n:"HYROX Doubles · Laufen unter Last",w:"mixed",d:"Station, dann sofort einen Kilometer im Renntempo. Im Doubles halbiert sich die Stationsarbeit, das Laufen nicht – deshalb liegt hier der Schwerpunkt.",
+{n:"HYROX Doubles · Laufen unter Last",w:"mixed",sci:["doubles"],d:"Station, dann sofort einen Kilometer im Renntempo. Im Doubles halbiert sich die Stationsarbeit, das Laufen nicht – deshalb liegt hier der Schwerpunkt.",
  items:[{e:"run1k",s:4,r:"1000",p:"0:20",unit:"m"},{e:"sledpush",s:4,r:"25",p:"0:20",unit:"m"},
         {e:"wallballs",s:4,r:"25",p:"0:20"},{e:"burpee",s:4,r:"20",p:"0:20",unit:"m"}]},
 {n:"HYROX Doubles · Simulation halbe Distanz",w:"mixed",d:"Vier Kilometer, vier Stationen, Wettkampfreihenfolge, Stationsvolumen wie im Doubles. Zum Einteilen lernen, etwa 85 Prozent Renntempo.",
@@ -1184,7 +1192,7 @@ const EXCATS=[
  ["Arme",["curl","hammer","scottcurl","inclinecurl","spidercurl","concentration","reversecurl","trizeps","skullcrusher","overheadtri","kickback","jmpress","dips","wristcurl"]],
  ["Rumpf",["beinheben","kneeraise","pallof","plank","sideplank","hollow","deadbug","abwheel","cablecrunch","russian","woodchopper","copenhagen"]],
  ["Griff & Carry",["farmerwalk","suitcase","deadhang","platepinch","wristroller"]],
- ["Kondition",["skierg","row","assaultbikeex","stair","crosstrainerex","jumprope","battleropeex","burpee","burpeeplain","boxjump","boxjumpein","bulgarianjump","jumpsquat","quickfeet","mountainclimber","bearcrawl","wallballs","medballslam","sledpush","sledpull","sandbaglunge","sandbagcarry","kbclean","kbsnatch","run1k"]]
+ ["Kondition",["skierg","row","assaultbikeex","stair","crosstrainerex","jumprope","battleropeex","burpee","burpeeplain","boxjump","bound","boxjumpein","bulgarianjump","jumpsquat","quickfeet","mountainclimber","bearcrawl","wallballs","medballslam","sledpush","sledpull","sandbaglunge","sandbagcarry","kbclean","kbsnatch","run1k"]]
 ];
 
 /* ══════════ 9-TAGE-ZYKLUS ══════════
@@ -1204,7 +1212,7 @@ const SLOTS=[
  yaraB:[{e:"bulgarian",s:4,r:"12",p:"1:30"},{e:"beinpresse",s:4,r:"15",p:"1:30"},{e:"glutebridge",s:3,r:"12",p:"1:00",drop:1},{e:"wade",s:3,r:"15",p:"1:00",drop:1}],
  extra:[{e:"pallof",s:3,r:"10",p:"1:00"},{e:"sideplank",s:3,r:"40",p:"0:45",unit:"s"}]},
 
-{k:"lauf",n:"Intervalle",note:"VO2max",
+{k:"lauf",n:"Intervalle",note:"VO2max",sci:["helgerud","seiler","concurrent"],
  why:"<b>Gesteuert wird über den Puls, nicht über das Tempo.</b> Helgerud und Kollegen verglichen 2007 vier Protokolle bei gleicher Gesamtarbeit: Vier mal vier Minuten bei 90 bis 95 Prozent der maximalen Herzfrequenz steigerten die VO2max um 7,2 Prozent, kürzere Intervalle um 5,5 Prozent, Dauerlauf und Schwellentraining brachten keine signifikante Veränderung.<br><br><b>Über 95 Prozent gibt es keinen zusätzlichen Reiz</b>, nur zusätzliche Erholungskosten. Wer die ersten Blöcke zu schnell angeht, verliert die letzten – und genau dort entsteht der Großteil der Wirkung.<br><br>In der Pause wird getrabt, nicht gegangen. Dann fällt der Puls nicht zu tief und der nächste Block erreicht den Zielbereich schneller.",
  run:{t:"intervall",warm:"10 Min locker einlaufen, 4 × 20 s Steigerung",
    main:"4 × 4 Min",rest:"3:00 traben",cool:"8 Min auslaufen",zone:"ivl",
@@ -1356,13 +1364,23 @@ function rpeFromPct(p,reps,sets){
    Welle liegt bei 78 Prozent – genug Reiz, ohne in den Maximalbereich zu gehen. */
 /* Nachgerechnet gegen die RPE-Tabelle: 68 Prozent für zwölf Wiederholungen
    wären ein Maximalversuch gewesen, 78 für acht ebenfalls. Beides korrigiert. */
+/* Hauptlifts schwer, Nebenübungen im Wiederholungsbereich.
+   Blagrove, Howatson & Hayes (2018, Sports Medicine 48): Krafttraining
+   verbessert die Laufökonomie um zwei bis acht Prozent, Zeitfahrleistung und
+   Sprintfähigkeit – unabhängig vom Leistungsniveau. Entscheidend ist die Last:
+   schwere Sätze mit höchstens acht Wiederholungen bei mindestens 80 Prozent
+   wirken deutlich besser als fünfzehn und mehr Wiederholungen.
+   Eihara et al. (2022, Sports Medicine Open): schweres Krafttraining g = −0,32
+   gegenüber Plyometrie allein g = −0,13 für die Laufökonomie.
+   Muskelaufbau geht dabei nicht verloren – bei gleicher Anstrengung
+   unterscheiden sich die Wiederholungsbereiche im Zuwachs kaum. */
 const WAVE_HYP=[
- {s:4,r:"10",pct:.65,n:"Aufbau"},
- {s:4,r:"12",pct:.61,n:"Steigerung"},
- {s:4,r:"8",pct:.73,n:"Schwerer Tag"},
- {s:3,r:"10",pct:.58,n:"Entlastung"}
+ {s:4,r:"6",pct:.74,n:"Aufbau"},
+ {s:4,r:"5",pct:.80,n:"Steigerung"},
+ {s:4,r:"4",pct:.85,n:"Schwerer Tag"},
+ {s:3,r:"6",pct:.65,n:"Entlastung"}
 ];
-const WAVE_LIGHT_HYP={s:3,r:"12",pct:.58,n:"Technik"};
+const WAVE_LIGHT_HYP={s:3,r:"8",pct:.68,n:"Technik"};
 const HYP_ATH=["yara"];
 const BIG3=["squat","bench","deadlift"];
 
@@ -1382,7 +1400,7 @@ const ANAME={yuan:"Yuan",yara:"Yara"};
 /* ══════════ SPEICHER ══════════ */
 /* Versionsstand – steht unter Mehr ganz unten. Damit lässt sich prüfen,
    ob auf einem Gerät wirklich die aktuelle Datei läuft. */
-const BUILD={datum:"23.10.2026",nr:71};
+const BUILD={datum:"23.10.2026",nr:75};
 const DEF={
  me:"yuan", start:"2026-10-18", gyms:null, gym:"citygate",
  log:{}, archive:[], checkins:{yuan:{},yara:{}}, protein:{yuan:{},yara:{}},
@@ -1757,7 +1775,7 @@ function sessionFor(dateStr,ath){
     }
     if(e.fix==="preset"){
       const p=PRESETS[e.ix];
-      if(p)return {k:"kraft",n:p.n,note:tr.t.n,warm:p.w||"mixed",tpl:1,items:p.items,
+      if(p)return {k:"kraft",n:p.n,note:tr.t.n,warm:p.w||"mixed",tpl:1,items:p.items,sci:p.sci,
         reise:tr,why:"<b>Reisefassung.</b> "+(p.d||"")+"<br><br>Wenn der Tag es nicht hergibt, lass die Einheit ausfallen statt sie zu hetzen. Vier Wochen Erhalt sind kein Rückschritt.",
         fixed:1,slot:-1,date:dateStr,cyc:0,ath};
     }
@@ -1794,7 +1812,7 @@ function sessionFor(dateStr,ath){
     const t=(e.fix==="preset")?PRESETS[e.ix]
       :(DB.templates||[]).find(x=>x.name===e.name);
     if(t)return {k:"kraft",n:t.n||t.name,note:"Feste Vorlage",warm:t.w||t.warm||"mixed",
-      tpl:1,items:t.items,
+      tpl:1,items:t.items,sci:t.sci,
       why:"<b>Dieser Platz ist mit einer Vorlage belegt.</b> "+(t.d||"Du kannst den Tag jederzeit einzeln anpassen oder die Belegung unter Zyklus &amp; Ruhetage ändern."),
       fixed:1,slot:-1,date:dateStr,cyc:(e.pos>=0?e.pos+1:0),ath};
   }
@@ -2579,7 +2597,7 @@ function renderHeute(){
       <button class="opt" style="margin-top:7px" onclick="restUndo('${selDate}')">Zurück zum Ruhetag</button></div>
     </div>`;
   }
-  h+=`<div class="why">${ses.why}</div>`;
+  h+=`<div class="why">${ses.why}${sciBlock(ses.sci)}</div>`;
 
   if(ses.pre){
     const d0=new Date(DB.start+"T12:00:00");
@@ -4138,6 +4156,7 @@ function renderMehr(){
   if(v==="update")return rUpdate();
   if(v==="swaps")return rSwaps();
   if(v==="split")return rSplit();
+  if(v==="wissen")return rSci();
   if(v==="reisen")return rTravel();
   if(v==="race")return rRace();
   if(v==="msgs")return rMsgs();
@@ -4149,6 +4168,7 @@ function renderMehr(){
     <button class="mi" data-v="gyms"><span class="mg">⌁</span><span class="md">Gyms & Geräte<div class="ms">${esc(curGym().n)} · ${curGym().eq.length} Geräte hinterlegt</div></span><span class="ma">›</span></button>
     <button class="mi" data-v="msgs"><span class="mg">✉</span><span class="md">Nachrichten${(()=>{const n=unread(ath);return n?` <span style="background:var(--me);color:#0E1116;border-radius:9px;padding:1px 7px;font-size:11px;margin-left:5px">${n}</span>`:"";})()}<div class="ms">${(()=>{const l=msgs().slice().sort((a,b)=>b.at-a.at)[0];return l?esc(l.txt.slice(0,38))+(l.txt.length>38?"…":""):"noch keine";})()}</div></span><span class="ma">›</span></button>
     ${race(ath)?`<button class="mi" data-v="split"><span class="mg">⇄</span><span class="md">Rennplan Doubles<div class="ms">Aufteilung der Stationen und Renntempo</div></span><span class="ma">›</span></button>`:""}
+    <button class="mi" data-v="wissen"><span class="mg">§</span><span class="md">Warum so geplant<div class="ms">Die Studien hinter dem Plan</div></span><span class="ma">›</span></button>
     <button class="mi" data-v="reisen"><span class="mg">✈</span><span class="md">Reisen<div class="ms">${(()=>{const t=travelInfo(ath);if(t)return esc(t.t.n)+" · noch "+t.restTage+" Tage";const n=travels().filter(x=>x.bis>=todayISO()).length;return n?n+" geplant":"keine geplant";})()}</div></span><span class="ma">›</span></button>
     <button class="mi" data-v="race"><span class="mg">◎</span><span class="md">Wettkampf<div class="ms">${(()=>{const r=raceInfo(ath);return r&&!r.past?esc(r.r.name)+" in "+r.days+" Tagen · "+esc(r.phase.n):"kein Ziel eingetragen";})()}</div></span><span class="ma">›</span></button>
     <button class="mi" data-v="tests"><span class="mg">⌁</span><span class="md">Messungen<div class="ms">${(()=>{const w=weeksSinceTest(ath);return w===999?"noch keine Messung":w>=TESTIVL?"fällig – letzte vor "+w+" Wochen":"zuletzt vor "+w+" Wochen";})()}</div></span><span class="ma">›</span></button>
@@ -6179,6 +6199,87 @@ function rSplit(){
       sp.map(r=>r[0]+" ("+r[1]+"): "+r[2]).join("\n")+
       "\n\nWechselwort vereinbaren. Treffpunkt am Vortag zum Durchgehen.";
     shareText(txt);};
+}
+
+/* ══════════ TRAININGSWISSENSCHAFT ══════════
+   Jede Programmierentscheidung hat eine Quelle. Hier stehen sie, mit der
+   konkreten Folge für euren Plan. */
+const SCI={
+ blagrove:{a:"Blagrove, Howatson & Hayes",j:2018,q:"Sports Medicine 48(5): 1117–1149",
+  t:"Krafttraining und Laufleistung",
+  f:"Systematische Übersicht über 24 Studien. Krafttraining verbesserte die Laufökonomie um zwei bis acht Prozent gegenüber Kontrollgruppen, dazu Zeitfahrleistung und maximale Sprintgeschwindigkeit – bei Läufern aller Leistungsklassen. VO2max, Laktatwerte und Körperzusammensetzung blieben unverändert.",
+  w:"Zwei Krafttage pro Woche stehen fest im Plan, auch in der Wettkampfvorbereitung. Sie werden nicht gestrichen, wenn es eng wird."},
+ eihara:{a:"Eihara et al.",j:2022,q:"Sports Medicine – Open 8:138",
+  t:"Schwere Lasten gegen Plyometrie",
+  f:"Metaanalyse über 22 Studien. Für die Laufökonomie ergab schweres Krafttraining g = −0,32, Plyometrie allein nur g = −0,13. Leichte bis mittlere Lasten ab fünfzehn Wiederholungen bringen weniger als schwere mit zwölf oder weniger.",
+  w:"Yaras Hauptlifts laufen bei 74 bis 85 Prozent mit vier bis sechs Wiederholungen statt bei 61 bis 73 Prozent mit acht bis zwölf."},
+ helgerud:{a:"Helgerud et al.",j:2007,q:"Med Sci Sports Exerc 39(4): 665–671",
+  t:"Intervallformat für die VO2max",
+  f:"Vierzig Männer, acht Wochen, vier Protokolle bei gleicher Gesamtarbeit. Vier mal vier Minuten bei 90 bis 95 Prozent der maximalen Herzfrequenz: plus 7,2 Prozent VO2max. Fünfzehn mal fünfzehn Sekunden: plus 5,5 Prozent. Dauerlauf bei 70 Prozent und Schwellentraining bei 85 Prozent: keine signifikante Veränderung.",
+  w:"Die Dienstagseinheit ist 4 × 4 Minuten, gesteuert über den Puls statt über das Tempo."},
+ seiler:{a:"Seiler & Kollegen",j:2013,q:"Scand J Med Sci Sports",
+  t:"Mehr Zeit im Zielbereich statt mehr Intensität",
+  f:"Vier mal acht Minuten sammelten mehr Zeit über 90 Prozent der maximalen Herzfrequenz als vier mal vier – bei gleichzeitig niedriger empfundener Anstrengung.",
+  w:"Über 95 Prozent wird nicht gelaufen. Ab Februar wird das Intervall verlängert, nicht verschärft."},
+ plyoRE:{a:"Barrio et al.",j:2023,q:"Kinesiology 55(2): 270–281",
+  t:"Plyometrie wirkt nur zusammen mit Krafttraining",
+  f:"Metaanalyse über zehn Studien. Sprungtraining allein hatte einen vernachlässigbaren Effekt auf die Laufökonomie (ES = 0,19). In Kombination mit Krafttraining ein großer Effekt (ES = 1,34). Mehr als fünfzehn Einheiten, über sieben Wochen, mehr als zweimal wöchentlich wirkten am besten.",
+  w:"Der Sprungblock steht am selben Tag wie die Kniebeuge, nicht als eigene Einheit."},
+ plyoUni:{a:"Metaanalyse einbeinig gegen beidbeinig",j:2025,q:"BMC Sports Sci Med Rehabil 17",
+  t:"Sprungtraining überträgt sich spezifisch",
+  f:"Einbeiniges Sprungtraining verbessert einbeinige Sprungleistung, beidbeiniges die beidbeinige. In der Elfwochenstudie von Greenwood waren beide für die Laufökonomie gleichwertig (5,6 gegenüber 4,9 Prozent), einbeiniges Training steigerte zusätzlich die einbeinige Maximalkraft um vierzehn Prozent.",
+  w:"Statt zweimal auf die Box jetzt einmal beidbeinig und einmal einbeinig nach vorn."},
+ plyoVol:{a:"Übersicht Sprungvolumen",j:2025,q:"mehrere Metaanalysen",
+  t:"Wie viele Bodenkontakte",
+  f:"Einsteiger dreißig bis sechzig Bodenkontakte je Einheit, Fortgeschrittene sechzig bis hundert. Darüber steigt die Belastung schneller als der Nutzen.",
+  w:"Yaras Sprungblock liegt bei genau sechzig Kontakten."},
+ freq:{a:"Schoenfeld, Ogborn & Krieger",j:2016,q:"Sports Medicine 46: 1689–1697",
+  t:"Wie oft eine Muskelgruppe",
+  f:"Metaanalyse über zehn Studien. Zweimaliges Training je Muskelgruppe und Woche brachte bessere Zuwächse als einmaliges (Effektstärke 0,49 gegenüber 0,30). Die Nachfolgearbeit von 2019 mit fünfundzwanzig Studien zeigte allerdings: Bei exakt gleichem Wochenvolumen verschwindet der Unterschied. Entscheidend ist das Wochenvolumen je Muskel – die Frequenz verteilt es nur. Höhere Frequenz lohnt, sobald das Volumen über das hinauswächst, was eine Einheit verarbeiten kann.",
+  w:"Yaras Beinvolumen war mit siebzehn Sätzen an einem Tag zu geballt. Das Hüftscharnier liegt jetzt am Freitag – gleiches Wochenvolumen, auf zwei Tage verteilt."},
+ concurrent:{a:"Wilson et al.",j:2012,q:"J Strength Cond Res 26(8): 2293–2307",
+  t:"Wenn Kraft und Ausdauer zusammenkommen",
+  f:"Metaanalyse zum Interferenzeffekt. Die Störung ist am größten, wenn Ausdauer häufig und lang trainiert wird und wenn gelaufen statt geradelt wird – der Bremsanteil beim Laufen schädigt die Muskulatur stärker. Getrennte Tage oder mindestens mehrere Stunden Abstand mindern den Effekt deutlich.",
+  w:"Kraft und Laufen liegen nie am selben Tag. Zwischen Intervallen am Dienstag und dem Beintag am Donnerstag liegen achtundvierzig Stunden."},
+ doubles:{a:"HYROX Wettkampfregeln",j:2026,q:"offizielles Regelwerk",
+  t:"Was Doubles anders macht",
+  f:"Beide laufen alle acht Kilometer und müssen zusammenbleiben – Vorauslaufen kostet eine Strafminute. Die Stationsvorgaben sind Teamsummen und werden frei aufgeteilt, es arbeitet immer nur eine.",
+  w:"Stationsvolumen im Training halbiert, Laufanteil voll. Ab Januar ein dritter Lauftag."}
+};
+function sciBlock(ids){
+  if(!ids||!ids.length)return "";
+  return `<div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--line)">
+    <div style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);margin-bottom:8px">Grundlage</div>
+    ${ids.filter(i=>SCI[i]).map(i=>{const s=SCI[i];
+      return `<button class="scibtn" onclick="go('mehr','wissen')">
+        <b>${esc(s.a)} (${s.j})</b> · ${esc(s.t)}<br><span>${esc(s.w)}</span></button>`;}).join("")}
+  </div>`;
+}
+function rSci(){
+  let h=back+`<h1 style="font-size:25px;font-weight:800;letter-spacing:-.02em;margin-bottom:5px">Warum so geplant</h1>
+    <div style="font-size:13px;color:var(--mid);line-height:1.6;margin-bottom:16px">
+    Jede Entscheidung im Plan hat eine Quelle. Hier steht, was die Untersuchung gezeigt hat
+    und was daraus für euer Training folgt.</div>`;
+  Object.keys(SCI).forEach(k=>{
+    const s=SCI[k];
+    h+=`<div class="card">
+      <div class="lbl">${esc(s.q)}</div>
+      <div style="font-size:16px;font-weight:650;margin:3px 0 2px">${esc(s.t)}</div>
+      <div style="font-size:12px;color:var(--dim);margin-bottom:9px">${esc(s.a)}, ${s.j}</div>
+      <div style="font-size:13px;color:var(--mid);line-height:1.75">${esc(s.f)}</div>
+      <div style="font-size:13px;color:var(--ink);line-height:1.7;margin-top:11px;
+        background:var(--me-soft);border-radius:10px;padding:10px 12px">
+        <b style="color:var(--me)">Folge für euren Plan:</b> ${esc(s.w)}</div>
+    </div>`;
+  });
+  h+=`<div class="card"><h4>Was daraus nicht folgt</h4>
+    <div style="font-size:13px;color:var(--mid);line-height:1.8">
+    Die Zahlen stammen aus Gruppenmitteln. Einzelne reagieren anders – deshalb stehen im Plan
+    Check-in, Messwoche und die Möglichkeit, jede Übung zu tauschen.<br><br>
+    Eine Untersuchung an trainierten Männern lässt sich nicht ungeprüft auf eine Frau übertragen,
+    und keine der genannten Arbeiten hat HYROX untersucht. Was hier steht, ist die beste
+    verfügbare Grundlage, nicht die Wahrheit.</div></div>`;
+  document.getElementById("p-mehr").innerHTML=h;
 }
 
 /* ─── Reisen ─── */
