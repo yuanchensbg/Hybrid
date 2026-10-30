@@ -1403,7 +1403,7 @@ const ANAME={yuan:"Yuan",yara:"Yara"};
 /* ══════════ SPEICHER ══════════ */
 /* Versionsstand – steht unter Mehr ganz unten. Damit lässt sich prüfen,
    ob auf einem Gerät wirklich die aktuelle Datei läuft. */
-const BUILD={datum:"23.10.2026",nr:79};
+const BUILD={datum:"23.10.2026",nr:81};
 const DEF={
  me:"yuan", start:"2026-10-18", gyms:null, gym:"citygate",
  log:{}, archive:[], checkins:{yuan:{},yara:{}}, protein:{yuan:{},yara:{}},
@@ -3167,6 +3167,7 @@ function woRest(p){
   wrTotal=secs;wrHalf=false;wrSaid=0;wrBeeped=false;
   DB.wrEnd=wrEndAt;save(true);
   document.getElementById("wrest").classList.add("on");
+  keepAliveStart();
   if(DB.cueOff!==true)beepStart();
   wrPaint();
   clearInterval(wrId);
@@ -3236,6 +3237,7 @@ function wrDragInit(){
 }
 function wrEnd(){
   clearInterval(wrId);wrId=null;wrEndAt=0;wrBeeped=false;wrHalf=false;wrSaid=0;
+  keepAliveStop();
   wrSetMini(false);
   if(window.speechSynthesis){try{speechSynthesis.cancel();}catch(e){}}
   delete DB.wrEnd;save(true);
@@ -3244,8 +3246,10 @@ function wrEnd(){
 }
 /* Nach Rückkehr aus dem Hintergrund die Restzeit neu berechnen */
 document.addEventListener("visibilitychange",()=>{
-  if(document.hidden){wrWake(false);return;}
+  if(document.hidden)return;              // Sperre hält den Wake Lock nicht
   if(wrEndAt){
+    wrWake(true);
+    if(DB.lockSound===true)keepAliveStart();
     if(wrLeft()<=0)wrPaint();
     else{clearInterval(wrId);wrId=setInterval(wrPaint,250);wrPaint();wrWake(true);}
   }
@@ -3275,8 +3279,42 @@ const tRemain=()=>tPausedLeft!==null?tPausedLeft:Math.max(0,Math.round((tEnd-Dat
    iOS stoppt fremde Wiedergabe, sobald eine App eine eigene Audiositzung
    beansprucht. Deshalb: Sitzung auf "ambient" stellen, den Kontext erst beim
    ersten Ton anlegen und danach wieder schlafen legen. */
+/* Zwei Betriebsarten, weil iOS die Audioausgabe nur einer App gibt:
+   "ambient"  – mischt sich mit Musik, verstummt aber bei gesperrtem Bildschirm
+   "playback" – spielt auch gesperrt weiter, pausiert dafür andere Musik */
 function audioAmbient(){
-  try{ if(navigator.audioSession) navigator.audioSession.type="ambient"; }catch(e){}
+  try{
+    if(navigator.audioSession)
+      navigator.audioSession.type=(DB.lockSound===true)?"playback":"ambient";
+  }catch(e){}
+}
+/* Stille Dauerschleife: hält die Audioausgabe wach, damit Töne auch bei
+   gesperrtem Bildschirm ankommen. Nur aktiv, wenn ausdrücklich gewünscht. */
+let keepEl=null;
+function keepAliveStart(){
+  if(DB.lockSound!==true)return;
+  try{
+    if(!keepEl){
+      keepEl=document.createElement("audio");
+      keepEl.loop=true; keepEl.preload="auto";
+      // eine Sekunde Stille als WAV
+      keepEl.src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAgD4AAAB9AAACABAAZGF0YQAAAAA=";
+      keepEl.volume=0.02;
+      document.body.appendChild(keepEl);
+    }
+    keepEl.play().catch(()=>{});
+    if("mediaSession" in navigator){
+      navigator.mediaSession.metadata=new MediaMetadata({
+        title:"Satzpause läuft", artist:"Hybrid", album:"Training"});
+      navigator.mediaSession.playbackState="playing";
+    }
+  }catch(e){}
+}
+function keepAliveStop(){
+  try{
+    if(keepEl){keepEl.pause();}
+    if("mediaSession" in navigator)navigator.mediaSession.playbackState="none";
+  }catch(e){}
 }
 audioAmbient();
 let acIdle=null;
@@ -3306,22 +3344,27 @@ function unlock(){audioAmbient();}
    besser durch als ein einzelner, weil sie über mehrere Frequenzbänder
    verteilt sind. */
 const cueVol=()=>({leise:.35,normal:.75,laut:1}[DB.cueVol||"laut"]);
+/* Weicher Glockenton statt Rechteckwelle. Durchsetzungsfähig wird er über
+   die Oktave und ein langsames Ausklingen, nicht über scharfe Obertöne –
+   ein Rechteck klingt nach Wecker, ein Dreieck mit Oktave nach Anschlag. */
 function tone(freq,dur,vol){try{
   const ac=acGet(); if(!ac)return;
-  const t=ac.currentTime, d=dur||.15, v=(vol||.22)*cueVol()*2.4;
+  const t=ac.currentTime, d=Math.max(.3,(dur||.15)*2.2), v=(vol||.22)*cueVol()*1.9;
   const g=ac.createGain();
-  g.connect(ac.destination);
+  // Tiefpass nimmt der Höhe die Schärfe
+  const lp=ac.createBiquadFilter();
+  lp.type="lowpass"; lp.frequency.value=Math.max(1400,freq*3.2); lp.Q.value=.6;
+  g.connect(lp); lp.connect(ac.destination);
   g.gain.setValueAtTime(0,t);
-  g.gain.linearRampToValueAtTime(Math.min(.9,v),t+.012);
-  g.gain.setValueAtTime(Math.min(.9,v),t+d*.6);
-  g.gain.exponentialRampToValueAtTime(.001,t+d);
-  // Grundton, Quinte und Oktave – zusammen deutlich durchdringender
-  [[freq,"square",1],[freq*1.5,"sine",.45],[freq*2,"sine",.5]].forEach(([f,typ,anteil])=>{
+  g.gain.linearRampToValueAtTime(Math.min(.85,v),t+.025);   // sanfter Anschlag
+  g.gain.exponentialRampToValueAtTime(.0008,t+d);           // langes Ausklingen
+  [[freq,"triangle",1],[freq*2,"sine",.34],[freq*3,"sine",.12]].forEach(([f,typ,anteil])=>{
     const s=ac.createOscillator(), sg=ac.createGain();
     s.type=typ; s.frequency.value=f;
-    sg.gain.value=anteil;
+    sg.gain.setValueAtTime(anteil,t);
+    sg.gain.exponentialRampToValueAtTime(anteil*.25,t+d);   // Obertöne klingen früher ab
     s.connect(sg); sg.connect(g);
-    s.start(t); s.stop(t+d+.02);
+    s.start(t); s.stop(t+d+.05);
   });
 }catch(e){}}
 /* Ansage per Sprachausgabe, sonst Ersatzton */
@@ -3339,18 +3382,23 @@ function say(txt,fallback){
   if(fallback)fallback();
 }
 /* Leiser Zweiklang für neue Nachrichten – kurz genug, um Musik nicht zu stören */
-const chime=()=>{tone(784,.16,.3);setTimeout(()=>tone(1047,.26,.28),140);};
+const chime=()=>{tone(659,.14,.28);setTimeout(()=>tone(880,.24,.3),160);};
 /* Halbzeit: zwei tiefe Töne, klar vom Countdown unterscheidbar */
-const beepHalf=()=>{tone(587,.22,.34);setTimeout(()=>tone(587,.22,.34),260);
+/* Halbzeit: derselbe Ton zweimal, ruhig und tief */
+const beepHalf=()=>{tone(440,.18,.34);setTimeout(()=>tone(440,.2,.34),280);
   if(navigator.vibrate)navigator.vibrate([140,90,140]);};
 /* Countdown: kurz, hoch, trocken */
-const beepTick=()=>{tone(1245,.11,.32);
+/* Countdown: kurzer heller Anschlag, nicht schrill */
+const beepTick=()=>{tone(698,.09,.3);
   if(navigator.vibrate)navigator.vibrate(60);};
 /* Startsignal beim Beginn der Pause */
-const beepStart=()=>{tone(523,.13,.28);setTimeout(()=>tone(784,.18,.3),150);
+/* Start: zwei weiche Töne, aufsteigende Quarte (G–C) */
+const beepStart=()=>{tone(392,.16,.3);setTimeout(()=>tone(523,.26,.32),170);
   if(navigator.vibrate)navigator.vibrate([70,50,110]);};
+/* Ende: aufsteigender Dreiklang C–E–G, der letzte Ton klingt lange aus */
 function beep(){try{
-  [0,280,560].forEach(o=>setTimeout(()=>tone(880,.24,.42),o));
+  [[523,0,.2],[659,170,.2],[784,340,.42]].forEach(([f,o,d])=>
+    setTimeout(()=>tone(f,d,.38),o));
   if(navigator.vibrate)navigator.vibrate([260,140,260,140,320]);
 }catch(e){}}
 
@@ -3925,6 +3973,10 @@ function renderForm(){
   document.getElementById("hrm")?.addEventListener("blur",()=>rProfil());
   document.getElementById("cuetog")?.addEventListener("click",()=>{
     DB.cueOff=(DB.cueOff!==true);save();rProfil();});
+  document.getElementById("locksnd")?.addEventListener("click",()=>{
+    DB.lockSound=(DB.lockSound!==true);save();audioAmbient();
+    if(DB.lockSound!==true)keepAliveStop();
+    rProfil();});
   document.querySelectorAll("[data-cvol]").forEach(b=>b.onclick=()=>{
     DB.cueVol=b.dataset.cvol;save();rProfil();unlock();beepHalf();});
   document.getElementById("ttstog")?.addEventListener("click",()=>{
@@ -4495,7 +4547,13 @@ function rProfil(){
         <div class="opts" style="flex:0 0 auto">
           ${["leise","normal","laut"].map(v=>`<button class="opt${(DB.cueVol||"laut")===v?" sel":""}" data-cvol="${v}">${v[0].toUpperCase()+v.slice(1)}</button>`).join("")}
         </div></div>
-      <div class="erow"><span class="elbl" style="flex:1;width:auto">Sprachausgabe</span>
+      <div class="erow"><span class="elbl" style="flex:1;width:auto">Auch bei gesperrtem Bildschirm</span>
+        <button class="opt${DB.lockSound===true?" sel":""}" id="locksnd" style="flex:0 0 auto;min-width:62px">${DB.lockSound===true?"An":"Aus"}</button></div>
+      <div style="font-size:11.5px;color:var(--dim);line-height:1.55;margin-top:6px">
+      ${DB.lockSound===true
+        ? "<span style='color:var(--warn)'>Achtung: In diesem Modus beansprucht die App die Audioausgabe und pausiert damit Spotify, sobald eine Pause startet.</span>"
+        : "Aus: Spotify läuft ungestört weiter, dafür verstummen die Signale bei gesperrtem Bildschirm. Der Bildschirm bleibt während der Pause ohnehin an."}</div>
+      <div class="erow" style="margin-top:9px"><span class="elbl" style="flex:1;width:auto">Sprachausgabe</span>
         <button class="opt${DB.ttsOn===true?" sel":""}" id="ttstog">${DB.ttsOn===true?"An":"Aus"}</button></div>
       <div style="font-size:11.5px;color:var(--dim);line-height:1.55;margin-top:6px">
       Die Sprachausgabe unterbricht auf dem iPhone kurz die laufende Musik. Die Signaltöne tun das nicht.</div>
