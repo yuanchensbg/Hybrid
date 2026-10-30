@@ -962,16 +962,16 @@ const PRESETS=[
         {e:"ohp",s:3,r:"10",p:"1:30"},{e:"chestrow",s:3,r:"12",p:"1:30"},
         {e:"straightarm",s:3,r:"14",p:"1:00"},{e:"dips",s:3,r:"8",p:"1:30"},
         {e:"pallof",s:3,r:"12",p:"1:00"}]},
-{n:"Beine · Kraft und Aufbau",w:"leg",sci:["blagrove","eihara","freq","plyoRE","plyoUni","plyoVol"],d:"Sprünge zuerst, dann schwere Kniebeuge, danach Rückseite und Rumpf. Zwei Sprungübungen statt drei – sechzig Bodenkontakte sind der Bereich, in dem die Wirkung nachgewiesen ist, mehr bringt nichts und kostet Erholung.",
+{n:"Beine · Kraft und Aufbau",w:"hinge",sci:["muster","blagrove","eihara","freq","plyoRE","plyoUni","plyoVol"],d:"Sprünge zuerst, dann schweres Kreuzheben, danach bewusst die Vorderseite. Weil das Kreuzheben hüftdominant ist, übernehmen Beinpresse und bulgarische Kniebeuge die Oberschenkelvorderseite – die der Sled Push und die Lunges im Rennen brauchen.",
  items:[{e:"boxjump",s:3,r:"6",p:"1:30"},{e:"bound",s:3,r:"7",p:"1:30"},
-        {e:"squat",sch:"main",p:"3:00"},{e:"beincurlsitz",s:3,r:"10",p:"1:30"},
-        {e:"hipthrust",s:3,r:"8",p:"1:30"},{e:"wade",s:4,r:"12",p:"1:00"},
+        {e:"deadlift",sch:"main",p:"3:00"},{e:"beinpresse",s:3,r:"10",p:"2:00"},
+        {e:"bulgarian",s:3,r:"10",p:"1:30"},{e:"wade",s:4,r:"12",p:"1:00"},
         {e:"cablecrunch",s:3,r:"15",p:"1:00"}]},
 {n:"Oberkörper · Zugschwerpunkt",w:"pull",sci:["blagrove","freq"],d:"Klimmzug als Hauptziel, obere Brust, konstante Spannung über Kabel, Rumpfrotation zum Abschluss.",
  items:[{e:"pullup",s:4,r:"6–8",p:"2:30"},{e:"incline",s:4,r:"10",p:"2:00"},
         {e:"tbarrow",s:3,r:"10",p:"1:30"},{e:"kabelrudern",s:3,r:"10",p:"1:30"},
         {e:"reversefly",s:3,r:"15",p:"1:00"},{e:"inclinecurl",s:3,r:"12",p:"1:00"},
-        {e:"rdl",s:3,r:"8",p:"2:00"},{e:"hyperext",s:3,r:"12",p:"1:00"},{e:"beinheben",s:3,r:"12",p:"1:00"}]},
+        {e:"beincurlsitz",s:3,r:"10",p:"1:30"},{e:"beinheben",s:3,r:"12",p:"1:00"}]},
 {n:"Kraft · Bankdrücken schwer",w:"push",sci:["eihara"],d:"Bankdrücken nach Prozenten, danach Volumen und ein kurzer Stationsabschluss.",
  items:[{e:"bench",sch:"main",p:"3:30"},{e:"incline",s:3,r:"8",p:"2:00",rpe:8},
         {e:"latzugengex",s:4,r:"10",p:"1:30"},{e:"ohp",s:3,r:"8",p:"2:00"},
@@ -1400,7 +1400,7 @@ const ANAME={yuan:"Yuan",yara:"Yara"};
 /* ══════════ SPEICHER ══════════ */
 /* Versionsstand – steht unter Mehr ganz unten. Damit lässt sich prüfen,
    ob auf einem Gerät wirklich die aktuelle Datei läuft. */
-const BUILD={datum:"23.10.2026",nr:75};
+const BUILD={datum:"23.10.2026",nr:76};
 const DEF={
  me:"yuan", start:"2026-10-18", gyms:null, gym:"citygate",
  log:{}, archive:[], checkins:{yuan:{},yara:{}}, protein:{yuan:{},yara:{}},
@@ -1411,7 +1411,7 @@ const DEF={
  sync:{prov:"jsonbin",binId:"6acf9725ac6210605a311174",
    key:"$2a$10$7H8UEB5mTyvwzGbDMMMF7Of3ii1ilQ1AexrMGo4RLxAJYWAHTdRWa",
    auto:true,dev:""},
- bw:{yuan:78,yara:60}, maxes:{yuan:{bench:113,deadlift:130,squat:130},yara:{squat:45,bench:43}},
+ bw:{yuan:78,yara:60}, maxes:{yuan:{bench:113,deadlift:130,squat:130},yara:{squat:45,bench:43,deadlift:70}},
  hrmax:{yuan:200,yara:0}, longBase:{yuan:14,yara:11}, longMax:{yuan:22,yara:19},
  pullStage:{yuan:5,yara:0}, autoBottom:true, waNum:"", zones:null
 };
@@ -6237,6 +6237,10 @@ const SCI={
   t:"Wie oft eine Muskelgruppe",
   f:"Metaanalyse über zehn Studien. Zweimaliges Training je Muskelgruppe und Woche brachte bessere Zuwächse als einmaliges (Effektstärke 0,49 gegenüber 0,30). Die Nachfolgearbeit von 2019 mit fünfundzwanzig Studien zeigte allerdings: Bei exakt gleichem Wochenvolumen verschwindet der Unterschied. Entscheidend ist das Wochenvolumen je Muskel – die Frequenz verteilt es nur. Höhere Frequenz lohnt, sobald das Volumen über das hinauswächst, was eine Einheit verarbeiten kann.",
   w:"Yaras Beinvolumen war mit siebzehn Sätzen an einem Tag zu geballt. Das Hüftscharnier liegt jetzt am Freitag – gleiches Wochenvolumen, auf zwei Tage verteilt."},
+ muster:{a:"Übersichtsarbeiten zur Übungsauswahl",j:2024,q:"u.a. Schoenfeld & Grgic, Strength Cond J",
+  t:"Hüftbeuge und Kniebeuge sind nicht austauschbar",
+  f:"Kreuzheben ist hüftdominant: Gesäß, Oberschenkelrückseite und Rückenstrecker tragen die Last, die Oberschenkelvorderseite arbeitet vergleichsweise wenig. Die Kniebeuge ist kniedominant und belastet den vierköpfigen Oberschenkelmuskel deutlich stärker. Wer das eine durch das andere ersetzt, verliert die jeweils andere Muskelgruppe – nicht nur an Größe, sondern an Kraft in genau der Gelenkstellung, die im Wettkampf gebraucht wird.",
+  w:"Yaras Hauptlift ist jetzt Kreuzheben. Weil damit die Vorderseite wegfiele, stehen Beinpresse und bulgarische Kniebeuge direkt dahinter – beides kniedominant. Der Sled Push und die Sandbag Lunges im Rennen laufen über genau diese Muskulatur."},
  concurrent:{a:"Wilson et al.",j:2012,q:"J Strength Cond Res 26(8): 2293–2307",
   t:"Wenn Kraft und Ausdauer zusammenkommen",
   f:"Metaanalyse zum Interferenzeffekt. Die Störung ist am größten, wenn Ausdauer häufig und lang trainiert wird und wenn gelaufen statt geradelt wird – der Bremsanteil beim Laufen schädigt die Muskulatur stärker. Getrennte Tage oder mindestens mehrere Stunden Abstand mindern den Effekt deutlich.",
