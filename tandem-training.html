@@ -390,16 +390,19 @@ main{flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-b
   align-items:center;justify-content:center;z-index:5}
 .wrest.on{display:flex}
 .wrest .rl{font-size:12.5px;color:var(--mid);margin-bottom:8px}
-.wrest .rt{font-size:78px;font-weight:700;line-height:1;color:var(--ok);cursor:pointer;
+.wrest .rt{font-size:72px;font-weight:700;line-height:1;color:var(--ok);cursor:pointer;
   padding:10px 24px;border-radius:18px}
 .wrest .rt:active{background:var(--surf2)}
 .wrest .rhint{font-size:11.5px;color:var(--dim);margin-top:14px}
 .wrest.mini .rhint{display:none}
 .wrest .rb{margin-top:26px;display:flex;gap:9px}
-.wrest .rb button{padding:12px 20px;border-radius:11px;border:1px solid var(--line);background:var(--surf);
-  color:var(--ink);font-size:14px;cursor:pointer}
-.wrest .rmin{position:absolute;top:10px;right:10px;width:52px;height:52px;border-radius:50%;
-  background:var(--surf2);border:1px solid var(--line);color:var(--mid);font-size:17px;cursor:pointer}
+.wrest .rb{margin-top:20px;gap:8px}
+.wrest .rb button{padding:9px 14px;border-radius:10px;border:1px solid var(--line);background:var(--surf);
+  color:var(--mid);font-size:12.5px;cursor:pointer}
+.wrest .rb button#wrmin2{color:var(--me);border-color:var(--line2)}
+.wrest .rmin{position:absolute;top:12px;right:12px;width:40px;height:40px;border-radius:50%;
+  background:transparent;border:none;color:var(--dim);font-size:19px;cursor:pointer}
+.wrest .rmin:active{color:var(--me)}
 /* Verkleinert: schwebende Pille, frei verschiebbar, Rest der Seite bedienbar */
 .wrest.mini{position:fixed;inset:auto;width:auto;background:none;display:block;z-index:180;
   touch-action:none}
@@ -578,11 +581,11 @@ main{flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-b
   <div class="wb" id="wb"></div>
   <div class="wnav"><button id="wprev">Zurück</button><button class="main" id="wnext">Weiter</button></div>
   <div class="wrest" id="wrest">
-    <button class="rmin" id="wrmin" title="Verkleinern">⤡</button>
+    <button class="rmin" id="wrmin" title="Verkleinern">⌄</button>
     <div class="rl" id="wrl">Pause</div>
     <div class="rt num" id="wrt">2:00</div>
-    <div class="rb"><button id="wr30">+30 s</button><button id="wrmin2">Verkleinern</button><button id="wrs">Überspringen</button></div>
-    <div class="rhint">Tippe auf die Zeit, um die Anzeige zu verkleinern</div>
+    <div class="rb"><button id="wr30">+30 s</button><button id="wrmin2">⌄ Klein</button><button id="wrs">Überspringen</button></div>
+    <div class="rhint">Tipp auf die Zeit verkleinert die Anzeige</div>
   </div>
 </div>
 
@@ -669,7 +672,7 @@ const EX={
  abd:{n:"Abduktoren",o:["abduktor","glutekick","band"],a:["glutebridge","hipthrust","bulgarian"],h:"Oberkörper leicht nach vorn für mehr Gesäßaktivierung. Oben 1 s halten."},
 
  bench:{n:"Bankdrücken",o:["langhantel","kurzhantel","chestpress","chestpressplate","multipresse"],a:["incline","dips","butterflyex"],
-  h:"Schulterblätter zusammengezogen und in die Bank gedrückt, Füße fest am Boden. Kontrolliert zur unteren Brust, dann explosiv hoch."},
+  h:"Schulterblätter zusammengezogen und in die Bank gedrückt, Füße fest am Boden. Kontrolliert zur unteren Brust, dann explosiv hoch.<br><br><b>Zur Griffbreite:</b> Im Regelwerk sind 81 cm zwischen den Zeigefingern die Obergrenze, nicht die Vorgabe – es gibt keine Mindestbreite. Breiter heißt kürzerer Weg und mehr Brustanteil, aber auch mehr Last auf dem Schultergelenk. Enger verlagert die Arbeit auf den Trizeps und ist schulterfreundlicher.<br><br>Üblich sind etwa anderthalb Schulterbreiten. Wechsle die Breite nicht von Woche zu Woche – sonst sind die Gewichte nicht vergleichbar. Trag ein, was du tatsächlich greifst."},
  incline:{n:"Schrägbankdrücken",o:["schraeg","schraegpresse","kurzhantel","langhantel","multipresse"],a:["bench","butterflyex","chestpressex"],
   h:"Bank auf 30–45°. Auf Brustlinie senken, Ellbogen leicht eingezogen."},
  chestpressex:{n:"Chest Press",o:["chestpress","chestpressplate"],a:["bench","incline"],h:"Griffe auf Brusthöhe, Schulterblätter hinten. Nicht ganz durchstrecken."},
@@ -740,7 +743,7 @@ const EX={
  pullover:{n:"Überzug",o:["kurzhantel","kabel","langhantel"],a:["butterflyex","latzugbreit"],
   h:"<b>Quer auf der Bank</b>, nur die Schulterblätter liegen auf. Gewicht mit beiden Händen über der Brust, kontrolliert hinter den Kopf absenken bis es im Brustkorb zieht, dann zurückziehen.<br><br><b>Warum:</b> Dehnung unter Last über einen Bereich, den weder Bankdrücken noch Fliegende erreichen. Trifft Brust und Latissimus gleichzeitig."},
  closegrip:{n:"Enges Bankdrücken",o:["langhantel","multipresse","sz"],a:["dips","trizeps","bench"],
-  h:"Griff etwa schulterbreit, nicht enger – sonst leiden die Handgelenke. Ellbogen eng am Körper führen, Stange zum unteren Brustbein.<br><br><b>Warum:</b> Die beste schwere Trizepsübung. Überträgt sich direkt auf das Bankdrücken im oberen Drittel."},
+  h:"Griff etwa schulterbreit, nicht enger – sonst leiden die Handgelenke. Ellbogen eng am Körper führen, Stange zum unteren Brustbein.<br><br><b>Warum:</b> Die beste schwere Trizepsübung. Überträgt sich direkt auf das Bankdrücken im oberen Drittel.<br><br><b>Wie eng ist eng:</b> Schulterbreit, also die Hände etwa über den Schultergelenken. Das ist die wirksamste Breite – enger bringt keine zusätzliche Trizepsarbeit mehr, belastet aber Handgelenke und Ellbogen deutlich stärker.<br><br>Die Ellbogen bleiben dabei näher am Rumpf als beim normalen Bankdrücken, etwa in einem 45-Grad-Winkel. Die Hände berühren sich nicht – das ist ein Mythos und kostet nur Gelenke."},
  cablecross:{n:"Kabelkreuz",o:["kabelcross","kabel"],a:["butterflyex","pullover"],
   h:"Züge von oben oder unten, leicht vorgebeugt. Hände vor dem Körper zusammenführen und eine Sekunde anspannen.<br><br><b>Warum:</b> Konstante Spannung über die ganze Bewegung – das hat keine Hantelübung."},
  inclinefly:{n:"Fliegende schräg",o:["kurzhantel","kabelcross","butterfly"],a:["incline","butterflyex"],
@@ -1400,7 +1403,7 @@ const ANAME={yuan:"Yuan",yara:"Yara"};
 /* ══════════ SPEICHER ══════════ */
 /* Versionsstand – steht unter Mehr ganz unten. Damit lässt sich prüfen,
    ob auf einem Gerät wirklich die aktuelle Datei läuft. */
-const BUILD={datum:"23.10.2026",nr:76};
+const BUILD={datum:"23.10.2026",nr:79};
 const DEF={
  me:"yuan", start:"2026-10-18", gyms:null, gym:"citygate",
  log:{}, archive:[], checkins:{yuan:{},yara:{}}, protein:{yuan:{},yara:{}},
@@ -1871,7 +1874,7 @@ const hasEq=(t,g)=>!t||(g||curGym()).eq.includes(t);
 /* Griffvarianten: bei Zug- und Druckübungen entscheidet der Griff mit,
    welcher Teil der Muskulatur arbeitet. Wird je Übung mitprotokolliert. */
 const GRIFFE={
- eng:"Eng",breit:"Breit",neutral:"Neutral",ober:"Obergriff",unter:"Untergriff",
+ eng:"Eng (enger als Schulter)",breit:"Breit",neutral:"Neutral",ober:"Obergriff",unter:"Untergriff",
  schulter:"Schulterbreit",seil:"Seil",stange:"Stange",v:"V-Griff",einarm:"Einarmig"
 };
 const GRIFF_EX={
@@ -1891,8 +1894,8 @@ const GRIFF_EX={
  chinup:["unter"],
  neutralpull:["neutral"],
  invertedrow:["neutral","ober","breit"],
- bench:["schulter","breit","eng"],
- closegrip:["eng","schulter"],
+ bench:["breit","schulter","eng"],
+ closegrip:["schulter","eng"],
  curl:["stange","seil","einarm"],
  trizeps:["seil","stange","einarm"],
  facepull:["seil"],
@@ -3164,6 +3167,7 @@ function woRest(p){
   wrTotal=secs;wrHalf=false;wrSaid=0;wrBeeped=false;
   DB.wrEnd=wrEndAt;save(true);
   document.getElementById("wrest").classList.add("on");
+  if(DB.cueOff!==true)beepStart();
   wrPaint();
   clearInterval(wrId);
   wrId=setInterval(wrPaint,250);
@@ -3286,21 +3290,39 @@ function acGet(){
   }
   if(ac.state==="suspended"){try{ac.resume();}catch(e){}}
   clearTimeout(acIdle);
-  // Nach kurzer Ruhe die Audiositzung wieder freigeben
-  acIdle=setTimeout(()=>{try{ac&&ac.state==="running"&&ac.suspend();}catch(e){}},2500);
+  /* Während einer laufenden Satzpause bleibt der Kontext wach – sonst
+     verschluckt das Aufwecken den ersten Ton des Countdowns. */
+  acIdle=setTimeout(()=>{
+    if(wrEndAt)return;
+    try{ac&&ac.state==="running"&&ac.suspend();}catch(e){}
+  },2500);
   return ac;
 }
 /* Wird beim ersten Antippen aufgerufen – legt aber nichts mehr an,
    solange kein Ton gebraucht wird. */
 function unlock(){audioAmbient();}
-/* Einzelner Ton mit wählbarer Höhe und Länge */
+/* Lautstärke der Signale: gegen laufende Musik braucht es deutlich mehr
+   als einen leisen Sinuston. Mehrere Teiltöne gleichzeitig setzen sich
+   besser durch als ein einzelner, weil sie über mehrere Frequenzbänder
+   verteilt sind. */
+const cueVol=()=>({leise:.35,normal:.75,laut:1}[DB.cueVol||"laut"]);
 function tone(freq,dur,vol){try{
   const ac=acGet(); if(!ac)return;
-  const s=ac.createOscillator(),g=ac.createGain();
-  s.frequency.value=freq;s.connect(g);g.connect(ac.destination);
-  g.gain.setValueAtTime(vol||.22,ac.currentTime);
-  g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+(dur||.15));
-  s.start();s.stop(ac.currentTime+(dur||.15)+.01);
+  const t=ac.currentTime, d=dur||.15, v=(vol||.22)*cueVol()*2.4;
+  const g=ac.createGain();
+  g.connect(ac.destination);
+  g.gain.setValueAtTime(0,t);
+  g.gain.linearRampToValueAtTime(Math.min(.9,v),t+.012);
+  g.gain.setValueAtTime(Math.min(.9,v),t+d*.6);
+  g.gain.exponentialRampToValueAtTime(.001,t+d);
+  // Grundton, Quinte und Oktave – zusammen deutlich durchdringender
+  [[freq,"square",1],[freq*1.5,"sine",.45],[freq*2,"sine",.5]].forEach(([f,typ,anteil])=>{
+    const s=ac.createOscillator(), sg=ac.createGain();
+    s.type=typ; s.frequency.value=f;
+    sg.gain.value=anteil;
+    s.connect(sg); sg.connect(g);
+    s.start(t); s.stop(t+d+.02);
+  });
 }catch(e){}}
 /* Ansage per Sprachausgabe, sonst Ersatzton */
 /* Sprachausgabe unterbricht auf iOS laufende Musik kurz. Deshalb standardmäßig
@@ -3317,18 +3339,19 @@ function say(txt,fallback){
   if(fallback)fallback();
 }
 /* Leiser Zweiklang für neue Nachrichten – kurz genug, um Musik nicht zu stören */
-const chime=()=>{tone(784,.14,.16);setTimeout(()=>tone(1047,.22,.14),130);};
-const beepHalf=()=>{tone(660,.16);setTimeout(()=>tone(660,.16),220);};
-const beepTick=()=>tone(1180,.07,.18);
+const chime=()=>{tone(784,.16,.3);setTimeout(()=>tone(1047,.26,.28),140);};
+/* Halbzeit: zwei tiefe Töne, klar vom Countdown unterscheidbar */
+const beepHalf=()=>{tone(587,.22,.34);setTimeout(()=>tone(587,.22,.34),260);
+  if(navigator.vibrate)navigator.vibrate([140,90,140]);};
+/* Countdown: kurz, hoch, trocken */
+const beepTick=()=>{tone(1245,.11,.32);
+  if(navigator.vibrate)navigator.vibrate(60);};
+/* Startsignal beim Beginn der Pause */
+const beepStart=()=>{tone(523,.13,.28);setTimeout(()=>tone(784,.18,.3),150);
+  if(navigator.vibrate)navigator.vibrate([70,50,110]);};
 function beep(){try{
-  const ac=acGet(); if(!ac)return;
-  [0,260,520].forEach(o=>setTimeout(()=>{
-    const s=ac.createOscillator(),g=ac.createGain();
-    s.frequency.value=880;s.connect(g);g.connect(ac.destination);
-    g.gain.setValueAtTime(.25,ac.currentTime);
-    g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+.18);
-    s.start();s.stop(ac.currentTime+.19);},o));
-  if(navigator.vibrate)navigator.vibrate([200,120,200]);
+  [0,280,560].forEach(o=>setTimeout(()=>tone(880,.24,.42),o));
+  if(navigator.vibrate)navigator.vibrate([260,140,260,140,320]);
 }catch(e){}}
 
 /* Hält die App im Hintergrund aktiv, damit der Ton beim Ablauf kommt */
@@ -3902,6 +3925,8 @@ function renderForm(){
   document.getElementById("hrm")?.addEventListener("blur",()=>rProfil());
   document.getElementById("cuetog")?.addEventListener("click",()=>{
     DB.cueOff=(DB.cueOff!==true);save();rProfil();});
+  document.querySelectorAll("[data-cvol]").forEach(b=>b.onclick=()=>{
+    DB.cueVol=b.dataset.cvol;save();rProfil();unlock();beepHalf();});
   document.getElementById("ttstog")?.addEventListener("click",()=>{
     DB.ttsOn=(DB.ttsOn!==true);save();rProfil();});
   document.getElementById("cuetest")?.addEventListener("click",()=>{unlock();say("Halbzeit",beepHalf);});
@@ -4461,10 +4486,15 @@ function rProfil(){
     </div>
     <div class="card"><h4>Signale in der Satzpause</h4>
       <div style="font-size:12.5px;color:var(--mid);line-height:1.6;margin-bottom:11px">
-      Zur Halbzeit ein Doppelsignal, die letzten zehn Sekunden einzeln, am Ende der Schlusston.
+      Startsignal, zur Halbzeit ein tiefer Doppelton, die letzten zehn Sekunden einzeln, am Ende der Schlusston.
+      Alle mit Vibration, damit sie auch bei lauter Musik ankommen.
       Mit Sprachausgabe werden die Sekunden angesagt, sonst ertönen zwei verschiedene Töne.</div>
       <div class="erow"><span class="elbl" style="flex:1;width:auto">Signale</span>
         <button class="opt${DB.cueOff!==true?" sel":""}" id="cuetog">${DB.cueOff!==true?"An":"Aus"}</button></div>
+      <div class="erow"><span class="elbl" style="flex:1;width:auto">Lautstärke</span>
+        <div class="opts" style="flex:0 0 auto">
+          ${["leise","normal","laut"].map(v=>`<button class="opt${(DB.cueVol||"laut")===v?" sel":""}" data-cvol="${v}">${v[0].toUpperCase()+v.slice(1)}</button>`).join("")}
+        </div></div>
       <div class="erow"><span class="elbl" style="flex:1;width:auto">Sprachausgabe</span>
         <button class="opt${DB.ttsOn===true?" sel":""}" id="ttstog">${DB.ttsOn===true?"An":"Aus"}</button></div>
       <div style="font-size:11.5px;color:var(--dim);line-height:1.55;margin-top:6px">
