@@ -1467,7 +1467,7 @@ const ANAME={yuan:"Yuan",yara:"Yara"};
 /* ══════════ SPEICHER ══════════ */
 /* Versionsstand – steht unter Mehr ganz unten. Damit lässt sich prüfen,
    ob auf einem Gerät wirklich die aktuelle Datei läuft. */
-const BUILD={datum:"02.11.2026",nr:118};
+const BUILD={datum:"02.11.2026",nr:119};
 const DEF={
  me:"yuan", start:"2026-10-18", gyms:null, gym:"citygate",
  log:{}, archive:[], checkins:{yuan:{},yara:{}}, protein:{yuan:{},yara:{}},
@@ -2650,6 +2650,9 @@ let selDate=todayISO();
 let page="heute", mehrView=null;
 
 function renderHead(){
+  // Fassungsnummer klein in der Kopfzeile – erspart das Suchen unter Mehr
+  const vz=document.getElementById("vbadge");
+  if(vz)vz.textContent="v"+BUILD.nr;
   document.body.dataset.me=me();
   document.querySelectorAll(".whoswitch button").forEach(b=>b.classList.toggle("on",b.dataset.w===me()));
   const s=sessionFor(selDate);
@@ -2954,7 +2957,7 @@ function renderHeute(){
     <button class="btn" id="cuedit">${ses.custom?"Eigenen Tag bearbeiten":"Diesen Tag durch eigenes Training ersetzen"}</button>
     ${(ses.k!=="rest"&&!ses.verschoben&&selDate>=todayISO())?`<button class="btn" id="shiftday">Einheit auf morgen schieben</button>`:""}
     ${(ses.k!=="rest"&&items.some(x=>Object.keys(lg).some(kk=>kk.startsWith(x.key+"-")&&kk!==x.key+"-eq"&&lg[kk])))
-      ?`<button class="btn btn-go" id="bilday">Zusammenfassung ansehen</button>`:""}
+      ?`<button class="btn btn-go" onclick="zeigeBilanz('${selDate}','${ath}')">Zusammenfassung ansehen</button>`:""}
     <button class="btn" id="shday">Ergebnisse teilen</button>
     <button class="btn" id="wa">Ganzes Protokoll an WhatsApp</button>`;
   document.getElementById("p-heute").innerHTML=h;
