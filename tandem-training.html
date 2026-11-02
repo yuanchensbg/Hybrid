@@ -1473,7 +1473,7 @@ const ANAME={yuan:"Yuan",yara:"Yara"};
 /* ══════════ SPEICHER ══════════ */
 /* Versionsstand – steht unter Mehr ganz unten. Damit lässt sich prüfen,
    ob auf einem Gerät wirklich die aktuelle Datei läuft. */
-const BUILD={datum:"02.11.2026",nr:127};
+const BUILD={datum:"02.11.2026",nr:128};
 const DEF={
  me:"yuan", start:"2026-10-18", gyms:null, gym:"citygate",
  log:{}, archive:[], checkins:{yuan:{},yara:{}}, protein:{yuan:{},yara:{}},
@@ -3130,6 +3130,7 @@ function exCard(it,ath,lg,ses){
     h+=`</div>`;
     // Garmin-Datei statt Tippen
     h+=`<button class="fillbtn" data-gpull="${k}" style="color:var(--me)">Letzten Lauf von Garmin holen</button>
+    <button class="fillbtn" data-gread="${k}">Nur die bereitliegende Datei lesen</button>
     <label class="fillbtn" style="display:block;text-align:center;cursor:pointer">
       Oder Datei auswählen (TCX, GPX)
       <input type="file" data-gmn="${k}" accept=".tcx,.gpx,application/xml,text/xml" style="display:none">
@@ -3202,24 +3203,21 @@ function bindHeute(ses,ath,lg,items){
     try{
       const a=await garminHolen(melde);
       if(!a||!a.km)throw new Error("Keine Laufdaten in der Antwort.");
-      lg[`${k}-c-dist`]=String(a.km).replace(".",",");
-      if(a.sek)lg[`${k}-c-time`]=zeitStr(a.sek);
-      if(a.paceSek)lg[`${k}-c-pace`]=paceStr(a.paceSek);
-      if(a.hr)lg[`${k}-c-hr`]=String(a.hr);
-      if(a.name)lg[`${k}-note`]=(lg[`${k}-note`]?lg[`${k}-note`]+" · ":"")+a.name;
-      // Runden und Messpunkte für die Kurven aufbewahren
-      if(a.runden||a.messpunkte)lg[`${k}-garmin`]=JSON.stringify({
-        runden:a.runden||null,messpunkte:a.messpunkte||null,
-        frequenz:a.schrittfrequenz||null,wirkungAerob:a.wirkungAerob||null,
-        wirkungAnaerob:a.wirkungAnaerob||null,hoehe:a.hoehe||null,id:a.id||null});
-      saveDay(lg);
-      if(msg)msg.innerHTML=`<span style="color:var(--ok)">${a.km} km · ${zeitStr(a.sek)} · ${paceStr(a.paceSek)} /km${a.hr?" · "+a.hr+" bpm":""}${
-        a.datum&&a.datum!==selDate?` <span style="color:var(--warn)">· Aktivität vom ${a.datum.slice(8)}.${a.datum.slice(5,7)}.</span>`:""}</span>`;
-      setTimeout(renderHeute,1400);
+      garminEintragen(lg,k,a,msg);
     }catch(e){
       if(msg)msg.innerHTML=`<span style="color:var(--warn)">${esc(e.message||"Fehlgeschlagen")}</span>`;
       b.disabled=false;
     }
+  });
+  q("[data-gread]",b=>b.onclick=async ()=>{
+    const k=b.dataset.gread, msg=document.getElementById("gmn-"+k);
+    if(msg)msg.innerHTML=`<span style="color:var(--mid)">Datei wird gelesen …</span>`;
+    const a=await ghDatei(GH_LAUF);
+    if(!a||!a.km){
+      if(msg)msg.innerHTML=`<span style="color:var(--warn)">Keine Datei im Repository gefunden.</span>`;
+      return;
+    }
+    garminEintragen(lg,k,a,msg);
   });
   q("[data-gmn]",el=>el.onchange=async ev=>{
     const f=ev.target.files&&ev.target.files[0];
@@ -6970,13 +6968,41 @@ const zeitStr=s=>{s=Math.round(s);
    Garmin holt und als Datei ablegt. Die App wartet darauf und trägt ein.
    Der Garmin-Zugang liegt dabei im Repository, nicht auf dem Telefon. */
 const GH_LAUF="garmin/latest.json";
+/* Mit Token über die API lesen – raw.githubusercontent liegt hinter einem
+   Zwischenspeicher und liefert frisch geschriebene Dateien oft verspätet. */
 async function ghDatei(pfad){
   const g=gh();
-  const url=`https://raw.githubusercontent.com/${g.user}/${g.repo}/${g.branch}/${pfad}?t=${Date.now()}`;
+  if(DB.ghTok){
+    try{
+      const r=await fetch(
+        `https://api.github.com/repos/${g.user}/${g.repo}/contents/${pfad}?ref=${g.branch}&t=${Date.now()}`,
+        {cache:"no-store",headers:{Authorization:"Bearer "+DB.ghTok,
+          Accept:"application/vnd.github.raw"}});
+      if(r.ok)return await r.json();
+    }catch(e){}
+  }
   try{
-    const r=await fetch(url,{cache:"no-store"});
+    const r=await fetch(
+      `https://raw.githubusercontent.com/${g.user}/${g.repo}/${g.branch}/${pfad}?t=${Date.now()}`,
+      {cache:"no-store"});
     if(!r.ok)return null;
     return await r.json();
+  }catch(e){return null;}
+}
+/* Status des letzten Durchlaufs – damit die Wartezeit erklärbar wird */
+async function ghLaufStatus(){
+  const g=gh();
+  if(!DB.ghTok)return null;
+  try{
+    const r=await fetch(
+      `https://api.github.com/repos/${g.user}/${g.repo}/actions/workflows/garmin.yml/runs?per_page=1`,
+      {cache:"no-store",headers:{Authorization:"Bearer "+DB.ghTok,
+        Accept:"application/vnd.github+json"}});
+    if(!r.ok)return null;
+    const d=await r.json();
+    const lauf=(d.workflow_runs||[])[0];
+    if(!lauf)return null;
+    return {status:lauf.status,ergebnis:lauf.conclusion,url:lauf.html_url};
   }catch(e){return null;}
 }
 async function ghAktionStarten(){
@@ -6998,13 +7024,24 @@ async function garminHolen(melde){
   const marke=vorher&&vorher.geholt;
   melde("Garmin wird abgefragt …");
   await ghAktionStarten();
-  for(let i=0;i<40;i++){                       // bis zu zwei Minuten
+  let zustand="";
+  for(let i=0;i<60;i++){                       // bis zu drei Minuten
     await new Promise(r=>setTimeout(r,3000));
-    melde("Warte auf Antwort … "+((i+1)*3)+" s");
+    const sek=(i+1)*3;
+    // Alle fünf Durchgänge nachsehen, wie weit der Durchlauf ist
+    if(i%5===4){
+      const s=await ghLaufStatus();
+      if(s)zustand=s.status==="completed"
+        ?(s.ergebnis==="success"?"fertig, Datei kommt gleich":"fehlgeschlagen")
+        :(s.status==="queued"?"wartet auf einen Rechner":"läuft");
+      if(s&&s.status==="completed"&&s.ergebnis&&s.ergebnis!=="success")
+        throw new Error("Der Durchlauf ist fehlgeschlagen. Im Repository unter Actions steht die Ursache.");
+    }
+    melde(`Warte … ${sek} s${zustand?" · "+zustand:""}`);
     const neu=await ghDatei(GH_LAUF);
     if(neu&&neu.geholt&&neu.geholt!==marke)return neu;
   }
-  throw new Error("Keine Antwort innerhalb von zwei Minuten. Schau im Repository unter Actions, ob der Lauf durchgelaufen ist.");
+  throw new Error("Keine neue Datei innerhalb von drei Minuten. Prüf unter Actions, ob der Durchlauf grün ist – wenn ja, versuch es gleich noch einmal, dann liegt die Datei bereits bereit.");
 }
 
 /* ══════════ TRAININGSDAUER ══════════
@@ -7102,6 +7139,25 @@ function schnellTon(date,ath){
   });
   return {date,ton:Math.round(ton),saetze,dauer:tDauer(date,ath)};
 }
+/* Trägt eine geholte Aktivität in die Felder ein */
+function garminEintragen(lg,k,a,msg){
+  lg[`${k}-c-dist`]=String(a.km).replace(".",",");
+  if(a.sek)lg[`${k}-c-time`]=zeitStr(a.sek);
+  if(a.paceSek)lg[`${k}-c-pace`]=paceStr(a.paceSek);
+  if(a.hr)lg[`${k}-c-hr`]=String(a.hr);
+  if(a.name&&!(lg[`${k}-note`]||"").includes(a.name))
+    lg[`${k}-note`]=(lg[`${k}-note`]?lg[`${k}-note`]+" · ":"")+a.name;
+  if(a.runden||a.messpunkte)lg[`${k}-garmin`]=JSON.stringify({
+    runden:a.runden||null,messpunkte:a.messpunkte||null,
+    frequenz:a.schrittfrequenz||null,wirkungAerob:a.wirkungAerob||null,
+    wirkungAnaerob:a.wirkungAnaerob||null,hoehe:a.hoehe||null,id:a.id||null});
+  saveDay(lg);
+  if(msg)msg.innerHTML=`<span style="color:var(--ok)">${a.km} km · ${zeitStr(a.sek)} · ${paceStr(a.paceSek)} /km${
+    a.hr?" · "+a.hr+" bpm":""}${a.runden?" · "+a.runden.length+" Runden":""}${
+    a.datum&&a.datum!==selDate?` <span style="color:var(--warn)">· Aktivität vom ${a.datum.slice(8)}.${a.datum.slice(5,7)}.</span>`:""}</span>`;
+  setTimeout(renderHeute,1400);
+}
+
 /* Zeichnet eine Kurve als SVG – ohne Bibliothek, damit es zum Rest passt */
 function kurve(werte, farbe, hoehe, einheit, umkehren){
   const gueltig=werte.filter(v=>typeof v==="number"&&!isNaN(v));
