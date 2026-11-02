@@ -18,23 +18,68 @@ TOKEN_URL = ("https://personal.connectapi.garmin.com/personalapitoken-service"
              "/personal-api/personal-api-key/token")
 
 
-def hole(url, headers, method="GET", daten=None):
+def roh_holen(url, headers, method="GET", daten=None):
+    """Gibt Text, Status und Kopfzeilen zurück – ohne JSON vorauszusetzen."""
     anfrage = urllib.request.Request(url, data=daten, headers=headers, method=method)
     with urllib.request.urlopen(anfrage, timeout=30) as antwort:
-        roh = antwort.read().decode("utf-8")
-    return json.loads(roh) if roh.strip() else {}
+        return (antwort.read().decode("utf-8", "replace"),
+                antwort.status, dict(antwort.headers))
+
+
+def hole(url, headers, method="GET", daten=None):
+    text, _, _ = roh_holen(url, headers, method, daten)
+    if not text.strip():
+        return {}
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError:
+        return {"_text": text}
 
 
 # ── 1. Schlüssel gegen Token tauschen ────────────────────────────────
+# Garmin antwortet hier nicht zwingend mit JSON, deshalb beide Fälle.
 try:
-    antwort = hole(TOKEN_URL, {"Authorization": "ApiKey " + SCHLUESSEL}, "POST", b"")
+    text, status, kopf = roh_holen(
+        TOKEN_URL,
+        {"Authorization": "ApiKey " + SCHLUESSEL,
+         "Accept": "application/json",
+         "Content-Length": "0"},
+        "POST", b"")
 except urllib.error.HTTPError as e:
-    raise SystemExit(f"Token-Abruf fehlgeschlagen: {e.code} {e.read().decode('utf-8')[:300]}")
+    koerper = e.read().decode("utf-8", "replace")[:400]
+    raise SystemExit(f"Token-Abruf fehlgeschlagen: HTTP {e.code}\n{koerper}")
 
-token = antwort.get("access_token") or antwort.get("accessToken") or antwort.get("token")
+print(f"Antwort {status}, Typ {kopf.get('Content-Type','?')}, "
+      f"{len(text)} Zeichen")
+
+token = None
+if text.strip():
+    try:
+        d = json.loads(text)
+        if isinstance(d, str):
+            token = d                      # Antwort ist nur der Token in Anführungszeichen
+        elif isinstance(d, dict):
+            token = (d.get("access_token") or d.get("accessToken")
+                     or d.get("token") or d.get("value"))
+    except json.JSONDecodeError:
+        # Reiner Text, eventuell in Anführungszeichen
+        token = text.strip().strip('"')
+
 if not token:
-    raise SystemExit("Kein Token in der Antwort: " + json.dumps(antwort)[:300])
-print("Token erhalten.")
+    # Manche Dienste liefern den Token in einer Kopfzeile
+    for name in ("Authorization", "X-Access-Token", "Access-Token"):
+        if kopf.get(name):
+            token = kopf[name].replace("Bearer ", "").strip()
+            break
+
+if not token:
+    gezeigt = text[:300] if text.strip() else "(leere Antwort)"
+    raise SystemExit(
+        "Kein Token in der Antwort.\n"
+        f"Status: {status}\nKopfzeilen: {json.dumps(kopf)[:300]}\n"
+        f"Inhalt: {gezeigt}")
+
+print(f"Token erhalten, {len(token)} Zeichen, beginnt mit {token[:8]}…")
 
 KOPF = {"Authorization": "Bearer " + token, "Accept": "application/json"}
 
