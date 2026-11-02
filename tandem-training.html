@@ -1467,7 +1467,7 @@ const ANAME={yuan:"Yuan",yara:"Yara"};
 /* ══════════ SPEICHER ══════════ */
 /* Versionsstand – steht unter Mehr ganz unten. Damit lässt sich prüfen,
    ob auf einem Gerät wirklich die aktuelle Datei läuft. */
-const BUILD={datum:"02.11.2026",nr:111};
+const BUILD={datum:"02.11.2026",nr:118};
 const DEF={
  me:"yuan", start:"2026-10-18", gyms:null, gym:"citygate",
  log:{}, archive:[], checkins:{yuan:{},yara:{}}, protein:{yuan:{},yara:{}},
@@ -6613,11 +6613,18 @@ function rUpdate(){
       : "<span style='color:var(--warn)'>wird beim nächsten Laden eingerichtet</span>"}<br>
     <b style="color:var(--ink)">Verbindung:</b> ${navigator.onLine
       ? "<span style='color:var(--ok)'>online</span>" : "<span style='color:var(--warn)'>offline</span>"}<br>
+    <b style="color:var(--ink)">Einspielen möglich:</b> ${(navigator.serviceWorker&&navigator.serviceWorker.controller)
+      ?"<span style='color:var(--ok)'>ja</span>"
+      :"<span style='color:var(--warn)'>nein – Service Worker nicht aktiv</span>"}<br>
     <b style="color:var(--ink)">Service Worker:</b> ${("serviceWorker" in navigator)
       ? (navigator.serviceWorker.controller?"<span style='color:var(--ok)'>aktiv</span>"
         :"<span style='color:var(--warn)'>registriert, aber noch nicht aktiv – einmal neu laden</span>")
       : "<span style='color:var(--warn)'>vom Browser nicht unterstützt</span>"}</div>
-    <button class="btn" id="updreset" style="margin:12px 0 0">Zurück auf die Fassung von Netlify</button>
+    <button class="btn" id="swfix" style="margin:12px 0 0">Service Worker neu einrichten</button>
+    <button class="btn" id="updreset" style="margin:8px 0 0">Zurück auf die Fassung von Netlify</button>
+    <div style="font-size:11.5px;color:var(--dim);line-height:1.6;margin-top:9px">
+    Wenn eine eingespielte Fassung nach dem Neuladen nicht erscheint, ist meist der
+    Service Worker nicht aktiv. Neu einrichten, App schließen, wieder öffnen.</div>
   </div>
   <div class="card"><h4>Was Internet braucht</h4>
     <div style="font-size:13px;color:var(--mid);line-height:1.8">
@@ -6660,6 +6667,19 @@ function rUpdate(){
     }
   });
   document.getElementById("updchk").onclick=()=>checkUpdate(false);
+  document.getElementById("swfix")?.addEventListener("click",async ()=>{
+    toast("Wird eingerichtet …");
+    try{
+      if(navigator.serviceWorker){
+        const regs=await navigator.serviceWorker.getRegistrations();
+        await Promise.all(regs.map(r=>r.unregister()));
+      }
+      await navigator.serviceWorker.register("sw.js",{scope:"./"});
+      await navigator.serviceWorker.ready;
+      toast("Eingerichtet – App wird neu geladen");
+      setTimeout(()=>location.reload(),900);
+    }catch(e){ toast("Fehlgeschlagen: "+(e.message||"")); }
+  });
   document.getElementById("updreset")?.addEventListener("click",()=>{
     showModal(`<h3>Auf die Netlify-Fassung zurück?</h3>
       <p style="font-size:13.5px;color:var(--mid);line-height:1.65;margin-bottom:14px">
@@ -7795,11 +7815,28 @@ function rAuto(){
    Datei im Telefon auswählen – die App legt sie sofort als eigene Fassung ab
    und lädt sie, falls ein Token hinterlegt ist, zusätzlich ins Repository,
    damit das zweite Gerät sie bekommt. */
+/* Ohne aktiven Service Worker kann sich die App nicht selbst ersetzen.
+   Deshalb notfalls neu einrichten und kurz auf die Übernahme warten. */
+async function swSicherstellen(){
+  if(!("serviceWorker" in navigator))return false;
+  if(navigator.serviceWorker.controller)return true;
+  try{
+    await navigator.serviceWorker.register("sw.js",{scope:"./"});
+    await navigator.serviceWorker.ready;
+    for(let i=0;i<20;i++){
+      if(navigator.serviceWorker.controller)return true;
+      await new Promise(r=>setTimeout(r,150));
+    }
+  }catch(e){}
+  return !!navigator.serviceWorker.controller;
+}
 async function dateiEinspielen(file,auchHoch){
   const html=await file.text();
   if(!/const BUILD=\{/.test(html))throw new Error("Das sieht nicht nach der App-Datei aus.");
   const m=html.match(/const BUILD=\{datum:"([^"]+)",nr:(\d+)\}/);
   const nr=m?+m[2]:0;
+  const bereit=await swSicherstellen();
+  if(!bereit)throw new Error("Der Service Worker ist nicht aktiv – ohne ihn kann sich die App nicht selbst ersetzen. Unten auf „Service Worker neu einrichten“ tippen, die App einmal schließen und wieder öffnen, dann nochmal versuchen.");
   // 1) Auf diesem Gerät sofort wirksam machen
   if(navigator.serviceWorker&&navigator.serviceWorker.controller){
     await new Promise((res,rej)=>{
