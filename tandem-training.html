@@ -1458,7 +1458,7 @@ function save(quiet){
 }
 /* Markiert einen Trainingstag als zuletzt hier geändert – darauf stützt sich
    die Zusammenführung zwischen den Geräten. */
-function saveDay(lg){ if(lg)lg._t=Date.now(); save(); }
+function saveDay(lg){ if(lg)lg._t=Date.now(); DB.logTs=Date.now(); for(const k in _liftCnt)delete _liftCnt[k]; save(); }
 /* Hält fest, welche Übung an diesem Tag tatsächlich ausgeführt wurde.
    Damit bleiben alte Einträge auch dann richtig beschriftet, wenn der
    Plan später geändert oder ein Tausch zurückgenommen wird. */
@@ -1771,9 +1771,24 @@ function slotCount(slotIx,dateStr,ath){
 }
 const PRESTART={k:"rest",n:"Noch nicht gestartet",note:"Der Zyklus beginnt später",
  why:"<b>Dieser Tag liegt vor dem Zyklusstart.</b> Bis dahin gibt es keinen Plan – wenn du früher loslegen willst, verschieb das Startdatum unter Mehr → Zyklus & Ruhetage nach vorn."};
-function sessionFor(dateStr,ath){
+function sessionFor(dateStr,ath,ohneShift){
   ath=ath||me();
   if(dayNum(dateStr)<0)return {...PRESTART,fixed:1,slot:-1,date:dateStr,cyc:0,pre:1,ath};
+  const sh=ohneShift?null:shiftOf(ath,dateStr);
+  if(sh){
+    if(sh.leer)return {k:"rest",n:sh.tausch?"Ruhetag vorgezogen":"Verschoben",
+      note:sh.tausch?"getauscht mit "+new Date(sh.tausch+"T12:00:00").toLocaleDateString("de-DE",{day:"numeric",month:"short"}):"Einheit nachgeholt",
+      fixed:1,slot:-1,date:dateStr,cyc:0,ath,verschoben:1,
+      why:sh.tausch
+        ? "<b>Du hast den Ruhetag vorgezogen.</b> Die Einheit dieses Tages liegt jetzt dort, wo der Ruhetag war – alle anderen Tage sind unverändert.<br><br>Nutz den Tag wie einen normalen Ruhetag: gehen, dehnen, früh schlafen."
+        : "<b>Diese Einheit wurde auf den nächsten Tag verschoben.</b> Der Tag bleibt frei.<br><br>Unter dem Hinweis auf der Heute-Seite kannst du die Verschiebung zurücknehmen."};
+    if(sh.quelle&&sh.quelle!==dateStr){
+      const org=sessionFor(sh.quelle,ath,true);
+      return {...org,date:dateStr,verschobenVon:sh.quelle,
+        note:"Verschoben vom "+new Date(sh.quelle+"T12:00:00").toLocaleDateString("de-DE",{day:"numeric",month:"short"}),
+        why:"<b>Nachgeholte Einheit.</b> Sie stammt vom "+new Date(sh.quelle+"T12:00:00").toLocaleDateString("de-DE",{weekday:"long",day:"numeric",month:"long"})+".<br><br>"+(org.why||"")};
+    }
+  }
   const tr=travelInfo(ath,dateStr);
   if(tr){
     const wd=new Date(dateStr+"T12:00:00").getDay();
@@ -2406,16 +2421,26 @@ function progression(ath,it,date,eqJetzt){
   if(!p.top)return {kg:0,txt:`Letztes Mal ohne Gewichtsangabe. Trag es diesmal mit ein, dann rechnet die App weiter.`};
   const amGeraet=p.eq?` an ${eqLabel(p.eq)}`:"";
   const inc=p.top<20?1.25:p.top<40?2.5:5;
-  if(p.minR>=hi)
-    return {kg:p.top+inc,txt:`Letztes Mal${amGeraet} alle Sätze auf ${hi} – heute ${(p.top+inc).toLocaleString("de-DE")} kg und zurück auf ${lo} Wiederholungen.`};
+  const kg=v=>v.toLocaleString("de-DE")+" kg";
+  const fest=(lo===hi);                       // feste Wiederholungszahl statt Bereich
+  if(p.minR>=hi){
+    const neu=p.top+inc;
+    return {kg:neu,txt:fest
+      ? `Letztes Mal${amGeraet} alle Sätze auf ${hi} geschafft – heute ${kg(neu)} bei denselben ${hi} Wiederholungen.`
+      : `Letztes Mal${amGeraet} alle Sätze auf ${hi} – heute ${kg(neu)} und zurück auf ${lo} Wiederholungen.`};
+  }
   if(p.maxR<lo)
-    return {kg:Math.max(inc,p.top-inc),txt:`Letztes Mal${amGeraet} nur ${p.maxR} statt ${lo} – heute ${Math.max(inc,p.top-inc).toLocaleString("de-DE")} kg, dafür sauber.`};
+    return {kg:Math.max(inc,p.top-inc),txt:`Letztes Mal${amGeraet} nur ${p.maxR} statt ${lo} – heute ${kg(Math.max(inc,p.top-inc))}, dafür sauber.`};
   // Starker Abfall über die Sätze: das Einstiegsgewicht war zu hoch
   if(p.all>=2&&p.minR<=Math.ceil(lo*0.6)){
     const red=Math.max(inc,Math.round((p.top-inc)*2)/2);
-    return {kg:red,txt:`Letztes Mal${amGeraet} fiel es von ${p.maxR} auf ${p.minR} ab – das Startgewicht war zu hoch. Heute ${red.toLocaleString("de-DE")} kg und alle Sätze auf ${lo}.`};
+    return {kg:red,txt:`Letztes Mal${amGeraet} fiel es von ${p.maxR} auf ${p.minR} ab – das Startgewicht war zu hoch. Heute ${kg(red)} und alle Sätze auf ${lo}.`};
   }
-  return {kg:p.top,txt:`Gewicht halten bei ${p.top.toLocaleString("de-DE")} kg${amGeraet} und je Satz eine Wiederholung mehr als letztes Mal.`};
+  if(fest){
+    const fehlt=hi-p.minR;
+    return {kg:p.top,txt:`Letztes Mal${amGeraet} ${p.maxR===p.minR?p.maxR:p.minR+" bis "+p.maxR} statt ${hi} – heute wieder ${kg(p.top)}, Ziel sind ${hi} in jedem Satz${fehlt<=1?". Fehlt nur noch wenig.":"."}`};
+  }
+  return {kg:p.top,txt:`Gewicht halten bei ${kg(p.top)}${amGeraet} und je Satz eine Wiederholung mehr als letztes Mal.`};
 }
 /* Kurzfassung der letzten Ausführung für die Übungskarte */
 function lastLine(ath,it,date){
@@ -2488,14 +2513,27 @@ function liftItemsOf(entry){
   if(entry.slot!==undefined&&SLOTS[entry.slot])return SLOTS[entry.slot].lead||[];
   return [];
 }
+/* Zählt absolvierte Ausführungen, nicht geplante Termine. Wer eine Einheit
+   auslässt, springt sonst in die Spitzenwoche, ohne die Vorarbeit geleistet
+   zu haben – genau das soll eine Welle verhindern.
+   Vergangene Termine ohne Eintrag zählen nicht mit; Tage in der Zukunft
+   zählen als geplant, damit die Vorschau stimmt. */
 function liftCount(ath,exId,dateStr){
-  const ck=ath+"|"+exId+"|"+dateStr+"|"+DB.start;
+  const ck=ath+"|"+exId+"|"+dateStr+"|"+DB.start+"|"+(DB.logTs||0);
   if(_liftCnt[ck]!==undefined)return _liftCnt[ck];
   const m=buildSchedule(dateStr,ath);
+  const heute=todayISO();
   let c=0;
   Object.keys(m).forEach(d=>{
     if(d>=dateStr)return;
-    liftItemsOf(m[d]).forEach(it=>{if(it.sch==="main"&&it.e===exId)c++;});
+    liftItemsOf(m[d]).forEach(it=>{
+      if(it.sch!=="main"||it.e!==exId)return;
+      if(d>=heute){c++;return;}                 // heute und später: als geplant zählen
+      const lg=(DB.log[d]||{})[ath];
+      if(!lg)return;
+      const gemacht=Object.keys(lg).some(k=>/-[wrt]\d+$/.test(k)&&lg[k]);
+      if(gemacht)c++;
+    });
   });
   _liftCnt[ck]=c;
   return c;
@@ -2836,6 +2874,7 @@ function renderHeute(){
     <textarea class="ta nta${nv?" open":""}" id="nta" placeholder="Wie lief es? Energie, Technik, Auffälligkeiten.">${esc(nv)}</textarea>
     <div style="height:12px"></div>
     <button class="btn" id="cuedit">${ses.custom?"Eigenen Tag bearbeiten":"Diesen Tag durch eigenes Training ersetzen"}</button>
+    ${(ses.k!=="rest"&&!ses.verschoben&&selDate>=todayISO())?`<button class="btn" id="shiftday">Einheit auf morgen schieben</button>`:""}
     <button class="btn btn-go" id="shday">Ergebnisse teilen</button>
     <button class="btn" id="wa">Ganzes Protokoll an WhatsApp</button>`;
   document.getElementById("p-heute").innerHTML=h;
@@ -3067,6 +3106,43 @@ function bindHeute(ses,ath,lg,items){
     na.oninput=()=>{lg.notes=na.value;saveDay(lg);nt.classList.toggle("has",!!na.value);};}
   document.getElementById("startwo")?.addEventListener("click",()=>openWO(ses,ath,items));
   document.getElementById("cuedit")?.addEventListener("click",()=>{cuDate=selDate;go("mehr","custom");});
+  document.getElementById("shiftday")?.addEventListener("click",()=>{
+    const kette=shiftPlan(me(),selDate);
+    const letzter=kette[kette.length-1];
+    const dat=d=>new Date(d+"T12:00:00").toLocaleDateString("de-DE",{weekday:"short",day:"numeric",month:"short"});
+    const ruhe=nextRest(me(),selDate);
+    const datL=d=>new Date(d+"T12:00:00").toLocaleDateString("de-DE",{weekday:"long",day:"numeric",month:"long"});
+    showModal(`<h3>Einheit verschieben</h3>
+      ${ruhe?`<div class="card" style="border-color:var(--ok);margin-bottom:14px">
+        <div class="lbl">Empfohlen</div>
+        <div style="font-size:15px;font-weight:600;margin:3px 0 7px">Mit dem Ruhetag tauschen</div>
+        <div style="font-size:12.5px;color:var(--mid);line-height:1.75">
+          Heute wird Ruhetag, die Einheit wandert auf ${datL(ruhe)}.
+          Alle anderen Tage bleiben, wo sie sind – es verschieben sich nur zwei.</div>
+        <button class="btn btn-go" style="margin:12px 0 0"
+          onclick="swapRest(me(),'${selDate}');closeModal();render();toast('Mit Ruhetag getauscht')">Tauschen</button>
+      </div>`:`<div style="font-size:12.5px;color:var(--warn);line-height:1.65;margin-bottom:14px">
+        In den nächsten neun Tagen liegt kein Ruhetag zum Tauschen.</div>`}
+      <div class="sec" style="margin:0 0 9px">Oder alles weiterschieben</div>
+      <p style="font-size:12.5px;color:var(--mid);line-height:1.7;margin-bottom:12px">
+      Die Einheit wandert auf den Folgetag, alles danach rutscht mit –
+      bis zum nächsten Ruhetag, der die Kette auffängt.</p>
+      <div style="background:var(--surf2);border-radius:11px;padding:11px 13px;margin-bottom:14px;
+        font-size:12.5px;color:var(--mid);line-height:1.9">
+        ${kette.map(k=>`${dat(k.von)} → ${dat(k.nach)}
+          ${k.warRuhetag?`<span style="color:var(--ok)">· Ruhetag nimmt sie auf</span>`
+            :`<span style="color:var(--dim)">· ${esc(k.verdraengt)} rutscht weiter</span>`}`).join("<br>")}
+      </div>
+      ${(letzter&&!letzter.warRuhetag)?`<div style="font-size:12px;color:var(--warn);line-height:1.6;margin-bottom:12px">
+        In den nächsten neun Tagen liegt kein Ruhetag, der die Kette auffangen könnte.
+        Überleg, ob die Einheit nicht besser ganz entfällt.</div>`:""}
+      ${kette.length>3?`<div style="font-size:12px;color:var(--mid);line-height:1.6;margin-bottom:12px">
+        ${kette.length} Tage verschieben sich. Bei so einer langen Kette ist es oft sinnvoller,
+        die Einheit ausfallen zu lassen – eine verpasste Einheit kostet weniger als eine
+        durcheinandergeratene Woche.</div>`:""}
+      <button class="btn" onclick="shiftApply(me(),'${selDate}');closeModal();render();toast('Verschoben')">Alles weiterschieben</button>
+      <button class="btn" onclick="closeModal()">Abbrechen</button>`);
+  });
   document.getElementById("shday")?.addEventListener("click",()=>shareDay(selDate));
   document.getElementById("wa")?.addEventListener("click",()=>waSend(buildReport()));
 }
@@ -6255,6 +6331,26 @@ function rUpdate(){
     Meldet sich nur, wenn tatsächlich eine neuere Fassung bereitliegt.</div></div>
     <button class="opt${DB.ghAuto!==false?" sel":""}" id="ghauto" style="flex:0 0 auto;min-width:62px">${DB.ghAuto!==false?"An":"Aus"}</button>
   </div></div>
+  <div class="card" style="border-color:var(--me)">
+    <h4>Fassung direkt einspielen</h4>
+    <div style="font-size:12.5px;color:var(--mid);line-height:1.75;margin-bottom:12px">
+    Datei im Telefon auswählen – sie wird sofort auf diesem Gerät aktiv. Mit hinterlegtem
+    Token legt die App sie zusätzlich ins Repository, damit das zweite Gerät sie beim
+    nächsten Öffnen angeboten bekommt. Kein Umweg über die GitHub-Seite.</div>
+    <label class="btn btn-go" style="display:block;text-align:center;cursor:pointer;margin:0">
+      Datei auswählen und einspielen
+      <input type="file" id="updfile" accept=".html,text/html" style="display:none">
+    </label>
+    <div id="updmsg" style="font-size:12.5px;line-height:1.6;margin-top:10px"></div>
+    <div class="lbl" style="margin-top:14px">GitHub-Token${DB.ghTok?" · hinterlegt":""}</div>
+    <input class="inp" type="password" id="ghtok" placeholder="${DB.ghTok?"gespeichert – zum Ersetzen eintragen":"github_pat_…"}" style="width:100%">
+    <div style="font-size:11.5px;color:var(--dim);line-height:1.6;margin-top:8px">
+    Nur nötig, wenn die Datei auch ins Repository soll. Auf github.com unter Settings →
+    Developer settings → Fine-grained tokens einen Token nur für <b>${esc(gh().repo)}</b> mit
+    der Berechtigung <b>Contents: Read and write</b> anlegen. Er bleibt auf diesem Gerät und
+    wird nicht abgeglichen.</div>
+    ${DB.ghTok?`<button class="btn btn-r" id="ghtokdel" style="margin:10px 0 0">Token entfernen</button>`:""}
+  </div>
   <div class="card"><h4>Wie das zusammenspielt</h4>
     <div style="font-size:13px;color:var(--mid);line-height:1.8">
     Die App liegt weiterhin auf Netlify – dort musst du nie wieder etwas hochladen.
@@ -6288,6 +6384,24 @@ function rUpdate(){
     Alternativ die Datei per Drag-and-drop über „Add file → Upload files" ersetzen.
     Auf Netlify musst du nichts anfassen.</div></div>`;
   document.getElementById("p-mehr").innerHTML=h;
+  document.getElementById("ghtok")?.addEventListener("change",e=>{
+    const v=e.target.value.trim();
+    if(v){DB.ghTok=v;save();toast("Token gespeichert");rUpdate();}});
+  document.getElementById("ghtokdel")?.addEventListener("click",()=>{
+    delete DB.ghTok;save();rUpdate();toast("Token entfernt");});
+  document.getElementById("updfile")?.addEventListener("change",async e=>{
+    const f=e.target.files&&e.target.files[0];
+    if(!f)return;
+    const msg=document.getElementById("updmsg");
+    msg.innerHTML=`<span style="color:var(--mid)">Wird eingespielt …</span>`;
+    try{
+      const r=await dateiEinspielen(f,!!DB.ghTok);
+      msg.innerHTML=`<span style="color:var(--ok)">Fassung ${r.nr} aktiv${r.hoch==="hochgeladen"?", auch ins Repository geladen":""}. Die App lädt gleich neu.</span>`;
+      setTimeout(()=>location.reload(),1500);
+    }catch(err){
+      msg.innerHTML=`<span style="color:var(--warn)">${esc(err.message||"Fehlgeschlagen")}</span>`;
+    }
+  });
   document.getElementById("updchk").onclick=()=>checkUpdate(false);
   document.getElementById("updreset")?.addEventListener("click",()=>{
     showModal(`<h3>Auf die Netlify-Fassung zurück?</h3>
@@ -6587,6 +6701,80 @@ function vorschlagUebernehmen(ath,v){
   save();
 }
 
+/* ══════════ EINHEIT VERSCHIEBEN ══════════
+   Eine verpasste Einheit soll nicht verfallen. Sie wandert auf den nächsten
+   Tag, und der dort geplante rutscht mit – bis ein Ruhetag erreicht ist, der
+   die Kette auffängt. Dadurch bleibt die Zahl der Trainingstage gleich,
+   statt dass ein Ruhetag heimlich verschwindet. */
+const shifts=()=>DB.shift||(DB.shift={});
+function shiftOf(ath,dateStr){
+  return (shifts()[ath]||{})[dateStr]||null;
+}
+/* Kette ab einem Tag: was liegt wo, wenn verschoben wird? */
+function shiftPlan(ath,vonDatum){
+  const kette=[];
+  let quelle=vonDatum;
+  for(let i=1;i<=9;i++){
+    const d=new Date(vonDatum+"T12:00:00");d.setDate(d.getDate()+i);
+    const ziel=iso(d);
+    const dort=sessionFor(ziel,ath);
+    kette.push({von:quelle,nach:ziel,verdraengt:dort.n,warRuhetag:dort.k==="rest"});
+    if(dort.k==="rest")break;          // Ruhetag fängt die Kette auf
+    quelle=ziel;
+  }
+  return kette;
+}
+/* Tausch mit dem nächsten Ruhetag: nur zwei Tage ändern sich, der Rest des
+   Plans bleibt, wo er ist. Fast immer die bessere Wahl gegenüber dem
+   Weiterschieben der ganzen Kette. */
+function nextRest(ath,vonDatum,tage){
+  for(let i=1;i<=(tage||9);i++){
+    const d=new Date(vonDatum+"T12:00:00");d.setDate(d.getDate()+i);
+    const s=sessionFor(iso(d),ath);
+    if(s.k==="rest"&&!s.verschoben)return iso(d);
+  }
+  return null;
+}
+function swapRest(ath,vonDatum){
+  const ziel=nextRest(ath,vonDatum);
+  if(!ziel)return null;
+  shifts()[ath]=shifts()[ath]||{};
+  shifts()[ath][vonDatum]={leer:true,at:Date.now(),tausch:ziel};
+  shifts()[ath][ziel]={quelle:vonDatum,at:Date.now(),tausch:vonDatum};
+  save();
+  for(const k in _schedC)delete _schedC[k];
+  return ziel;
+}
+function shiftApply(ath,vonDatum){
+  const kette=shiftPlan(ath,vonDatum);
+  if(!kette.length)return 0;
+  shifts()[ath]=shifts()[ath]||{};
+  // Von hinten nach vorn setzen, damit nichts überschrieben wird
+  const inhalte={};
+  kette.forEach(k=>{inhalte[k.von]=sessionFor(k.von,ath);});
+  kette.forEach(k=>{
+    shifts()[ath][k.nach]={quelle:k.von,at:Date.now()};
+  });
+  shifts()[ath][vonDatum]={leer:true,at:Date.now()};
+  save();
+  for(const k in _schedC)delete _schedC[k];
+  return kette.length;
+}
+function shiftUndo(ath,dateStr){
+  const s=shifts()[ath]||{};
+  const eintrag=s[dateStr];
+  if(eintrag&&eintrag.tausch){
+    // Ein Tausch betrifft genau zwei Tage
+    delete s[eintrag.tausch];delete s[dateStr];
+  } else {
+    // Die ganze Kette entfernen, die an diesem Tag beginnt
+    Object.keys(s).forEach(d=>{ if(d>=dateStr)delete s[d]; });
+  }
+  if(!Object.keys(s).length)delete shifts()[ath];
+  save();
+  for(const k in _schedC)delete _schedC[k];
+}
+
 /* ══════════ BELASTUNGSÜBERWACHUNG ══════════
    Kein einzelner Marker erkennt Übertraining zuverlässig – das ist die
    Kernaussage der gemeinsamen Stellungnahme von ECSS und ACSM (Meeusen et al.
@@ -6879,6 +7067,58 @@ function rAuto(){
     vorschlagUebernehmen(a,V[+b.dataset.vn]);rAuto();toast("Übernommen");});
   document.getElementById("vall")?.addEventListener("click",()=>{
     V.forEach(v=>vorschlagUebernehmen(a,v));rAuto();toast(V.length+" übernommen");});
+}
+
+/* ══════════ FASSUNG EINSPIELEN ══════════
+   Datei im Telefon auswählen – die App legt sie sofort als eigene Fassung ab
+   und lädt sie, falls ein Token hinterlegt ist, zusätzlich ins Repository,
+   damit das zweite Gerät sie bekommt. */
+async function dateiEinspielen(file,auchHoch){
+  const html=await file.text();
+  if(!/const BUILD=\{/.test(html))throw new Error("Das sieht nicht nach der App-Datei aus.");
+  const m=html.match(/const BUILD=\{datum:"([^"]+)",nr:(\d+)\}/);
+  const nr=m?+m[2]:0;
+  // 1) Auf diesem Gerät sofort wirksam machen
+  if(navigator.serviceWorker&&navigator.serviceWorker.controller){
+    await new Promise((res,rej)=>{
+      const k=ev=>{const d=ev.data||{};
+        if(d.typ==="updated"){navigator.serviceWorker.removeEventListener("message",k);res();}
+        if(d.typ==="fehler"){navigator.serviceWorker.removeEventListener("message",k);rej(new Error(d.text));}};
+      navigator.serviceWorker.addEventListener("message",k);
+      navigator.serviceWorker.controller.postMessage({typ:"update",html});
+      setTimeout(()=>rej(new Error("Zeitüberschreitung")),12000);
+    });
+  }
+  // 2) Ins Repository legen, damit das andere Gerät es findet
+  let hoch="übersprungen";
+  if(auchHoch&&DB.ghTok){
+    const g=gh();
+    const base=`https://api.github.com/repos/${g.user}/${g.repo}/contents/${g.file}`;
+    const kopf={Authorization:"Bearer "+DB.ghTok,Accept:"application/vnd.github+json"};
+    let sha=null;
+    try{
+      const r=await fetch(base+"?ref="+g.branch,{headers:kopf});
+      if(r.ok)sha=(await r.json()).sha;
+    }catch(e){}
+    const b64=b64von(html);
+    const r2=await fetch(base,{method:"PUT",headers:{...kopf,"Content-Type":"application/json"},
+      body:JSON.stringify({message:"Fassung "+nr,content:b64,branch:g.branch,...(sha?{sha}:{})})});
+    if(!r2.ok){
+      const t=await r2.text();
+      throw new Error("GitHub: "+r2.status+" "+t.slice(0,120));
+    }
+    hoch="hochgeladen";
+  }
+  DB.ghLast={at:Date.now(),nr,datum:m?m[1]:""};save(true);
+  return {nr,hoch};
+}
+/* Unicode-sichere Umwandlung nach Base64 */
+function b64von(text){
+  const bytes=new TextEncoder().encode(text);
+  let s="";
+  for(let i=0;i<bytes.length;i+=0x8000)
+    s+=String.fromCharCode.apply(null,bytes.subarray(i,i+0x8000));
+  return btoa(s);
 }
 
 /* ─── Reisen ─── */
