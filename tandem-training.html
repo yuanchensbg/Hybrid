@@ -198,6 +198,18 @@ main{flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-b
 .fig .k{font-size:9px;color:var(--dim);letter-spacing:.04em;text-transform:uppercase;margin-bottom:3px}
 .fig .v{font-size:17px;font-weight:650}
 .fig.tap .v{color:var(--me)}
+.awwrap{display:none;border-top:1px solid var(--line);padding:11px 13px 13px;background:var(--surf)}
+.awwrap.on{display:block}
+.awtab{width:100%;border-collapse:collapse;font-size:13px}
+.awtab td{padding:6px 4px;border-bottom:1px solid var(--line)}
+.awtab tr:last-child td{border-bottom:none}
+.awn{width:22px;color:var(--dim);font-size:11.5px}
+.awkg{width:62px;font-weight:650}
+.awr{width:58px;color:var(--mid);font-size:12px}
+.awp{color:var(--dim);font-size:12px;text-align:right}
+.awziel td{color:var(--me);font-weight:650;padding-top:9px}
+.awziel .awp,.awziel .awr{color:var(--me)}
+.awhint{font-size:11.5px;color:var(--dim);line-height:1.55;margin-top:9px}
 .notetog{display:flex;align-items:center;gap:8px;width:100%;padding:9px 13px;background:var(--surf);
   border:none;border-top:1px solid var(--line);color:var(--dim);font-size:12px;cursor:pointer;text-align:left}
 .notetog.has{color:var(--me)}
@@ -1414,7 +1426,7 @@ const ANAME={yuan:"Yuan",yara:"Yara"};
 /* ══════════ SPEICHER ══════════ */
 /* Versionsstand – steht unter Mehr ganz unten. Damit lässt sich prüfen,
    ob auf einem Gerät wirklich die aktuelle Datei läuft. */
-const BUILD={datum:"02.11.2026",nr:101};
+const BUILD={datum:"02.11.2026",nr:102};
 const DEF={
  me:"yuan", start:"2026-10-18", gyms:null, gym:"citygate",
  log:{}, archive:[], checkins:{yuan:{},yara:{}}, protein:{yuan:{},yara:{}},
@@ -2961,6 +2973,27 @@ function exCard(it,ath,lg,ses){
     }
     const erg=isErg(selEq);
     const wm=WMODE[weightMode(it.ex,selEq,lg[k+"-griff"])];
+    // Aufwärmrampe für Stangenübungen mit berechnetem Arbeitsgewicht
+    const aw=(it.sch&&it.target)?aufwaermen(it.target,it.ex,selEq,ath):null;
+    if(aw){
+      const auf=lg[k+"-awopen"];
+      h+=`<button class="notetog${auf?" has":""}" data-awtog="${k}">
+        ${auf?"▾":"▸"} Aufwärmsätze · ${aw.saetze.length} Stufen bis ${it.target} kg</button>
+      <div class="awwrap${auf?" on":""}">
+        <table class="awtab">
+          ${aw.saetze.map((s,i)=>`<tr><td class="awn">${i+1}</td>
+            <td class="awkg num">${s.kg.toLocaleString("de-DE")}</td>
+            <td class="awr">${s.reps} Wdh</td>
+            <td class="awp">${esc(s.txt||"–")}</td></tr>`).join("")}
+          <tr class="awziel"><td class="awn">→</td>
+            <td class="awkg num">${aw.ziel.kg.toLocaleString("de-DE")}</td>
+            <td class="awr">${it.rep} Wdh</td>
+            <td class="awp">${esc(aw.ziel.txt||"–")}</td></tr>
+        </table>
+        <div class="awhint">Scheiben je Seite · Stange ${aw.stange} kg.
+        Pausen kurz halten, zwischen den letzten Stufen eine Minute.</div>
+      </div>`;
+    }
     for(let s=1;s<=it.sets;s++){
       const sk=lg[`${k}-x${s}`];
       h+=`<div class="erow${sk?" skipped":""}">
@@ -3077,6 +3110,10 @@ function bindHeute(ses,ath,lg,items){
   q("[data-griff]",b=>b.onclick=()=>{
     lg[b.dataset.griff+"-griff"]=b.dataset.gv;saveDay(lg);renderHeute();});
   q("[data-eqnew]",b=>b.onclick=()=>{const [k,ex]=b.dataset.eqnew.split("|");eqNewDialog(k,ex,false);});
+  q("[data-awtog]",b=>b.onclick=()=>{
+    const kk=b.dataset.awtog;
+    if(lg[kk+"-awopen"])delete lg[kk+"-awopen"]; else lg[kk+"-awopen"]=1;
+    saveDay(lg);renderHeute();});
   q("[data-clrex]",b=>b.onclick=()=>clearExAsk(b.dataset.clrex,b.dataset.clrn,false));
   q("[data-ntog]",b=>b.onclick=()=>{
     document.getElementById("nw-"+b.dataset.ntog)?.classList.toggle("on");});
@@ -3218,6 +3255,21 @@ function renderWO(){
     ?(lg[it.key+"-eq"]||(exOptions(it.ex).find(o=>o.ok)||exOptions(it.ex)[0]||{}).t):null;
   const wErg=isErg(wEq);
   const wwm=WMODE[weightMode(it.ex,wEq,lg[it.key+"-griff"])];
+  const waw=(it.sch&&it.target)?aufwaermen(it.target,it.ex,wEq,woAth):null;
+  if(waw){
+    h+=`<div class="awwrap on" style="margin-bottom:14px">
+      <div style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);margin-bottom:7px">Aufwärmen</div>
+      <table class="awtab">
+        ${waw.saetze.map((s,i)=>`<tr><td class="awn">${i+1}</td>
+          <td class="awkg num">${s.kg.toLocaleString("de-DE")}</td>
+          <td class="awr">${s.reps}</td><td class="awp">${esc(s.txt||"–")}</td></tr>`).join("")}
+        <tr class="awziel"><td class="awn">→</td>
+          <td class="awkg num">${waw.ziel.kg.toLocaleString("de-DE")}</td>
+          <td class="awr">${it.rep}</td><td class="awp">${esc(waw.ziel.txt||"–")}</td></tr>
+      </table>
+      <div class="awhint">Scheiben je Seite · Stange ${waw.stange} kg</div>
+    </div>`;
+  }
   for(let s=1;s<=it.sets;s++){
     const sk=lg[`${it.key}-x${s}`];
     h+=`<div class="wset${sk?" skipped":lg[`${it.key}-s${s}`]?" ok":""}">
@@ -6539,6 +6591,60 @@ function rSplit(){
       sp.map(r=>r[0]+" ("+r[1]+"): "+r[2]).join("\n")+
       "\n\nWechselwort vereinbaren. Treffpunkt am Vortag zum Durchgehen.";
     shareText(txt);};
+}
+
+/* ══════════ AUFWÄRMSÄTZE ══════════
+   Rampe zum Arbeitsgewicht: steigende Last, sinkende Wiederholungen. Bahnt
+   die Bewegung, ohne Ermüdung anzusammeln. Die Zahl der Stufen richtet sich
+   nach der Höhe des Arbeitsgewichts – 100 kg brauchen mehr Zwischenschritte
+   als 60. */
+const STANGE={langhantel:20,sz:10,trapbar:25,safetybar:25,loghantel:25,multipresse:15};
+/* Welche Scheiben liegen im gewählten Studio? */
+function scheibenVon(g){
+  const std=[25,20,15,10,5,2.5,1.25];
+  const eigene=(g&&g.plates)||null;
+  return (eigene&&eigene.length?eigene:std).slice().sort((a,b)=>b-a);
+}
+/* Belegung je Seite als Text */
+function belegung(gesamt,stange,g){
+  const jeSeite=(gesamt-stange)/2;
+  if(jeSeite<=0.01)return "leere Stange";
+  let rest=Math.round(jeSeite*100)/100, teile=[];
+  scheibenVon(g).forEach(s=>{
+    while(rest>=s-0.001){teile.push(s);rest=Math.round((rest-s)*100)/100;}
+  });
+  if(rest>0.01)return null;                 // mit diesen Scheiben nicht darstellbar
+  const z={};teile.forEach(t=>z[t]=(z[t]||0)+1);
+  return Object.keys(z).sort((a,b)=>b-a)
+    .map(k=>(z[k]>1?z[k]+"×":"")+(+k).toLocaleString("de-DE")).join(" + ");
+}
+/* Aufwärmsätze auf glatte Fünferschritte runden – weniger Scheibenwechsel,
+   und auf die zwei Kilo kommt es beim Aufwärmen nicht an. */
+function machbar(ziel,stange,g){
+  const grob=Math.round((ziel-stange)/10)*10;      // je Seite glatte 5 kg
+  if(grob>0)return stange+grob;
+  const kleinste=Math.min(...scheibenVon(g))*2;
+  return Math.max(stange,stange+Math.round((ziel-stange)/kleinste)*kleinste);
+}
+function aufwaermen(arbeit,exId,eq,ath){
+  if(!arbeit||arbeit<=0)return null;
+  const stange=STANGE[eq];
+  if(!stange)return null;                   // nur für Stangenübungen sinnvoll
+  if(arbeit<=stange+5)return null;
+  const g=curGym();
+  // Mehr Stufen, je weiter das Arbeitsgewicht über der Stange liegt
+  const spanne=arbeit-stange;
+  const n=spanne>70?5:spanne>45?4:spanne>25?3:2;
+  const anteile={2:[.5,.75],3:[.45,.65,.85],4:[.4,.6,.75,.9],5:[.35,.5,.65,.8,.92]}[n];
+  const reps={2:[5,3],3:[5,3,2],4:[5,3,2,1],5:[8,5,3,2,1]}[n];
+  const out=[{kg:stange,reps:n>=5?10:8,txt:"leere Stange"}];
+  anteile.forEach((a,i)=>{
+    const roh=stange+spanne*a;
+    const kg=machbar(roh,stange,g);
+    if(kg<=out[out.length-1].kg)return;
+    out.push({kg,reps:reps[i],txt:belegung(kg,stange,g)});
+  });
+  return {stange,saetze:out,ziel:{kg:arbeit,txt:belegung(arbeit,stange,g)}};
 }
 
 /* ══════════ SELBSTANPASSUNG ══════════
