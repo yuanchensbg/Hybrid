@@ -1467,7 +1467,7 @@ const ANAME={yuan:"Yuan",yara:"Yara"};
 /* ══════════ SPEICHER ══════════ */
 /* Versionsstand – steht unter Mehr ganz unten. Damit lässt sich prüfen,
    ob auf einem Gerät wirklich die aktuelle Datei läuft. */
-const BUILD={datum:"02.11.2026",nr:107};
+const BUILD={datum:"02.11.2026",nr:110};
 const DEF={
  me:"yuan", start:"2026-10-18", gyms:null, gym:"citygate",
  log:{}, archive:[], checkins:{yuan:{},yara:{}}, protein:{yuan:{},yara:{}},
@@ -2495,6 +2495,31 @@ function progression(ath,it,date,eqJetzt){
   }
   return {kg:p.top,txt:`Gewicht halten bei ${kg(p.top)}${amGeraet} und je Satz eine Wiederholung mehr als letztes Mal.`};
 }
+/* Letzte Ausführung je Gerät. Wer zwischen Langhantel und Maschine wechselt,
+   soll beim Zurückwechseln sofort sehen, wo er dort stand. */
+function eqHistorie(ath,exId,bisDatum){
+  const map={};
+  Object.keys(DB.log||{}).sort().reverse().forEach(d=>{
+    if(bisDatum&&d>=bisDatum)return;
+    const lg=(DB.log[d]||{})[ath]; if(!lg)return;
+    const ses=sessionFor(d,ath); if(ses.k==="rest")return;
+    buildSession(ses,ath,true).forEach(it=>{
+      if(it.ex!==exId)return;
+      const eq=lg[it.key+"-eq"]||"__";
+      if(map[eq])return;                       // nur der jüngste Eintrag zählt
+      let kg=0,rp=0;
+      for(let s=1;s<=(it.sets||0)+2;s++){
+        if(lg[`${it.key}-x${s}`])continue;
+        const w=parseFloat(lg[`${it.key}-w${s}`]), r=parseInt(lg[`${it.key}-r${s}`],10);
+        if(isNaN(w)||isNaN(r))continue;
+        if(w>kg){kg=w;rp=r;}
+      }
+      if(kg)map[eq]={kg,reps:rp,date:d,griff:lg[it.key+"-griff"]||null};
+    });
+  });
+  return map;
+}
+
 /* Kurzfassung der letzten Ausführung für die Übungskarte */
 function lastLine(ath,it,date){
   const p=lastPerf(ath,it.ex,date);
@@ -2987,6 +3012,21 @@ function exCard(it,ath,lg,ses){
       opts.forEach(o=>h+=`<button class="opt${o.t===sel?" sel":""}${o.ok?"":" miss"}" data-eq="${k}" data-ev="${o.t}">${esc(o.l)}${o.eigen?" ·":""}</button>`);
       h+=`<button class="opt" data-eqnew="${k}|${it.ex}" style="color:var(--me)">+ eigenes Gerät</button>`;
       h+=`</div></div>`;
+      // Was zuletzt an welchem Gerät lag – antippen übernimmt das Gewicht
+      const hist=eqHistorie(ath,it.ex,selDate);
+      const eintraege=Object.keys(hist).filter(e=>hist[e].kg>0);
+      if(eintraege.length){
+        h+=`<div class="eqhist">`;
+        eintraege.slice(0,4).forEach(e=>{
+          const x=hist[e];
+          const aktiv=(e===sel)||(e==="__"&&!sel);
+          h+=`<button class="eqh${aktiv?" an":""}" data-hfill="${k}" data-hkg="${x.kg}">
+            <span class="eqhn">${e==="__"?"ohne Gerät":esc(eqLabel(e))}</span>
+            <span class="eqhv num">${x.kg.toLocaleString("de-DE")} × ${x.reps}</span>
+            <span class="eqhd">${x.date.slice(8)}.${x.date.slice(5,7)}.</span></button>`;
+        });
+        h+=`</div>`;
+      }
       const gr=griffeOf(it.ex);
       if(gr.length){
         const gsel=lg[k+"-griff"]||gr[0];
@@ -3173,6 +3213,12 @@ function bindHeute(ses,ath,lg,items){
   q("[data-swapex]",b=>b.onclick=()=>{
     planSwapKey=b.dataset.swapex; swapQuery="";
     openPlanSwap(b.dataset.swapname);});
+  q("[data-hfill]",b=>b.onclick=()=>{
+    const k=b.dataset.hfill, kg=b.dataset.hkg;
+    document.querySelectorAll(`[data-w^="${k}-w"]`).forEach(o=>{o.value=kg;lg[o.dataset.w]=kg;});
+    const bk=k;
+    freezeEx(lg,bk,(items.find(x=>x.key===bk)||{}).ex);
+    saveDay(lg);toast("Mit "+kg+" kg vorbelegt");});
   q("[data-fill]",b=>b.onclick=()=>{
     const k=b.dataset.fill, kg=b.dataset.kg;
     document.querySelectorAll(`[data-w^="${k}-w"]`).forEach(o=>{o.value=kg;lg[o.dataset.w]=kg;});
@@ -6776,7 +6822,15 @@ function bilanz(date,ath){
     if(b.ton>0)frueher.push(b);
   });
   const schnitt=frueher.length?frueher.reduce((a,x)=>a+x.ton,0)/frueher.length:0;
-  return {ses,dauer,saetze,geplant,ton:Math.round(ton),wdh,ausgelassen,notizen,
+  // Hat sich an einer Übung das Gerät geändert? Dann ist die Tonnage nicht vergleichbar.
+  let eqNeu=null;
+  items.forEach(it=>{
+    const jetzt=lg[it.key+"-eq"]||null;
+    if(!jetzt||eqNeu)return;
+    const L=letzteLeistungen(ath,it.ex,2);
+    if(L.length>=2&&L[1].eq&&L[1].eq!==jetzt)eqNeu={name:it.name,von:L[1].eq,auf:jetzt};
+  });
+  return {ses,dauer,saetze,geplant,ton:Math.round(ton),wdh,ausgelassen,notizen,eqNeu,
     proUebung,frueher,schnitt:Math.round(schnitt),
     delta:schnitt?Math.round((ton/schnitt-1)*100):null};
 }
@@ -6804,6 +6858,7 @@ function bilanzText(b,ath){
     else if(b.delta<=-12)t.push({ok:0,s:`${Math.abs(b.delta)} Prozent weniger als zuletzt. Einmal ist das normal, zweimal hintereinander schau in den Check-in.`});
     else t.push({ok:1,s:`Auf dem Niveau der letzten ${b.ses.k==="kraft"?"gleichen":""} Einheiten, ${b.delta>=0?"+":""}${b.delta} Prozent.`});
   }
+  if(b.eqNeu)t.push({ok:1,s:`${b.eqNeu.name} heute an ${eqLabel(b.eqNeu.auf)} statt ${eqLabel(b.eqNeu.von)}. Die Zahlen sind deshalb nicht direkt mit dem letzten Mal vergleichbar.`});
   const fehlend=b.geplant-b.saetze;
   if(fehlend>=3)t.push({ok:0,s:`${fehlend} Sätze weniger als geplant. Falls es an der Zeit lag, lieber Nebenübungen streichen als überall kürzen.`});
   // Satzabfall im Hauptlift
@@ -6897,7 +6952,9 @@ function letzteLeistungen(ath,exId,anzahl){
     if(out.length>=anzahl)return;
     const lg=(DB.log[d]||{})[ath]; if(!lg)return;
     const ses=sessionFor(d,ath); if(ses.k==="rest")return;
-    buildSession(ses,ath,true).forEach(it=>{
+    // Ohne "raw", weil sonst das geplante Tagesgewicht fehlt – und genau
+    // daran wird die Leistung gemessen.
+    buildSession(ses,ath).forEach(it=>{
       if(it.ex!==exId||out.length>=anzahl)return;
       let best=0,bw=0,br=0;
       for(let s=1;s<=(it.sets||0)+2;s++){
@@ -6909,7 +6966,8 @@ function letzteLeistungen(ath,exId,anzahl){
         if(e>best){best=e;bw=w;br=r;}
       }
       if(best)out.push({date:d,e1:best,kg:bw,reps:br,
-        ziel:it.target||0,stufe:(it.wave&&it.wave.n)||""});
+        ziel:it.target||0,stufe:(it.wave&&it.wave.n)||"",
+        eq:lg[it.key+"-eq"]||null,griff:lg[it.key+"-griff"]||null});
     });
   });
   return out;
@@ -7176,20 +7234,32 @@ function belastung(ath){
   /* Leistungsabfall – gemessen an der Planvorgabe, nicht absolut.
      Die Welle senkt die Last in der Volumen- und Entlastungswoche planmäßig
      ab; roh verglichen sähe jede Entlastung wie ein Einbruch aus. */
-  let abfall=null;
+  let abfall=null, geraetWechsel=null;
   BIG3.forEach(ex=>{
-    const L=letzteLeistungen(ath,ex,6).filter(x=>x.ziel>0);
-    if(L.length<4)return;
+    const alle=letzteLeistungen(ath,ex,8).filter(x=>x.ziel>0);
+    if(alle.length<4)return;
+    /* Nur Ausführungen am selben Gerät und mit demselben Griff vergleichen.
+       Ein Wechsel von der Langhantel an die Maschine verschiebt die Zahlen
+       um zweistellige Prozentsätze, ohne dass die Form nachgelassen hätte. */
+    const eqJetzt=alle[0].eq||null, grJetzt=alle[0].griff||null;
+    const L=alle.filter(x=>(x.eq||null)===eqJetzt&&(x.griff||null)===grJetzt);
+    if(L.length<4){
+      if(alle.length>=4&&!geraetWechsel)
+        geraetWechsel={ex,eq:eqJetzt,anders:alle.find(x=>(x.eq||null)!==eqJetzt)};
+      return;
+    }
     const quote=x=>x.e1/x.ziel;              // wie weit über der Vorgabe
     const neu=Math.max(...L.slice(0,2).map(quote));
     const alt=Math.max(...L.slice(2).map(quote));
     if(alt&&neu<alt*.95){
       const p=Math.round((1-neu/alt)*100);
-      if(!abfall||p>abfall.p)abfall={ex,p};
+      if(!abfall||p>abfall.p)abfall={ex,p,eq:eqJetzt};
     }
   });
+  if(!abfall&&geraetWechsel)flags.push({s:0,t:"Gerät gewechselt",
+    d:`Beim ${(EX[geraetWechsel.ex]||{n:geraetWechsel.ex}).n} wurde zuletzt ein anderes Gerät genutzt${geraetWechsel.eq?" ("+eqLabel(geraetWechsel.eq)+")":""}. Die Leistungsprüfung pausiert, bis vier Einheiten am selben Gerät vorliegen – sonst wäre jeder Wechsel ein scheinbarer Einbruch.`});
   if(abfall)flags.push({s:2,t:"Leistung fällt",
-    d:`${(EX[abfall.ex]||{n:abfall.ex}).n}: ${abfall.p} Prozent schwächer im Verhältnis zur Tagesvorgabe als in den Wochen davor. Die planmäßige Absenkung in Volumen- und Entlastungswochen ist dabei herausgerechnet.`});
+    d:`${(EX[abfall.ex]||{n:abfall.ex}).n}${abfall.eq?" an "+eqLabel(abfall.eq):""}: ${abfall.p} Prozent schwächer im Verhältnis zur Tagesvorgabe als in den Wochen davor. Verglichen wurde nur am selben Gerät, und die planmäßige Absenkung in Volumen- und Entlastungswochen ist herausgerechnet.`});
 
   // Belastungssprung: akute gegen chronische Woche
   const akut=wochenLast(ath,0);
