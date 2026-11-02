@@ -4637,6 +4637,7 @@ function renderMehr(){
   if(v==="swaps")return rSwaps();
   if(v==="split")return rSplit();
   if(v==="last")return rBelastung();
+  if(v==="shifts")return rShifts();
   if(v==="umrechnen")return rUmrechnen();
   if(v==="auto")return rAuto();
   if(v==="wissen")return rSci();
@@ -4652,7 +4653,8 @@ function renderMehr(){
     <button class="mi" data-v="msgs"><span class="mg">✉</span><span class="md">Nachrichten${(()=>{const n=unread(ath);return n?` <span style="background:var(--me);color:#0E1116;border-radius:9px;padding:1px 7px;font-size:11px;margin-left:5px">${n}</span>`:"";})()}<div class="ms">${(()=>{const l=msgs().slice().sort((a,b)=>b.at-a.at)[0];return l?esc(l.txt.slice(0,38))+(l.txt.length>38?"…":""):"noch keine";})()}</div></span><span class="ma">›</span></button>
     ${race(ath)?`<button class="mi" data-v="split"><span class="mg">⇄</span><span class="md">Rennplan Doubles<div class="ms">Aufteilung der Stationen und Renntempo</div></span><span class="ma">›</span></button>`:""}
     <button class="mi" data-v="last"><span class="mg">◐</span><span class="md">Belastung${(()=>{const b=belastung(ath);return b.stufe==="gruen"?"":` <span style="background:${b.stufe==="rot"?"var(--red)":"var(--warn)"};color:#0E1116;border-radius:9px;padding:1px 7px;font-size:11px;margin-left:5px">!</span>`;})()}<div class="ms">${(()=>{const b=belastung(ath);return BELTXT[b.stufe][0]+(b.flags.length?" · "+b.flags.length+" Auffälligkeit"+(b.flags.length===1?"":"en"):"");})()}</div></span><span class="ma">›</span></button>
-    <button class="mi" data-v="umrechnen"><span class="mg">÷</span><span class="md">Werte umrechnen<div class="ms">Kurzhantel: Gesamt auf je Hantel</div></span><span class="ma">›</span></button>
+    ${(()=>{const n=shiftGruppen(ath).length;return n?`<button class="mi" data-v="shifts"><span class="mg">↔</span><span class="md">Verschiebungen <span style="background:var(--both);color:#0E1116;border-radius:9px;padding:1px 7px;font-size:11px;margin-left:5px">${n}</span><div class="ms">verschobene Tage zurücknehmen</div></span><span class="ma">›</span></button>`:"";})()}
+    <button class="mi" data-v="umrechnen"><span class="mg">÷</span><span class="md">Werte umrechnen<div class="ms">Kurzhanteln und Klimmzüge rückwirkend</div></span><span class="ma">›</span></button>
     <button class="mi" data-v="auto"><span class="mg">⇡</span><span class="md">Anpassungen${(()=>{const n=alleVorschlaege(ath).length;return n?` <span style="background:var(--me);color:#0E1116;border-radius:9px;padding:1px 7px;font-size:11px;margin-left:5px">${n}</span>`:"";})()}<div class="ms">${(()=>{const n=alleVorschlaege(ath).length;return n?n+" Vorschlag"+(n===1?"":"e")+" aus deinen Einträgen":"Vorgaben passen";})()}</div></span><span class="ma">›</span></button>
     <button class="mi" data-v="wissen"><span class="mg">§</span><span class="md">Warum so geplant<div class="ms">Die Studien hinter dem Plan</div></span><span class="ma">›</span></button>
     <button class="mi" data-v="reisen"><span class="mg">✈</span><span class="md">Reisen<div class="ms">${(()=>{const t=travelInfo(ath);if(t)return esc(t.t.n)+" · noch "+t.restTage+" Tage";const n=travels().filter(x=>x.bis>=todayISO()).length;return n?n+" geplant":"keine geplant";})()}</div></span><span class="ma">›</span></button>
@@ -7207,8 +7209,15 @@ function shiftUndo(ath,dateStr){
     // Ein Tausch betrifft genau zwei Tage
     delete s[eintrag.tausch];delete s[dateStr];
   } else {
-    // Die ganze Kette entfernen, die an diesem Tag beginnt
-    Object.keys(s).forEach(d=>{ if(d>=dateStr)delete s[d]; });
+    /* Nur die Kette entfernen, die an diesem Tag beginnt – zusammenhängende
+       Folgetage. Spätere, eigenständige Verschiebungen bleiben bestehen. */
+    let d=dateStr;
+    for(let i=0;i<=9;i++){
+      if(!s[d]||s[d].tausch)break;
+      delete s[d];
+      const x=new Date(d+"T12:00:00");x.setDate(x.getDate()+1);
+      d=iso(x);
+    }
   }
   if(!Object.keys(s).length)delete shifts()[ath];
   save();
@@ -7472,6 +7481,18 @@ function rBelastung(){
 
 /* Auswertung nach der Einheit */
 function zeigeBilanz(date,ath){
+  try{ zeigeBilanzIntern(date,ath); }
+  catch(e){
+    showModal(`<h3>Zusammenfassung nicht möglich</h3>
+      <p style="font-size:13px;color:var(--mid);line-height:1.7;margin-bottom:12px">
+      Beim Erstellen ist ein Fehler aufgetreten. Schick mir diesen Text, dann finde ich die Ursache:</p>
+      <div style="background:var(--surf2);border-radius:10px;padding:11px;font-size:12px;
+        color:var(--warn);line-height:1.5;word-break:break-word">${esc(String(e&&e.message||e))}</div>
+      <div style="height:12px"></div>
+      <button class="btn" onclick="closeModal()">Schließen</button>`);
+  }
+}
+function zeigeBilanzIntern(date,ath){
   const b=bilanz(date,ath);
   if(!b){showModal(`<h3>Fertig</h3><button class="btn" onclick="closeModal()">Schließen</button>`);return;}
   const t=bilanzText(b,ath);
@@ -7509,10 +7530,113 @@ function zeigeBilanz(date,ath){
     <button class="btn" onclick="closeModal()">Schließen</button>`);
 }
 
+/* ─── Verschiebungen ─── */
+/* Alle aktiven Verschiebungen an einer Stelle, einzeln und gesammelt
+   zurücknehmbar – sonst müsste man den richtigen Tag erst wiederfinden. */
+function shiftGruppen(ath){
+  const s=(DB.shift||{})[ath]||{};
+  const tage=Object.keys(s).sort();
+  const gruppen=[];
+  tage.forEach(d=>{
+    const e=s[d];
+    if(e.tausch){
+      // Tausch mit einem Ruhetag: nur den Starttag als Gruppe führen
+      if(e.leer)gruppen.push({art:"tausch",von:d,nach:e.tausch,tage:[d,e.tausch]});
+      return;
+    }
+    if(e.leer){
+      // Kette: alle Folgetage einsammeln
+      const kette=[d];
+      let lauf=d;
+      for(let i=1;i<=9;i++){
+        const x=new Date(d+"T12:00:00");x.setDate(x.getDate()+i);
+        const ds=iso(x);
+        if(!s[ds]||s[ds].tausch)break;
+        kette.push(ds);lauf=ds;
+      }
+      gruppen.push({art:"kette",von:d,bis:lauf,tage:kette});
+    }
+  });
+  return gruppen;
+}
+function rShifts(){
+  const a=me();
+  const G=shiftGruppen(a);
+  const dat=d=>new Date(d+"T12:00:00").toLocaleDateString("de-DE",{weekday:"short",day:"numeric",month:"short"});
+  let h=back+`<h1 style="font-size:25px;font-weight:800;letter-spacing:-.02em;margin-bottom:5px">Verschiebungen</h1>
+    <div style="font-size:13px;color:var(--mid);line-height:1.65;margin-bottom:16px">
+    Alle Tage, die du verschoben oder mit einem Ruhetag getauscht hast. Zurücknehmen stellt
+    den ursprünglichen Plan wieder her – deine Eintragungen bleiben dabei an ihrem Datum.</div>`;
+  if(!G.length){
+    h+=`<div class="empty">Keine Verschiebung aktiv.<br>Der Plan läuft wie vorgesehen.</div>`;
+  } else {
+    G.forEach((g,i)=>{
+      h+=`<div class="card">
+        <div class="lbl">${g.art==="tausch"?"Mit Ruhetag getauscht":g.tage.length+" Tage verschoben"}</div>
+        <div style="font-size:15px;font-weight:600;margin:3px 0 7px">
+          ${g.art==="tausch"?`${dat(g.von)} ⇄ ${dat(g.nach)}`:`ab ${dat(g.von)}`}</div>
+        <div style="font-size:12.5px;color:var(--mid);line-height:1.8">
+          ${g.tage.map(d=>{
+            const s2=sessionFor(d,a);
+            return `${dat(d)} · ${esc(s2.n)}`;}).join("<br>")}</div>
+        <button class="btn" data-sundo="${g.von}" style="margin:12px 0 0">Zurücknehmen</button>
+      </div>`;
+    });
+    if(G.length>1)h+=`<button class="btn btn-r" id="sundoall">Alle ${G.length} zurücknehmen</button>`;
+  }
+  document.getElementById("p-mehr").innerHTML=h;
+  document.querySelectorAll("[data-sundo]").forEach(b=>b.onclick=()=>{
+    shiftUndo(a,b.dataset.sundo);rShifts();toast("Zurückgenommen");});
+  document.getElementById("sundoall")?.addEventListener("click",()=>{
+    showModal(`<h3>Alle zurücknehmen?</h3>
+      <p style="font-size:13.5px;color:var(--mid);line-height:1.7;margin-bottom:14px">
+      ${G.length} Verschiebungen werden aufgehoben, der Plan steht wieder wie ursprünglich.
+      Eingetragene Sätze bleiben an dem Tag, an dem du sie gemacht hast.</p>
+      <button class="btn btn-r" onclick="closeModal();delete (DB.shift||{})['${a}'];save();for(const k in _schedC)delete _schedC[k];rShifts();toast('Alle zurückgenommen')">Ja, alle</button>
+      <button class="btn" onclick="closeModal()">Abbrechen</button>`);});
+}
+
 /* ─── Werte umrechnen ─── */
 /* Vor der Umstellung wurden Kurzhantelgewichte als Summe beider Hanteln
    eingetragen, seither je Hantel. Ohne Korrektur sieht der Verlauf wie ein
    Einbruch aus, obwohl sich nichts geändert hat. */
+/* Zweite Altlast: Bei Klimmzügen und Dips wurde früher das Gesamtgewicht
+   eingetragen, also Körpergewicht plus Zusatz. Seit die App den Körper selbst
+   dazurechnet, muss er aus den alten Einträgen heraus. */
+function bwVorschau(ath,bisDatum){
+  const out=[], kg=DB.bw[ath]||70;
+  Object.keys(DB.log||{}).sort().forEach(d=>{
+    if(d>=bisDatum)return;
+    const lg=(DB.log[d]||{})[ath]; if(!lg||lg._bwfix)return;
+    const ses=sessionFor(d,ath); if(ses.k==="rest")return;
+    buildSession(ses,ath,true).forEach(it=>{
+      if(!istBW(it.ex))return;
+      const werte=[];
+      for(let s=1;s<=(it.sets||0)+2;s++){
+        const w=parseFloat(lg[`${it.key}-w${s}`]);
+        // Nur Werte, die offensichtlich das Körpergewicht enthalten
+        if(!isNaN(w)&&w>kg*0.7){
+          const neu=Math.max(0,Math.round((w-kg)*2)/2);
+          werte.push({key:`${it.key}-w${s}`,alt:w,neu});
+        }
+      }
+      if(werte.length)out.push({date:d,name:it.name,modus:"zusatz",werte});
+    });
+  });
+  return out;
+}
+function bwAnwenden(ath,bisDatum){
+  const liste=bwVorschau(ath,bisDatum);
+  const tage=new Set();
+  liste.forEach(e=>{
+    const lg=L(e.date,ath);
+    e.werte.forEach(w=>{ if(w.neu>0)lg[w.key]=String(w.neu); else delete lg[w.key]; });
+    tage.add(e.date);
+  });
+  tage.forEach(d=>{const lg=L(d,ath);lg._bwfix=1;saveDay(lg);});
+  _mxCache={};
+  return liste.length;
+}
 function umrechnenVorschau(ath,bisDatum){
   const out=[];
   Object.keys(DB.log||{}).sort().forEach(d=>{
@@ -7560,8 +7684,23 @@ function rUmrechnen(){
       <div style="font-size:12px;color:var(--dim);line-height:1.6;margin-top:8px">
       Wähl den ersten Tag, an dem du bereits je Hantel eingetragen hast. Alles davor wird halbiert.</div>
     </div>`;
+  const bwListe=bwVorschau(a,bis);
+  if(bwListe.length){
+    h+=`<div class="sec">Klimmzüge und Dips</div>
+      <div class="card">
+        <div style="font-size:12.5px;color:var(--mid);line-height:1.65;margin-bottom:10px">
+        Hier stand früher das Gesamtgewicht, also Körper plus Zusatz. Die App rechnet den
+        Körper inzwischen selbst dazu – ${DB.bw[a]||70} kg werden abgezogen.</div>
+        ${bwListe.slice(0,8).map(e=>`<div class="lastl" style="border:none;padding:4px 0">
+          <span class="lw">${new Date(e.date+"T12:00:00").toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit"})} ${esc(e.name)}</span>
+          ${e.werte.map(w=>w.alt.toLocaleString("de-DE")+" → <b style='color:var(--me)'>"+(w.neu||"ohne Zusatz")+"</b>").join(" · ")}</div>`).join("")}
+        ${bwListe.length>8?`<div style="font-size:12px;color:var(--dim);margin-top:6px">und ${bwListe.length-8} weitere</div>`:""}
+        <button class="btn btn-go" id="bwgo" style="margin:12px 0 0">Körpergewicht herausrechnen</button>
+      </div>`;
+  }
   if(!liste.length){
-    h+=`<div class="empty">Nichts umzurechnen.<br>Vor diesem Datum stehen keine betroffenen Einträge.</div>`;
+    h+=`<div class="sec">Kurzhanteln</div>
+      <div class="empty">Nichts umzurechnen.<br>Vor diesem Datum stehen keine betroffenen Einträge.</div>`;
   } else {
     h+=`<div class="sec">${liste.length} Übungen an ${tage.length} Tagen</div>`;
     liste.slice(0,25).forEach(e=>{
@@ -7580,6 +7719,14 @@ function rUmrechnen(){
   }
   document.getElementById("p-mehr").innerHTML=h;
   document.getElementById("fixbis").onchange=e=>{DB.fixBis=e.target.value;save();rUmrechnen();};
+  document.getElementById("bwgo")?.addEventListener("click",()=>{
+    showModal(`<h3>${bwListe.length} Einträge korrigieren?</h3>
+      <p style="font-size:13.5px;color:var(--mid);line-height:1.7;margin-bottom:14px">
+      Von den Werten vor dem ${new Date(bis+"T12:00:00").toLocaleDateString("de-DE")} wird dein
+      Körpergewicht abgezogen. Was übrig bleibt, ist das Zusatzgewicht – bei reinen
+      Körpergewichtssätzen bleibt das Feld leer.</p>
+      <button class="btn btn-go" onclick="closeModal();const n=bwAnwenden(me(),'${bis}');rUmrechnen();toast(n+' korrigiert')">Ja, korrigieren</button>
+      <button class="btn" onclick="closeModal()">Abbrechen</button>`);});
   document.getElementById("fixgo")?.addEventListener("click",()=>{
     showModal(`<h3>${liste.length} Einträge halbieren?</h3>
       <p style="font-size:13.5px;color:var(--mid);line-height:1.7;margin-bottom:14px">
