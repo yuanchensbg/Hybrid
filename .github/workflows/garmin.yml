@@ -1,0 +1,32 @@
+name: Garmin
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 * * * *"
+
+permissions:
+  contents: write
+
+jobs:
+  holen:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Bibliothek installieren
+        run: pip install garminconnect
+      - name: Letzten Lauf holen
+        env:
+          GARMIN_EMAIL: ${{ secrets.GARMIN_EMAIL }}
+          GARMIN_PASSWORD: ${{ secrets.GARMIN_PASSWORD }}
+        run: python scripts/garmin_pull.py
+      - name: Ergebnis ins Repository legen
+        run: |
+          git config user.name "Garmin Bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add garmin/latest.json
+          git diff --staged --quiet || git commit -m "Garmin: letzter Lauf"
+          git push
