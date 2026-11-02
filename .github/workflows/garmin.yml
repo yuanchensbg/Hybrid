@@ -1,3 +1,5 @@
+# Holt den letzten Lauf über die Garmin Personal API und legt ihn als
+# garmin/latest.json ab. Kein Passwort nötig – nur der Personal-API-Schlüssel.
 name: Garmin
 
 on:
@@ -13,16 +15,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Bibliothek installieren
-        run: pip install garminconnect
+
       - name: Letzten Lauf holen
         env:
-          GARMIN_EMAIL: ${{ secrets.GARMIN_EMAIL }}
-          GARMIN_PASSWORD: ${{ secrets.GARMIN_PASSWORD }}
+          GARMIN_API_KEY: ${{ secrets.GARMIN_API_KEY }}
         run: python scripts/garmin_pull.py
+
       - name: Ergebnis ins Repository legen
         run: |
           git config user.name "Garmin Bot"
