@@ -37,52 +37,78 @@ def hole(url, headers, method="GET", daten=None):
 
 
 # ── 1. Schlüssel gegen Token tauschen ────────────────────────────────
-# Garmin antwortet hier nicht zwingend mit JSON, deshalb beide Fälle.
-try:
-    # Kein enger Accept-Header: Garmin antwortet sonst mit 406.
-    text, status, kopf = roh_holen(
-        TOKEN_URL,
-        {"Authorization": "ApiKey " + SCHLUESSEL,
-         "Accept": "*/*",
-         "Content-Length": "0"},
-        "POST", b"")
-except urllib.error.HTTPError as e:
-    koerper = e.read().decode("utf-8", "replace")[:400]
-    raise SystemExit(f"Token-Abruf fehlgeschlagen: HTTP {e.code}\n{koerper}")
+# Garmin hat mit 406 geantwortet. Die Ursache ist nicht eindeutig, deshalb
+# werden mehrere Kopfzeilen-Kombinationen probiert. Die funktionierende
+# wird im Log genannt, danach lässt sich die Liste kürzen.
+CURL_UA = "curl/8.7.1"
 
-print(f"Antwort {status}, Typ {kopf.get('Content-Type','?')}, "
-      f"{len(text)} Zeichen")
+VARIANTEN = [
+    ("nur Authorization, Kennung curl",
+     {"Authorization": "ApiKey " + SCHLUESSEL, "User-Agent": CURL_UA}),
+    ("Authorization pur",
+     {"Authorization": "ApiKey " + SCHLUESSEL}),
+    ("curl-Kennung mit Accept */*",
+     {"Authorization": "ApiKey " + SCHLUESSEL, "User-Agent": CURL_UA, "Accept": "*/*"}),
+    ("curl-Kennung mit Accept application/json",
+     {"Authorization": "ApiKey " + SCHLUESSEL, "User-Agent": CURL_UA,
+      "Accept": "application/json"}),
+    ("mit Content-Type application/json",
+     {"Authorization": "ApiKey " + SCHLUESSEL, "User-Agent": CURL_UA,
+      "Accept": "application/json", "Content-Type": "application/json"}),
+    ("Browser-Kennung",
+     {"Authorization": "ApiKey " + SCHLUESSEL,
+      "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+                    "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0 Safari/537.36",
+      "Accept": "application/json"}),
+]
+
+text = status = kopf = None
+for name, kopfzeilen in VARIANTEN:
+    try:
+        text, status, kopf = roh_holen(TOKEN_URL, kopfzeilen, "POST", b"")
+        print(f"  {name} → {status}  ← diese Kombination funktioniert")
+        break
+    except urllib.error.HTTPError as e:
+        koerper = e.read().decode("utf-8", "replace")[:160]
+        print(f"  {name} → HTTP {e.code}  {koerper}")
+        text = None
+    except Exception as e:
+        print(f"  {name} → {e}")
+        text = None
+
+if text is None:
+    raise SystemExit("Keine der Kombinationen wurde angenommen. Log bitte weitergeben.")
+
+print(f"Antwort {status}, Typ {kopf.get('Content-Type','?')}, {len(text)} Zeichen")
 
 token = None
 if text.strip():
     try:
         d = json.loads(text)
         if isinstance(d, str):
-            token = d                      # Antwort ist nur der Token in Anführungszeichen
+            token = d
         elif isinstance(d, dict):
             token = (d.get("access_token") or d.get("accessToken")
                      or d.get("token") or d.get("value"))
     except json.JSONDecodeError:
-        # Reiner Text, eventuell in Anführungszeichen
         token = text.strip().strip('"')
 
 if not token:
-    # Manche Dienste liefern den Token in einer Kopfzeile
     for name in ("Authorization", "X-Access-Token", "Access-Token"):
         if kopf.get(name):
             token = kopf[name].replace("Bearer ", "").strip()
             break
 
 if not token:
-    gezeigt = text[:300] if text.strip() else "(leere Antwort)"
     raise SystemExit(
         "Kein Token in der Antwort.\n"
         f"Status: {status}\nKopfzeilen: {json.dumps(kopf)[:300]}\n"
-        f"Inhalt: {gezeigt}")
+        f"Inhalt: {text[:300] if text.strip() else '(leer)'}")
 
 print(f"Token erhalten, {len(token)} Zeichen, beginnt mit {token[:8]}…")
 
-KOPF = {"Authorization": "Bearer " + token, "Accept": "*/*"}
+KOPF = {"Authorization": "Bearer " + token, "Accept": "application/json",
+        "User-Agent": CURL_UA}
 
 # ── 2. Aktivitäten suchen ────────────────────────────────────────────
 # Die genaue Adresse ist nicht öffentlich dokumentiert, deshalb werden
