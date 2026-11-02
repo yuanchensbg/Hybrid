@@ -1,5 +1,5 @@
 {
-  "geholt": "2026-11-02T23:21:07Z",
+  "geholt": "2026-11-02T23:21:49Z",
   "quelle": "https://personal.connectapi.garmin.com/activitylist-service/activities/search/activities",
   "id": 24931582620,
   "name": "Wien Laufen",
@@ -199,13 +199,13 @@
     "qualifyingDive": false,
     "activityUUID": "f75a989e-18d6-4394-8977-bbb59ef9161b",
     "packWeightCalories": 0,
-    "elevationCorrected": false,
     "decoDive": false,
-    "parent": false,
+    "manualActivity": false,
     "pr": false,
-    "favorite": false,
     "autoCalcCalories": false,
-    "manualActivity": false
+    "elevationCorrected": false,
+    "favorite": false,
+    "parent": false
   },
   "detail": {
     "activityId": 24931582620,
@@ -284,14 +284,14 @@
       "hasRunPowerWindData": true,
       "calendarEventInfo": null,
       "hasMultiDayActivities": false,
+      "personalRecord": false,
+      "gcj02": false,
+      "runPowerWindDataEnabled": true,
       "autoCalcCalories": false,
       "favorite": false,
-      "trimmed": false,
-      "elevationCorrected": false,
       "manualActivity": false,
-      "runPowerWindDataEnabled": true,
-      "personalRecord": false,
-      "gcj02": false
+      "elevationCorrected": false,
+      "trimmed": false
     },
     "summaryDTO": {
       "startTimeLocal": "2026-11-01T16:16:22.0",
