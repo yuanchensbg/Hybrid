@@ -63,50 +63,38 @@ if not token:
 print(f"Token erhalten, {len(token)} Zeichen, beginnt mit {token[:8]}…")
 KOPF = ["Authorization: Bearer " + token]
 
-# ── 2. Aktivitätsliste finden ────────────────────────────────────────
-# Garmin dokumentiert die Adresse nicht öffentlich. Deshalb werden mehrere
-# Varianten versucht; die funktionierende steht danach im Log.
-heute = datetime.date.today()
-von = heute - datetime.timedelta(days=14)
-spanne = f"?startDate={von}&endDate={heute}&start=0&limit=20"
+# ── 2. Aktivitätsliste holen ─────────────────────────────────────────
+# Adresse aus der Personal-API-Dokumentation. Die Liste liegt nicht beim
+# activity-service, sondern beim activitylist-service.
+LISTE_URL = ("https://personal.connectapi.garmin.com"
+             "/activitylist-service/activities/search/activities")
 
-KANDIDATEN = [
-    "https://personal.connectapi.garmin.com/activity-service/activities",
-    "https://personal.connectapi.garmin.com/activity-service/activities/search",
-    "https://personal.connectapi.garmin.com/activity-service/activity/search",
-    "https://personal.connectapi.garmin.com/personal-api/activities",
-    "https://personal.connectapi.garmin.com/wellness-api/rest/activities",
-    "https://apis.garmin.com/activity-service/activities",
-]
+st, txt = curl(LISTE_URL + "?start=0&limit=20&activityType=running", KOPF)
+print(f"Aktivitätsliste: HTTP {st}, {len(txt)} Zeichen")
 
-liste, benutzt, roh_antwort = None, None, None
-for basis in KANDIDATEN:
-    url = basis + spanne
-    try:
-        st, txt = curl(url, KOPF)
-    except Exception as e:
-        print(f"  {basis} → {e}")
-        continue
-    if st != 200:
-        print(f"  {basis} → HTTP {st}  {txt[:120]}")
-        continue
-    d = als_json(txt)
-    if isinstance(d, list):
-        liste, benutzt, roh_antwort = d, basis, txt
-    elif isinstance(d, dict):
-        for feld in ("activities", "activityList", "items", "content", "data"):
-            if isinstance(d.get(feld), list):
-                liste, benutzt, roh_antwort = d[feld], basis, txt
-                break
-        if liste is None:
-            print(f"  {basis} → 200, aber keine Liste: {txt[:160]}")
-            continue
-    if liste is not None:
-        print(f"  {basis} → {len(liste)} Einträge  ← diese Adresse funktioniert")
-        break
+if st != 200:
+    # Ohne Typfilter noch einmal versuchen
+    st, txt = curl(LISTE_URL + "?start=0&limit=20", KOPF)
+    print(f"  ohne Typfilter: HTTP {st}, {len(txt)} Zeichen")
 
-if liste is None:
-    raise SystemExit("Keine Aktivitätsliste gefunden. Log bitte weitergeben.")
+if st != 200:
+    raise SystemExit(f"Liste nicht abrufbar.\n{txt[:400]}")
+
+d = als_json(txt)
+liste = None
+if isinstance(d, list):
+    liste = d
+elif isinstance(d, dict):
+    for feld_name in ("activityList", "activities", "items", "content", "data"):
+        if isinstance(d.get(feld_name), list):
+            liste = d[feld_name]
+            break
+
+if not liste:
+    raise SystemExit("Keine Einträge in der Antwort: " + txt[:400])
+
+print(f"  {len(liste)} Aktivitäten erhalten")
+benutzt = LISTE_URL
 
 # ── 3. Jüngsten Lauf herausziehen ────────────────────────────────────
 def feld(d, *namen, standard=None):
@@ -155,10 +143,40 @@ ergebnis = {
     "roh": lauf,                      # alles, was Garmin mitgeliefert hat
 }
 
+# ── 4. Einzelheiten dieser Aktivität nachladen ───────────────────────
+# Dort stehen Splits, Schrittfrequenz, Höhenprofil und Trainingswirkung.
+aid = ergebnis["id"]
+detail = None
+if aid:
+    st_d, txt_d = curl(
+        f"https://personal.connectapi.garmin.com/activity-service/activity/{aid}", KOPF)
+    print(f"Einzelheiten: HTTP {st_d}, {len(txt_d)} Zeichen")
+    if st_d == 200:
+        detail = als_json(txt_d)
+
+if isinstance(detail, dict):
+    ergebnis["detail"] = detail
+    # Ein paar häufig gebrauchte Werte nach oben ziehen
+    for quelle_feld, ziel_feld in [
+            ("averageRunningCadenceInStepsPerMinute", "schrittfrequenz"),
+            ("maxRunningCadenceInStepsPerMinute", "schrittfrequenzMax"),
+            ("avgStrideLength", "schrittlaenge"),
+            ("aerobicTrainingEffect", "wirkungAerob"),
+            ("anaerobicTrainingEffect", "wirkungAnaerob"),
+            ("avgPower", "leistung"),
+            ("maxPower", "leistungMax"),
+            ("vO2MaxValue", "vo2max"),
+            ("minActivityLapDuration", "kuerzesteRunde")]:
+        wert = detail.get(quelle_feld)
+        if wert is None and isinstance(detail.get("summaryDTO"), dict):
+            wert = detail["summaryDTO"].get(quelle_feld)
+        if wert not in (None, ""):
+            ergebnis[ziel_feld] = wert
+
 ziel = pathlib.Path("garmin")
 ziel.mkdir(exist_ok=True)
 (ziel / "latest.json").write_text(
     json.dumps(ergebnis, ensure_ascii=False, indent=2), encoding="utf-8")
 
-kurz = {k: v for k, v in ergebnis.items() if k != "roh"}
+kurz = {k: v for k, v in ergebnis.items() if k not in ("roh", "detail")}
 print("Geschrieben:", json.dumps(kurz, ensure_ascii=False))
