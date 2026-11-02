@@ -97,6 +97,15 @@ header{flex:0 0 auto;background:var(--bg);border-bottom:1px solid var(--line);
   border-radius:10px;padding:9px 11px;margin-bottom:7px;color:var(--ink);font:inherit;font-size:12.5px;
   line-height:1.5;cursor:pointer}
 .scibtn span{color:var(--mid);font-size:12px}
+.wavestrip{display:flex;gap:5px;margin-top:13px}
+.wstep{flex:1;min-width:0;background:var(--surf2);border:1px solid var(--line);border-radius:9px;
+  padding:7px 4px;text-align:center;opacity:.5}
+.wstep.on{opacity:1;border-color:var(--me);background:var(--me-soft)}
+.wstep .wn{display:block;font-size:10px;color:var(--dim);white-space:nowrap;overflow:hidden;
+  text-overflow:ellipsis}
+.wstep.on .wn{color:var(--me)}
+.wstep .wv{display:block;font-size:12.5px;font-weight:650;margin-top:3px}
+.wstep .wp{display:block;font-size:10px;color:var(--dim);margin-top:1px}
 .jump{display:flex;align-items:center;gap:7px;padding:0 15px 9px;overflow-x:auto;-webkit-overflow-scrolling:touch}
 .jump.off{padding-bottom:9px}
 .jump button{flex:0 0 auto;padding:6px 12px;border-radius:9px;border:1px solid var(--line);
@@ -620,7 +629,7 @@ const EQ={
  /* Rumpf */
  bauchmasch:"Bauchmaschine",kapitaen:"Kapitänsstuhl",abrad:"Ab-Wheel",
  /* Funktional / HYROX */
- sled:"Schlitten",schlitten:"Sled-Strecke",wallball:"Wall Balls",sandbag:"Sandbag",medball:"Medizinball",
+ sled:"Schlitten",schlitten:"Sled-Strecke",wallball:"Wall Balls",sandbag:"Sandbag",medball:"Medizinball",slamball:"Slam Ball",
  farmer:"Farmer-Griffe",box:"Plyo-Box",ringe:"Ringe",band:"Widerstandsbänder",schlingentrainer:"Schlingentrainer",
  battlerope:"Battle Rope",seil:"Kletterseil",
  /* Ausdauer */
@@ -641,7 +650,7 @@ function mergeCustomEq(){
 const EQ_ORDER=()=>Object.keys(EQ);
 
 const GYMS_DEFAULT=[
- {id:"citygate",n:"Speedfit Citygate",s:"Studio",eq:["langhantel","rack","powerrack","multipresse","kurzhantel","kettlebell","sz","trapbar","bank","schraeg","negativbank","predigerbank","beinpresse45","beinpresselin","hack","beinbeugerlieg","beinbeugersitz","beinbeugerknie","beinstrecker","abduktor","adduktor","wadenmaschsteh","wadenmaschsitz","chestpress","chestpressplate","schraegpresse","butterfly","kabelcross","schulterpresse","seithebemasch","trizepsmasch","dip","dipmasch","latzug","latzugeng","kabelturm","kabel","rudermaschsitz","rudermaschbrust","tbar","tbarplate","bizepsmasch","reversebutterfly","klimmzug","assist","hyper","bauchmasch","kapitaen","box","band","medball","schlingentrainer","battlerope","concept2","assaultbike","stairmaster","laufband","ergometer","liegerad","spinning","crosstrainer","foamroll","matten"]},
+ {id:"citygate",n:"Speedfit Citygate",s:"Studio",eq:["langhantel","rack","powerrack","multipresse","kurzhantel","kettlebell","sz","trapbar","bank","schraeg","negativbank","predigerbank","beinpresse45","beinpresselin","hack","beinbeugerlieg","beinbeugersitz","beinbeugerknie","beinstrecker","abduktor","adduktor","wadenmaschsteh","wadenmaschsitz","chestpress","chestpressplate","schraegpresse","butterfly","kabelcross","schulterpresse","seithebemasch","trizepsmasch","dip","dipmasch","latzug","latzugeng","kabelturm","kabel","rudermaschsitz","rudermaschbrust","tbar","tbarplate","bizepsmasch","reversebutterfly","klimmzug","assist","hyper","bauchmasch","kapitaen","box","band","medball","slamball","schlingentrainer","battlerope","concept2","assaultbike","stairmaster","laufband","ergometer","liegerad","spinning","crosstrainer","foamroll","matten"]},
  {id:"bernoulli",n:"Speedfit Bernoulli",s:"Studio",eq:["langhantel","rack","multipresse","kurzhantel","kettlebell","sz","bank","schraeg","predigerbank","beinpresse45","hack","beinbeugerlieg","beinstrecker","abduktor","adduktor","wadenmaschsteh","chestpress","butterfly","schulterpresse","trizepsmasch","dip","latzug","kabel","rudermaschsitz","bizepsmasch","klimmzug","assist","hyper","bauchmasch","box","band","concept2","stairmaster","laufband","ergometer","spinning","crosstrainer","foamroll","matten"]},
  {id:"home",n:"Homegym",s:"Zuhause",eq:["langhantel","rack","kurzhantel","kettlebell","bank","schraeg","klimmzug","band","box","medball","matten","foamroll"]}
 ];
@@ -991,7 +1000,7 @@ const PRESETS=[
 {n:"Kraft · Zug & Bank leicht",w:"pull",d:"Zweite Bankdrückeinheit bei etwa siebzig Prozent – schnell und sauber. Danach alles, was zieht.",
  items:[{e:"bench",sch:"light",p:"2:00"},{e:"pullup",s:4,r:"6",p:"2:30"},
         {e:"tbarrow",s:4,r:"10",p:"1:30"},{e:"onerow",s:3,r:"10",p:"1:30"},
-        {e:"curl",s:3,r:"12",p:"1:00"},{e:"farmerwalk",s:3,r:"50",p:"1:30",unit:"m"},
+        {e:"curl",s:3,r:"12",p:"1:00"},{e:"farmerwalk",s:3,r:"100",p:"2:00",unit:"m"},
         {e:"wallballs",s:3,r:"20",p:"1:30"}]},
 {n:"Lauf locker & Rumpf",w:"mixed",d:"Dritter Lauf der Woche, betont locker. Hält die Marathonbasis, ohne die Beine für den Krafttag zu belasten.",
  items:[{e:"run1k",s:1,r:"8000",p:"0:30",unit:"m"},{e:"cablecrunch",s:3,r:"15",p:"1:00"},
@@ -1321,9 +1330,11 @@ const RAMP="<b>So rampst du an den Hauptlift heran</b> – diese Sätze zählen 
 const SAT={k:"rest",n:"Ruhetag",note:"Fix jeden Samstag",
  why:"<b>Der feste Anker im Zyklus.</b> Alles andere wandert, dieser Tag nicht. Muskeln wachsen in der Erholung, und nach fünf bis sechs Einheiten am Stück braucht das Nervensystem einen vollen Tag ohne Reiz. Spaziergang und Mobility sind in Ordnung, mehr nicht."};
 
-const SUN={k:"lauf",n:"Long Run",note:"Fix jeden Sonntag",
- why:"<b>Die wichtigste Einheit der Woche für die Grundlagenausdauer.</b> Langsam genug, dass ihr euch durchgehend unterhalten könnt – wer hier zu schnell läuft, verliert den Trainingseffekt und holt sich nur Müdigkeit. Die Distanz steigt über die Wochen, alle vier Wochen gibt es eine Entlastung.",
- run:{t:"long",warm:"",main:"",rest:"",cool:"5 Min gehen",zone:"esy",isLong:1}};
+const SUN={k:"lauf",n:"Long Run",note:"Fix jeden Sonntag",sci:["helgerud"],
+ whyRace:"<br><br><b>Warum er bei einem HYROX-Ziel nicht weiter wächst:</b> Im Rennen sind es acht mal ein Kilometer mit Stationen dazwischen, nicht ein Dauerlauf. Zwölf bis vierzehn Kilometer reichen als Grundlage vollkommen. Alles darüber kostet Erholung, die für die rennspezifischen Einheiten gebraucht wird, und verbessert nichts, was im Wettkampf vorkommt.",
+ why:"<b>Der Puls führt, nicht das Tempo.</b> Der Long Run liegt bei 65 bis 75 Prozent der maximalen Herzfrequenz – das ist das untere Ende der lockeren Zone, nicht ihre Mitte.<br><br>Dort entsteht die Grundlagenausdauer: mehr Blutgefäße in der Muskulatur, mehr Mitochondrien, bessere Fettverwertung. Läufst du schneller, trainierst du etwas anderes und bist für die harte Einheit am Dienstag müde – ohne dass der Long Run dadurch besser wird.<br><br>Die Faustregel bleibt: Du musst dich durchgehend unterhalten können. Die Distanz steigt über die Wochen, jede vierte wird zurückgenommen.",
+ run:{t:"long",warm:"",main:"",rest:"",cool:"5 Min gehen",zone:"esy",isLong:1,
+   hr:[.65,.75]}};
 
 /* ══════════ KRAFTWELLE FÜR DIE DREI HAUPTLIFTS ══════════
    Vier Wochen: aufbauen, verdichten, Spitze, entlasten.
@@ -1403,7 +1414,7 @@ const ANAME={yuan:"Yuan",yara:"Yara"};
 /* ══════════ SPEICHER ══════════ */
 /* Versionsstand – steht unter Mehr ganz unten. Damit lässt sich prüfen,
    ob auf einem Gerät wirklich die aktuelle Datei läuft. */
-const BUILD={datum:"23.10.2026",nr:81};
+const BUILD={datum:"23.10.2026",nr:90};
 const DEF={
  me:"yuan", start:"2026-10-18", gyms:null, gym:"citygate",
  log:{}, archive:[], checkins:{yuan:{},yara:{}}, protein:{yuan:{},yara:{}},
@@ -1414,8 +1425,8 @@ const DEF={
  sync:{prov:"jsonbin",binId:"6acf9725ac6210605a311174",
    key:"$2a$10$7H8UEB5mTyvwzGbDMMMF7Of3ii1ilQ1AexrMGo4RLxAJYWAHTdRWa",
    auto:true,dev:""},
- bw:{yuan:78,yara:60}, maxes:{yuan:{bench:113,deadlift:130,squat:130},yara:{squat:45,bench:43,deadlift:70}},
- hrmax:{yuan:200,yara:0}, longBase:{yuan:14,yara:11}, longMax:{yuan:22,yara:19},
+ bw:{yuan:78,yara:60}, maxes:{yuan:{bench:113,deadlift:130,squat:130},yara:{squat:45,bench:43,deadlift:82}},
+ hrmax:{yuan:200,yara:200}, longBase:{yuan:14,yara:12}, longMax:{yuan:22,yara:14},
  pullStage:{yuan:5,yara:0}, autoBottom:true, waNum:"", zones:null
 };
 let DB=Object.assign({},DEF);
@@ -1845,11 +1856,35 @@ function longRun(ath,dateStr){
   // Höchstens vier Kilometer automatisch dazu. Alles darüber gehört in die
   // Blocküberprüfung – unbegrenztes Wachstum hätte nach zwei Jahren bei
   // 38 Kilometern geendet, und das ist ohne Marathonziel sinnlos.
-  if(DB.longGrow!==false)max=max+Math.min(4,Math.max(0,bi.block-1)*2);
+  /* Automatisches Mitwachsen nur ohne Wettkampfziel auf kurzer Distanz.
+     HYROX läuft über acht mal einen Kilometer – ein Long Run, der Richtung
+     zwanzig Kilometer wächst, kostet Erholung für die spezifischen Einheiten
+     und bringt für das Rennen nichts mehr. */
+  const rinfo=raceInfo(ath,dateStr);
+  const kurzesZiel=rinfo&&!rinfo.past;
+  if(DB.longGrow!==false&&!kurzesZiel)max=max+Math.min(4,Math.max(0,bi.block-1)*2);
+  // In der rennspezifischen Phase zählt Tempo, nicht Länge
+  if(kurzesZiel&&rinfo.phase&&rinfo.phase.id==="spezifisch")max=Math.min(max,12);
+  if(kurzesZiel&&rinfo.phase&&rinfo.phase.id==="peak")max=Math.min(max,8);
   const deload=(w%4===3);
   const build=w-Math.floor(w/4);
   let km=Math.min(max,base+build);
   if(deload)km=Math.round(km*0.7);
+  /* Nie mehr als zehn Prozent über dem längsten Lauf der letzten vier Wochen.
+     Die Zehn-Prozent-Regel ist eine Faustregel ohne harte Studienlage, aber
+     die Sprünge, die ohne sie entstehen, treffen Sehnen und Knochen – die
+     passen sich langsamer an als Herz und Muskulatur. */
+  if(!deload){
+    let laengster=0;
+    for(let i=1;i<=28;i++){
+      const d=new Date(dateStr+"T12:00:00");d.setDate(d.getDate()-i);
+      const lg=(DB.log[iso(d)]||{})[ath];
+      if(!lg)continue;
+      const v=parseFloat(lg["run0-c-dist"]||lg["run1-c-dist"]);
+      if(!isNaN(v)&&v>laengster)laengster=v;
+    }
+    if(laengster>=5)km=Math.min(km,Math.round(laengster*1.1));
+  }
   return km;
 }
 /* Die wirksame Intensität für VO2max-Intervalle liegt bei 90 bis 95 Prozent
@@ -1906,12 +1941,25 @@ const griffeOf=id=>(GRIFF_EX[id]||[]);
 /* Wie ist das eingetragene Gewicht gemeint? Bei Kurzhanteln und einarmigen
    Übungen je Seite, bei einem gemeinsam gehaltenen Gerät insgesamt.
    Ohne klare Angabe sind spätere Vergleiche wertlos. */
+/* Übungen, bei denen das eigene Körpergewicht die Grundlast ist. Eingetragen
+   wird nur das Zusatzgewicht – die App rechnet den Körper dazu. Sonst zählte
+   das Körpergewicht bei jedem Satz als frei gewählte Last in die Tonnage. */
+const BW_EX=["pullup","chinup","neutralpull","klimmzugneg","dips","dipmasch",
+  "invertedrow","pushup","pushupfeet","deadhang","scapular","muscleup","toesbar"];
+const istBW=id=>BW_EX.includes(id);
+/* Gesamtlast eines Satzes: Zusatz plus Körpergewicht, wo das zutrifft */
+function lastVon(exId,ath,eingetragen){
+  const w=parseFloat(eingetragen);
+  if(isNaN(w))return NaN;
+  return istBW(exId)?w+(DB.bw[ath]||70):w;
+}
 const EINHAND=["onerow","concentration","suitcase","beinpresseein","beinextein",
   "hipthrustein","meadows","kickback"];
 const EIN_GERAET=["goblet","kbswing","pullover","medballslam","wallballs","sandbaglunge",
   "sandbagcarry","kbclean","kbsnatch","russian","platepinch","plateraise","straightarm",
   "cablecrunch","woodchopper","facepull","trizeps","latzugbreit","latzugengex","kabelrudern"];
 function weightMode(exId,eq,griff){
+  if(istBW(exId))return "zusatz";
   if(griff==="einarm")return "seite";
   if(EINHAND.includes(exId))return "seite";
   if(EIN_GERAET.includes(exId))return "gesamt";
@@ -1920,6 +1968,7 @@ function weightMode(exId,eq,griff){
   return "gesamt";
 }
 const WMODE={
+ zusatz:{kurz:"+kg",lang:"Nur das Zusatzgewicht eintragen, nicht dein Körpergewicht. Ohne Zusatz bleibt das Feld leer – die App rechnet deinen Körper selbst dazu."},
  seite:{kurz:"kg/Seite",lang:"Gewicht je Seite eintragen – nicht beide zusammen."},
  hantel:{kurz:"kg/Hantel",lang:"Gewicht je Hantel eintragen, nicht die Summe beider."},
  gesamt:{kurz:"kg",lang:""}
@@ -2041,9 +2090,29 @@ function buildSession(ses,ath,raw,modeArg){
     const z=ses.run.zone;
     if(ses.run.isLong){
       const km=longRun(ath,ses.date);
+      const rr=raceInfo(ath,ses.date);
+      if(rr&&!rr.past&&ses.whyRace&&!ses.why.includes("nicht weiter wächst"))
+        ses={...ses,why:ses.why+ses.whyRace};
       out.push({key:"run0",type:"run",name:"Long Run",
-        sub:`Durchgehend lockeres Tempo · ${paceTxt(ath,"esy")} /km`,
-        figs:[["Distanz",km+" km"],["Pace",paceTxt(ath,"esy")]],
+        sub:(()=>{
+          const z=DB.zones[ath].esy;
+          // Für den Long Run gilt die langsamere Hälfte der lockeren Zone
+          const mitte=Math.round(((z[0]*60+z[1])+(z[2]*60+z[3]))/2);
+          const langsam=Math.floor(mitte/60)+":"+String(mitte%60).padStart(2,"0");
+          const bis=z[2]+":"+String(z[3]).padStart(2,"0");
+          const hr=ses.run.hr?hrTxt(ath,ses.run.hr[0],ses.run.hr[1]):"";
+          return hr?`Puls ${hr} · Tempo etwa ${langsam}–${bis} /km`
+                   :`Durchgehend lockeres Tempo · ${langsam}–${bis} /km`;
+        })(),
+        figs:(()=>{
+          const z=DB.zones[ath].esy;
+          const mitte=Math.round(((z[0]*60+z[1])+(z[2]*60+z[3]))/2);
+          const langsam=Math.floor(mitte/60)+":"+String(mitte%60).padStart(2,"0");
+          const f=[["Distanz",km+" km"]];
+          if(ses.run.hr&&hrMax(ath))f.push(["Puls",hrTxt(ath,ses.run.hr[0],ses.run.hr[1]).replace(" bpm","")]);
+          f.push(["Pace",langsam+"–"+z[2]+":"+String(z[3]).padStart(2,"0")]);
+          return f;
+        })(),
         cardio:["dist","pace","time","hr"],how:"easy"});
       out.push({key:"run1",type:"free",name:"Auslaufen & Dehnen",sub:ses.run.cool,figs:[["Dauer","10 Min"]]});
     } else {
@@ -2433,7 +2502,7 @@ function liftCount(ath,exId,dateStr){
 }
 /* Versatz, wenn eine Welle übersprungen wurde – etwa weil schwerer
    gearbeitet wurde als geplant. Wird unter Profil gesetzt. */
-const WAVE_OFF_DEF={yuan:{bench:1}};
+const WAVE_OFF_DEF={yuan:{bench:2}};
 function waveOffset(ath,exId){
   const o=(DB.waveOff||{})[ath];
   if(o&&o[exId]!==undefined)return o[exId];
@@ -2442,9 +2511,16 @@ function waveOffset(ath,exId){
 function waveForLift(dateStr,sch,ath,exId){
   const hyp=HYP_ATH.includes(ath);
   if(sch==="light")return hyp?WAVE_LIGHT_HYP:WAVE_LIGHT;
-  const n=liftCount(ath,exId,dateStr)+waveOffset(ath,exId);
+  const roh=liftCount(ath,exId,dateStr);
+  const n=roh+waveOffset(ath,exId);
   const W=(hyp?WAVE_HYP:WAVE);
-  return W[((n%W.length)+W.length)%W.length];
+  let i=((n%W.length)+W.length)%W.length;
+  /* Eine Entlastung ergibt erst Sinn, wenn vorher genug Ermüdung entstanden
+     ist. Durch einen Wellenversatz kann sie sonst schon nach zwei schweren
+     Einheiten fallen – dann fehlt der Reiz, den sie abbauen soll.
+     Mindestens drei belastende Einheiten müssen vorausgegangen sein. */
+  if(i===W.length-1&&roh<3)i=0;
+  return W[i];
 }
 function waveFor(dateStr,sch,slotIx,ath){
   const hyp=HYP_ATH.includes(ath);
@@ -2563,6 +2639,16 @@ function renderHeute(){
         : `Gleiche Hauptübungen, im Wechsel am selben Rack. Danach laufen die Zusatzübungen getrennt.`}</div>
     </div>`;
   }
+  const bel=belastung(ath);
+  if(bel.stufe!=="gruen"&&selDate===todayISO()){
+    const f=bel.stufe==="rot"?"var(--red)":"var(--warn)";
+    h+=`<div class="together" style="border-left-color:${f}">
+      <div class="avat" style="background:rgba(214,169,74,.18);color:${f}">◐</div>
+      <div class="tw"><b>${BELTXT[bel.stufe][0]}</b> · ${bel.flags.length} Auffälligkeit${bel.flags.length===1?"":"en"}<br>
+      <span style="font-size:11.5px">${esc(bel.flags.slice(0,2).map(x=>x.t).join(" · "))}</span>
+      <button class="opt" style="margin-top:7px" onclick="go('mehr','last')">Ansehen</button></div>
+    </div>`;
+  }
   const trv=travelInfo(ath,selDate), zurueck=wiederEinstieg(ath,selDate);
   if(trv){
     h+=`<div class="together" style="border-left-color:var(--both)">
@@ -2672,7 +2758,25 @@ function renderHeute(){
             :"Die letzten zwei Wiederholungen sollen fordern. Technik vor Gewicht – Muskelaufbau kommt aus dem Volumen, nicht aus der Last.")
           : (big.wave.pct>=.88?"Heute ist der schwerste Tag der Welle. Nur ran, wenn der Check-in passt."
             :big.wave.pct<=.65?"Bewusst leicht. Die Entlastung ist der Grund, warum die nächste Welle höher trägt."
-            :"Die letzten zwei Wiederholungen sollen fordern, aber sauber bleiben.")}</div></div>`;
+            :"Die letzten zwei Wiederholungen sollen fordern, aber sauber bleiben.")}</div>
+        <div class="wavestrip">
+          ${(hyp?WAVE_HYP:WAVE).map(w=>`<div class="wstep${w.n===big.wave.n?" on":""}">
+            <span class="wn">${esc(w.n)}</span>
+            <span class="wv num">${w.s}×${w.r}</span>
+            <span class="wp num">${Math.round(w.pct*100)} %</span></div>`).join("")}
+        </div>
+        <div style="font-size:11.5px;color:var(--dim);line-height:1.55;margin-top:9px">
+        Die Welle zählt Ausführungen, nicht Kalenderwochen – jeder Hauptlift läuft
+        für sich. Nächste Stufe am ${(()=>{
+          for(let i=1;i<=28;i++){
+            const d=new Date(selDate+"T12:00:00");d.setDate(d.getDate()+i);
+            const s2=sessionFor(iso(d),ath); if(s2.k!=="kraft")continue;
+            const b2=buildSession(s2,ath,true).find(x=>x.ex===big.ex&&x.sch==="main");
+            if(b2)return new Date(iso(d)+"T12:00:00").toLocaleDateString("de-DE",{day:"numeric",month:"short"})
+              +" · "+b2.wave.n+" "+b2.sets+" × "+b2.rep+(b2.target?" @ "+b2.target+" kg":"");
+          }
+          return "steht noch nicht fest";
+        })()}</div></div>`;
     }
     const wpos=(DB.woPos||{})[selDate+"|"+ath];
     const lifts=items.filter(i=>i.type==="lift"||i.type==="circuit");
@@ -2842,11 +2946,15 @@ function exCard(it,ath,lg,ses){
   }
   if(it.cardio){
     h+=`<div class="trk">`;
-    const CF={dist:["Distanz","km","decimal"],pace:["Pace","/km","text"],time:["Dauer","min","decimal"],hr:["Ø Puls","bpm","numeric"]};
+    /* Pace und Dauer als Zeitangabe: Ziffern tippen reicht, der Doppelpunkt
+       wird gesetzt – die Zifferntastatur hat keinen. */
+    const CF={dist:["Distanz","km","decimal","12,5"],pace:["Pace","/km","clock","6:32"],
+      time:["Dauer","h:mm:ss","clock","1:37:55"],hr:["Ø Puls","bpm","numeric","141"]};
     it.cardio.forEach(f=>{
-      const c=CF[f];
+      const c=CF[f], clk=c[2]==="clock";
       h+=`<div class="erow"><span class="elbl">${c[0]}</span>
-        <input class="inp num" type="${c[2]==="text"?"text":"number"}" inputmode="${c[2]}" placeholder="${c[0]}" data-c="${k}-c-${f}" value="${esc(lg[`${k}-c-${f}`]||"")}">
+        <input class="inp num" type="${clk?"text":"number"}" inputmode="${clk?"numeric":c[2]}"
+          placeholder="${c[3]}" ${clk?`data-cclk="1"`:""} data-c="${k}-c-${f}" value="${esc(lg[`${k}-c-${f}`]||"")}">
         <span class="u">${c[1]}</span></div>`;
     });
     h+=`</div>`;
@@ -2908,7 +3016,13 @@ function bindHeute(ses,ath,lg,items){
       if(v)lg[i.dataset.clk]=v; else delete lg[i.dataset.clk];
       saveDay(lg);};
   });
-  q("[data-c]",i=>i.oninput=()=>{lg[i.dataset.c]=i.value;saveDay(lg);});
+  q("[data-c]",i=>{
+    i.oninput=()=>{lg[i.dataset.c]=i.value;saveDay(lg);};
+    if(i.dataset.cclk)i.onblur=()=>{
+      const v=clockFmt(i.value);i.value=v;
+      if(v)lg[i.dataset.c]=v; else delete lg[i.dataset.c];
+      saveDay(lg);};
+  });
   q("[data-set]",b=>b.onclick=()=>{const k=b.dataset.set;
     const bk0=k.replace(/-s\d+$/,"");
     freezeEx(lg,bk0,(items.find(x=>x.key===bk0)||{}).ex);
@@ -3493,7 +3607,7 @@ function reportDay(date,ath){
     }
     if(sets.length)parts.push("("+sets.join(", ")+")");
     if(it.cardio){
-      const CF={dist:["Distanz","km"],pace:["Pace","/km"],time:["Dauer","min"],hr:["Puls","bpm"]};
+      const CF={dist:["Distanz","km"],pace:["Pace","/km"],time:["Dauer",""],hr:["Puls","bpm"]};
       it.cardio.forEach(f=>{const v=lg[`${it.key}-c-${f}`];if(v)parts.push(`${CF[f][0]} ${v} ${CF[f][1]}`);});
     }
     const exn=lg[it.key+"-note"];
@@ -3660,7 +3774,9 @@ function scanWeeks(ath){
       if(it.type==="lift"||it.type==="circuit"){
         for(let s=1;s<=(it.sets||0)+2;s++){
           if(lg[`${it.key}-x${s}`])continue;
-          const wt=parseFloat(lg[`${it.key}-w${s}`]), r=parseInt(lg[`${it.key}-r${s}`],10);
+          const roh=parseFloat(lg[`${it.key}-w${s}`]), r=parseInt(lg[`${it.key}-r${s}`],10);
+          // Bei Körpergewichtsübungen zählt Zusatz plus eigener Körper
+          const wt=istBW(it.ex)?(isNaN(roh)?(DB.bw[ath]||70):roh+(DB.bw[ath]||70)):roh;
           if(!isNaN(r)){W[w].sets++;any=true;}
           if(!isNaN(wt)&&!isNaN(r)){
             W[w].ton+=wt*r;
@@ -4233,6 +4349,8 @@ function renderMehr(){
   if(v==="update")return rUpdate();
   if(v==="swaps")return rSwaps();
   if(v==="split")return rSplit();
+  if(v==="last")return rBelastung();
+  if(v==="auto")return rAuto();
   if(v==="wissen")return rSci();
   if(v==="reisen")return rTravel();
   if(v==="race")return rRace();
@@ -4245,6 +4363,8 @@ function renderMehr(){
     <button class="mi" data-v="gyms"><span class="mg">⌁</span><span class="md">Gyms & Geräte<div class="ms">${esc(curGym().n)} · ${curGym().eq.length} Geräte hinterlegt</div></span><span class="ma">›</span></button>
     <button class="mi" data-v="msgs"><span class="mg">✉</span><span class="md">Nachrichten${(()=>{const n=unread(ath);return n?` <span style="background:var(--me);color:#0E1116;border-radius:9px;padding:1px 7px;font-size:11px;margin-left:5px">${n}</span>`:"";})()}<div class="ms">${(()=>{const l=msgs().slice().sort((a,b)=>b.at-a.at)[0];return l?esc(l.txt.slice(0,38))+(l.txt.length>38?"…":""):"noch keine";})()}</div></span><span class="ma">›</span></button>
     ${race(ath)?`<button class="mi" data-v="split"><span class="mg">⇄</span><span class="md">Rennplan Doubles<div class="ms">Aufteilung der Stationen und Renntempo</div></span><span class="ma">›</span></button>`:""}
+    <button class="mi" data-v="last"><span class="mg">◐</span><span class="md">Belastung${(()=>{const b=belastung(ath);return b.stufe==="gruen"?"":` <span style="background:${b.stufe==="rot"?"var(--red)":"var(--warn)"};color:#0E1116;border-radius:9px;padding:1px 7px;font-size:11px;margin-left:5px">!</span>`;})()}<div class="ms">${(()=>{const b=belastung(ath);return BELTXT[b.stufe][0]+(b.flags.length?" · "+b.flags.length+" Auffälligkeit"+(b.flags.length===1?"":"en"):"");})()}</div></span><span class="ma">›</span></button>
+    <button class="mi" data-v="auto"><span class="mg">⇡</span><span class="md">Anpassungen${(()=>{const n=alleVorschlaege(ath).length;return n?` <span style="background:var(--me);color:#0E1116;border-radius:9px;padding:1px 7px;font-size:11px;margin-left:5px">${n}</span>`:"";})()}<div class="ms">${(()=>{const n=alleVorschlaege(ath).length;return n?n+" Vorschlag"+(n===1?"":"e")+" aus deinen Einträgen":"Vorgaben passen";})()}</div></span><span class="ma">›</span></button>
     <button class="mi" data-v="wissen"><span class="mg">§</span><span class="md">Warum so geplant<div class="ms">Die Studien hinter dem Plan</div></span><span class="ma">›</span></button>
     <button class="mi" data-v="reisen"><span class="mg">✈</span><span class="md">Reisen<div class="ms">${(()=>{const t=travelInfo(ath);if(t)return esc(t.t.n)+" · noch "+t.restTage+" Tage";const n=travels().filter(x=>x.bis>=todayISO()).length;return n?n+" geplant":"keine geplant";})()}</div></span><span class="ma">›</span></button>
     <button class="mi" data-v="race"><span class="mg">◎</span><span class="md">Wettkampf<div class="ms">${(()=>{const r=raceInfo(ath);return r&&!r.past?esc(r.r.name)+" in "+r.days+" Tagen · "+esc(r.phase.n):"kein Ziel eingetragen";})()}</div></span><span class="ma">›</span></button>
@@ -4382,6 +4502,7 @@ const EQDEF={
  box:"Stabile Holz- oder Schaumstoffbox, meist 50 bis 75 cm, oft dreifach verstellbar.",
  wallball:"Weicher Ball mit 4 bis 9 kg und eine Zielmarkierung an der Wand.",
  medball:"Fester Medizinball ohne Zielwand, zum Werfen und Fangen.",
+ slamball:"Schwerer Ball ohne Rückprall, zum Auf-den-Boden-Werfen. Für Wall Balls nicht geeignet – er springt nicht zurück.",
  sandbag:"Sack mit loser Füllung und Tragegriffen. Die Füllung bewegt sich mit.",
  battlerope:"Zwei schwere Taue an einem Ankerpunkt.",
  seil:"Springseil, Länge auf die Körpergröße eingestellt.",
@@ -4567,11 +4688,27 @@ function rProfil(){
       dann kommt die nächste Stufe früher. Ein Schritt entspricht einer Einheit.</div>
       ${BIG3.map(ex=>{
         const off=waveOffset(a,ex);
-        const nxt=waveForLift(todayISO(),"main",a,ex);
-        return `<div class="erow"><span class="elbl" style="width:92px">${PATHS[ex].n}</span>
-          <button class="opt" data-woff="${ex}|-1">−</button>
-          <span class="num" style="flex:1;text-align:center;font-size:12.5px">${nxt.n}${off?` (${off>0?"+":""}${off})`:""}</span>
-          <button class="opt" data-woff="${ex}|1">+</button></div>`;}).join("")}
+        // Die nächsten vier Termine dieses Lifts mit ihrer Stufe
+        const kommend=[];
+        for(let i=0;i<70&&kommend.length<4;i++){
+          const d=new Date(todayISO()+"T12:00:00");d.setDate(d.getDate()+i);
+          const s=sessionFor(iso(d),a); if(s.k!=="kraft")continue;
+          const b=buildSession(s,a,true).find(x=>x.ex===ex&&x.sch==="main");
+          if(b)kommend.push({d:iso(d),b});
+        }
+        return `<div style="padding:11px 0;border-top:1px solid var(--line)">
+          <div class="erow" style="margin:0">
+            <span class="elbl" style="width:98px">${PATHS[ex].n}</span>
+            <button class="opt" data-woff="${ex}|-1">−</button>
+            <span class="num" style="flex:1;text-align:center;font-size:12.5px">${kommend.length?kommend[0].b.wave.n:"–"}${off?` (${off>0?"+":""}${off})`:""}</span>
+            <button class="opt" data-woff="${ex}|1">+</button>
+          </div>
+          ${kommend.length?`<div style="font-size:11.5px;color:var(--mid);line-height:1.75;margin-top:7px">
+            ${kommend.map((k,i)=>`<span style="color:${i===0?"var(--me)":"var(--dim)"}">
+              ${new Date(k.d+"T12:00:00").toLocaleDateString("de-DE",{day:"numeric",month:"short"})} ·
+              ${esc(k.b.wave.n)} ${k.b.sets} × ${k.b.rep}${k.b.target?" @ "+k.b.target+" kg":""}</span>`).join("<br>")}
+          </div>`:""}
+        </div>`;}).join("")}
     </div>
     <div class="card"><h4>Bestwerte der drei Hauptlifts</h4>
       <div style="font-size:12.5px;color:var(--mid);line-height:1.6;margin-bottom:12px">
@@ -5677,7 +5814,8 @@ function weekDuel(){
         for(let s=1;s<=(it.sets||0)+2;s++){
           if(lg[`${it.key}-x${s}`])continue;
           const w=parseFloat(lg[`${it.key}-w${s}`]),r=parseInt(lg[`${it.key}-r${s}`],10);
-          if(!isNaN(w)&&!isNaN(r))ton+=w*r;
+          const wv=istBW(it.ex)?(isNaN(w)?(DB.bw[a]||70):w+(DB.bw[a]||70)):w;
+          if(!isNaN(wv)&&!isNaN(r))ton+=wv*r;
         }
         if(it.cardio){const d2=parseFloat(lg[`${it.key}-c-dist`]);if(!isNaN(d2))km+=d2;}
       });
@@ -6289,6 +6427,263 @@ function rSplit(){
     shareText(txt);};
 }
 
+/* ══════════ SELBSTANPASSUNG ══════════
+   Nach jeder Einheit prüft die App, ob die Vorgaben noch zum tatsächlichen
+   Leistungsstand passen – und schlägt Änderungen vor. Grundlage ist die
+   autoregulierte Steuerung nach geschafften Wiederholungen (APRE), die in
+   der Netzwerk-Metaanalyse vor RPE, Geschwindigkeit und fester Prozentvorgabe
+   rangiert. Es wird nichts still verändert: jeder Vorschlag ist sichtbar,
+   begründet und einzeln annehmbar. */
+const RUND=(v,s)=>Math.round(v/s)*s;
+
+/* Beste Hochrechnung der letzten N Ausführungen einer Übung */
+function letzteLeistungen(ath,exId,anzahl){
+  const out=[];
+  Object.keys(DB.log||{}).sort().reverse().forEach(d=>{
+    if(out.length>=anzahl)return;
+    const lg=(DB.log[d]||{})[ath]; if(!lg)return;
+    const ses=sessionFor(d,ath); if(ses.k==="rest")return;
+    buildSession(ses,ath,true).forEach(it=>{
+      if(it.ex!==exId||out.length>=anzahl)return;
+      let best=0,bw=0,br=0;
+      for(let s=1;s<=(it.sets||0)+2;s++){
+        if(lg[`${it.key}-x${s}`])continue;
+        const roh=parseFloat(lg[`${it.key}-w${s}`]), r=parseInt(lg[`${it.key}-r${s}`],10);
+        const w=istBW(exId)?(isNaN(roh)?(DB.bw[ath]||70):roh+(DB.bw[ath]||70)):roh;
+        if(isNaN(w)||isNaN(r)||r<1||r>15)continue;
+        const e=e1rm(w,r);
+        if(e>best){best=e;bw=w;br=r;}
+      }
+      if(best)out.push({date:d,e1:best,kg:bw,reps:br});
+    });
+  });
+  return out;
+}
+
+/* Vorschlag für einen Hauptlift */
+function kraftVorschlag(ath,exId){
+  /* Gegen den hinterlegten Wert vergleichen, nicht gegen bestMax – das
+     rechnet die Logs bereits mit und verglich sich sonst mit sich selbst. */
+  const aktuell=((DB.maxes||{})[ath]||{})[exId];
+  if(!aktuell)return null;
+  const L=letzteLeistungen(ath,exId,3);
+  if(!L.length)return null;
+  const tageHer=Math.round((new Date(todayISO()+"T12:00:00")-new Date(L[0].date+"T12:00:00"))/86400000);
+
+  // Längere Pause: Kraft fällt messbar ab, die Vorgabe muss mit
+  if(tageHer>21){
+    const wochen=Math.floor((tageHer-14)/7);
+    const neu=RUND(Math.max(aktuell*.85,aktuell*Math.pow(.97,wochen)),2.5);
+    if(neu<aktuell)return {typ:"kraft",ex:exId,von:aktuell,auf:neu,
+      grund:`Letzte Ausführung vor ${tageHer} Tagen. Nach zwei Wochen ohne Reiz fällt die Maximalkraft um etwa drei Prozent je weiterer Woche – steig lieber tiefer ein und arbeite dich in zwei Wochen zurück.`};
+  }
+
+  const beste=Math.max(...L.map(x=>x.e1));
+  // Deutlich stärker als hinterlegt
+  if(beste>aktuell*1.02){
+    const neu=RUND(beste,2.5);
+    return {typ:"kraft",ex:exId,von:aktuell,auf:neu,
+      grund:`${L[0].kg} kg × ${L[0].reps} am ${L[0].date.slice(8)}.${L[0].date.slice(5,7)}. ergeben hochgerechnet ${Math.round(beste)} kg. Die Vorgabe liegt ${Math.round((1-aktuell/beste)*100)} Prozent darunter und bremst dich.`};
+  }
+  // Drei Einheiten deutlich unter dem hinterlegten Wert
+  if(L.length>=3&&L.every(x=>x.e1<aktuell*.93)){
+    const neu=RUND(aktuell*.95,2.5);
+    return {typ:"kraft",ex:exId,von:aktuell,auf:neu,
+      grund:`Drei Einheiten in Folge deutlich unter der Vorgabe. Das ist kein Formtief von einem Tag – wahrscheinlicher ist, dass der hinterlegte Wert zu hoch war oder eine Pause dazwischenkam.`};
+  }
+  return null;
+}
+
+/* Laufen: Tempozonen gegen den tatsächlichen Puls prüfen */
+function laufVorschlag(ath){
+  const m=hrMax(ath);
+  if(!m)return null;
+  const laeufe=[];
+  Object.keys(DB.log||{}).sort().reverse().forEach(d=>{
+    if(laeufe.length>=4)return;
+    const lg=(DB.log[d]||{})[ath]; if(!lg)return;
+    const ses=sessionFor(d,ath);
+    if(ses.k!=="lauf"||!ses.run||ses.run.zone!=="esy")return;
+    const hr=parseFloat(lg["run1-c-hr"]), pace=lg["run1-c-pace"];
+    if(!isNaN(hr)&&pace)laeufe.push({d,hr,pace});
+  });
+  if(laeufe.length<2)return null;
+  const schnitt=laeufe.reduce((a,x)=>a+x.hr,0)/laeufe.length;
+  const z=DB.zones[ath].esy;
+  const sek=v=>v[0]*60+v[1];
+  const fmtp=s=>Math.floor(s/60)+":"+String(Math.round(s%60)).padStart(2,"0");
+  // Lockerer Lauf soll bei 68 bis 75 Prozent liegen
+  if(schnitt<m*.66){
+    const neu=[sek([z[0],z[1]])-15,sek([z[2],z[3]])-15];
+    return {typ:"zone",zone:"esy",ath,von:fmtp(sek([z[0],z[1]]))+"–"+fmtp(sek([z[2],z[3]])),
+      auf:fmtp(neu[0])+"–"+fmtp(neu[1]),neu,
+      grund:`Die letzten ${laeufe.length} lockeren Läufe lagen im Schnitt bei ${Math.round(schnitt)} Schlägen, also unter ${Math.round(m*.66)}. Das ist langsamer als nötig – fünfzehn Sekunden schneller je Kilometer bringt mehr Reiz bei gleicher Erholung.`};
+  }
+  if(schnitt>m*.78){
+    const neu=[sek([z[0],z[1]])+15,sek([z[2],z[3]])+15];
+    return {typ:"zone",zone:"esy",ath,von:fmtp(sek([z[0],z[1]]))+"–"+fmtp(sek([z[2],z[3]])),
+      auf:fmtp(neu[0])+"–"+fmtp(neu[1]),neu,
+      grund:`Die letzten ${laeufe.length} lockeren Läufe lagen im Schnitt bei ${Math.round(schnitt)} Schlägen, also über ${Math.round(m*.78)}. Locker heißt locker – sonst fehlt die Erholung für die harten Einheiten.`};
+  }
+  return null;
+}
+
+/* Long Run: behutsam steigern, jede vierte Woche zurücknehmen */
+function longVorschlag(ath){
+  const c=cyc(ath), aktuell=c.longKm||(ath==="yuan"?15:12);
+  const max=c.longMax||(ath==="yuan"?22:19);
+  const L=[];
+  Object.keys(DB.log||{}).sort().reverse().forEach(d=>{
+    if(L.length>=4)return;
+    const lg=(DB.log[d]||{})[ath]; if(!lg)return;
+    const ses=sessionFor(d,ath);
+    if(ses.k!=="lauf"||ses.n!=="Long Run")return;
+    const km=parseFloat(lg["run1-c-dist"]);
+    if(!isNaN(km))L.push({d,km});
+  });
+  if(L.length<2)return null;
+  const woche=Math.floor((new Date(todayISO())-new Date(DB.start))/(7*86400000));
+  if(woche%4===3){
+    const neu=Math.max(6,Math.round(aktuell*.8));
+    if(neu<aktuell)return {typ:"long",ath,von:aktuell,auf:neu,
+      grund:`Vierte Woche im Block – Umfang einmal zurücknehmen. Die Anpassung passiert in der Erholung, nicht im Reiz.`};
+    return null;
+  }
+  const geschafft=L[0].km>=aktuell*.95;
+  if(geschafft&&aktuell<max){
+    const neu=Math.min(max,Math.round(aktuell*1.08));
+    if(neu>aktuell)return {typ:"long",ath,von:aktuell,auf:neu,
+      grund:`${L[0].km} km am ${L[0].d.slice(8)}.${L[0].d.slice(5,7)}. durchgezogen. Acht Prozent mehr liegen innerhalb dessen, was die Sehnen mitmachen.`};
+  }
+  if(!geschafft&&L.length>=2&&L[1].km>aktuell*.95){
+    return {typ:"long",ath,von:aktuell,auf:aktuell,
+      grund:`Der letzte Long Run blieb unter der Vorgabe. Umfang halten statt steigern, bis er zweimal steht.`};
+  }
+  return null;
+}
+
+function alleVorschlaege(ath){
+  const out=[];
+  BIG3.forEach(ex=>{const v=kraftVorschlag(ath,ex);if(v)out.push(v);});
+  const z=laufVorschlag(ath); if(z)out.push(z);
+  const l=longVorschlag(ath); if(l&&l.von!==l.auf)out.push(l);
+  return out;
+}
+function vorschlagUebernehmen(ath,v){
+  if(v.typ==="kraft"){
+    DB.maxes[ath]=DB.maxes[ath]||{};
+    DB.maxes[ath][v.ex]=v.auf;
+    _mxCache={};
+  } else if(v.typ==="zone"){
+    const f=s=>[Math.floor(s/60),Math.round(s%60)];
+    DB.zones[ath][v.zone]=[...f(v.neu[0]),...f(v.neu[1])];
+  } else if(v.typ==="long"){
+    DB.cycle=DB.cycle||{};DB.cycle[ath]=DB.cycle[ath]||{};
+    DB.cycle[ath].longKm=v.auf;
+  }
+  DB.autoLog=DB.autoLog||[];
+  DB.autoLog.push({at:Date.now(),ath,typ:v.typ,ex:v.ex||v.zone||"long",von:v.von,auf:v.auf});
+  if(DB.autoLog.length>60)DB.autoLog=DB.autoLog.slice(-60);
+  save();
+}
+
+/* ══════════ BELASTUNGSÜBERWACHUNG ══════════
+   Kein einzelner Marker erkennt Übertraining zuverlässig – das ist die
+   Kernaussage der gemeinsamen Stellungnahme von ECSS und ACSM (Meeusen et al.
+   2013). Was funktioniert, ist die Kombination: Fragebogen, Ruhepuls,
+   Leistung und Belastungsverlauf zusammen.
+
+   Diese Seite stellt keine Diagnose. Sie zeigt Auffälligkeiten und sagt,
+   wann ein Arzt die richtige Adresse ist. */
+function ciWerte(ath,tage,feld){
+  const out=[];
+  const C=DB.checkins[ath]||{};
+  for(let i=0;i<tage;i++){
+    const d=new Date(todayISO()+"T12:00:00");d.setDate(d.getDate()-i);
+    const e=C[iso(d)];
+    if(e&&e[feld]!==undefined&&e[feld]!=="")out.push(parseFloat(e[feld]));
+  }
+  return out.filter(x=>!isNaN(x));
+}
+const mittel=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:null;
+
+/* Belastung einer Woche: Sätze und Laufkilometer zusammengefasst */
+function wochenLast(ath,vorWochen){
+  const W=scanWeeks(ath);
+  const i=W.length-1-(vorWochen||0);
+  if(i<0||!W[i])return 0;
+  return W[i].sets*1 + W[i].km*1.5;
+}
+function belastung(ath){
+  const flags=[];
+  const C=DB.checkins[ath]||{};
+
+  // Ruhepuls: 5 bis 10 Schläge über dem Ausgangswert gilt als früher Marker
+  const rhr7=mittel(ciWerte(ath,7,"rhr")), rhr28=mittel(ciWerte(ath,28,"rhr"));
+  if(rhr7&&rhr28&&ciWerte(ath,28,"rhr").length>=8){
+    const diff=rhr7-rhr28;
+    if(diff>=5)flags.push({s:diff>=8?2:1,t:"Ruhepuls erhöht",
+      d:`${Math.round(rhr7)} statt ${Math.round(rhr28)} Schläge im Monatsmittel, also ${Math.round(diff)} darüber. Ein Anstieg um fünf bis zehn Schläge gilt als einer der frühesten Hinweise auf zu wenig Erholung.`});
+  }
+  // Schlaf und Energie
+  const sl=mittel(ciWerte(ath,7,"sleep")), en=mittel(ciWerte(ath,7,"energy")),
+        so=mittel(ciWerte(ath,7,"sore"));
+  if(sl!==null&&sl<2.8)flags.push({s:1,t:"Schlaf schlecht",
+    d:`Schnitt ${sl.toFixed(1)} von 5 über die letzten sieben Tage. Schlafstörungen gehören zu den verlässlichsten Begleitzeichen.`});
+  if(en!==null&&en<2.8)flags.push({s:1,t:"Energie niedrig",
+    d:`Schnitt ${en.toFixed(1)} von 5. Anhaltende Müdigkeit trotz Training ist das Leitsymptom.`});
+  if(so!==null&&so>3.6)flags.push({s:1,t:"Muskelkater anhaltend",
+    d:`Schnitt ${so.toFixed(1)} von 5. Wenn der Kater nicht mehr abklingt, reicht die Erholung zwischen den Einheiten nicht.`});
+
+  // Krankheitstage
+  let krank=0;
+  for(let i=0;i<21;i++){
+    const d=new Date(todayISO()+"T12:00:00");d.setDate(d.getDate()-i);
+    if((C[iso(d)]||{}).krank)krank++;
+  }
+  if(krank>=3)flags.push({s:2,t:"Häufig angeschlagen",
+    d:`${krank} Tage in drei Wochen als angeschlagen eingetragen. In der Konsensarbeit zeigte über die Hälfte der überlasteten Sportler Infekte – bei den lediglich überlasteten keiner.`});
+
+  // Leistungsabfall: 5 bis 10 Prozent über mehr als zwei Wochen
+  let abfall=null;
+  BIG3.forEach(ex=>{
+    const L=letzteLeistungen(ath,ex,6);
+    if(L.length<4)return;
+    const neu=Math.max(...L.slice(0,2).map(x=>x.e1));
+    const alt=Math.max(...L.slice(2).map(x=>x.e1));
+    if(alt&&neu<alt*.95){
+      const p=Math.round((1-neu/alt)*100);
+      if(!abfall||p>abfall.p)abfall={ex,p};
+    }
+  });
+  if(abfall)flags.push({s:2,t:"Leistung fällt",
+    d:`${(EX[abfall.ex]||{n:abfall.ex}).n}: ${abfall.p} Prozent unter dem besten Wert der Wochen davor. Ein Abfall von fünf bis zehn Prozent über mehr als zwei Wochen ist das bestimmende Zeichen.`});
+
+  // Belastungssprung: akute gegen chronische Woche
+  const akut=wochenLast(ath,0);
+  const chron=mittel([1,2,3,4].map(i=>wochenLast(ath,i)).filter(x=>x>0));
+  let quote=null;
+  if(akut&&chron&&chron>0){
+    quote=akut/chron;
+    if(quote>1.5)flags.push({s:1,t:"Belastung stark gestiegen",
+      d:`Diese Woche liegt ${Math.round((quote-1)*100)} Prozent über dem Schnitt der vier Wochen davor. Sprünge über fünfzig Prozent erhöhen das Verletzungsrisiko deutlich.`});
+  }
+  // Gewichtsverlust
+  const bw7=mittel(ciWerte(ath,7,"bw")), bw28=mittel(ciWerte(ath,28,"bw"));
+  if(bw7&&bw28&&bw7<bw28*.975)flags.push({s:1,t:"Körpergewicht fällt",
+    d:`${bw7.toFixed(1)} kg gegenüber ${bw28.toFixed(1)} kg im Monatsmittel. Unbeabsichtigter Gewichtsverlust deutet auf eine Energielücke.`});
+
+  const punkte=flags.reduce((a,f)=>a+f.s,0);
+  const stufe=punkte>=5?"rot":punkte>=2?"gelb":"gruen";
+  return {flags,punkte,stufe,quote,rhr7,rhr28,
+    daten:{rhr:ciWerte(ath,28,"rhr").length,ci:ciWerte(ath,28,"sleep").length}};
+}
+const BELTXT={
+ gruen:["Unauffällig","Die Zeichen sprechen für eine Belastung, die du verkraftest. Weiter wie geplant."],
+ gelb:["Genau hinschauen","Mehrere Zeichen deuten auf zu wenig Erholung. Nimm eine Woche Umfang heraus – etwa ein Drittel weniger Sätze, Intensität behalten. Wenn es danach besser ist, war es eine normale Ermüdung."],
+ rot:["Deutlich entlasten","Das Muster passt zu einer Überlastung, die sich nicht von selbst löst. Reduziere zwei Wochen lang deutlich oder pausiere. Bleibt der Leistungsabfall über zwei Wochen bestehen, geh zum Sportmediziner – dort wird ausgeschlossen, was sonst dahinterstecken kann, etwa Blutarmut, Schilddrüse oder ein verschleppter Infekt."]
+};
+
 /* ══════════ TRAININGSWISSENSCHAFT ══════════
    Jede Programmierentscheidung hat eine Quelle. Hier stehen sie, mit der
    konkreten Folge für euren Plan. */
@@ -6372,6 +6767,118 @@ function rSci(){
     und keine der genannten Arbeiten hat HYROX untersucht. Was hier steht, ist die beste
     verfügbare Grundlage, nicht die Wahrheit.</div></div>`;
   document.getElementById("p-mehr").innerHTML=h;
+}
+
+/* ─── Belastung ─── */
+function rBelastung(){
+  const a=me(), B=belastung(a), T=BELTXT[B.stufe];
+  const farbe={gruen:"var(--ok)",gelb:"var(--warn)",rot:"var(--red)"}[B.stufe];
+  let h=back+`<h1 style="font-size:25px;font-weight:800;letter-spacing:-.02em;margin-bottom:5px">Belastung</h1>
+    <div style="font-size:13px;color:var(--mid);line-height:1.6;margin-bottom:16px">
+    Kein einzelner Wert erkennt Überlastung zuverlässig. Diese Seite betrachtet Ruhepuls,
+    Schlaf, Energie, Muskelkater, Leistung und Belastungsverlauf gemeinsam.</div>
+    <div class="card" style="border-color:${farbe}">
+      <div style="display:flex;align-items:center;gap:14px">
+        <div style="width:14px;height:14px;border-radius:50%;background:${farbe};flex-shrink:0"></div>
+        <div style="font-size:19px;font-weight:700">${T[0]}</div>
+      </div>
+      <div style="font-size:13.5px;color:var(--mid);line-height:1.75;margin-top:10px">${T[1]}</div>
+    </div>`;
+  if(B.flags.length){
+    h+=`<div class="sec">Was auffällt</div>`;
+    B.flags.forEach(f=>{
+      h+=`<div class="card" style="padding:13px 15px">
+        <div style="display:flex;align-items:baseline;gap:9px">
+          <div style="width:7px;height:7px;border-radius:50%;background:${f.s>=2?"var(--red)":"var(--warn)"};flex-shrink:0"></div>
+          <div style="font-size:14.5px;font-weight:600;flex:1">${esc(f.t)}</div>
+        </div>
+        <div style="font-size:13px;color:var(--mid);line-height:1.7;margin-top:6px">${esc(f.d)}</div>
+      </div>`;
+    });
+  } else {
+    h+=`<div class="empty">Keine Auffälligkeiten.</div>`;
+  }
+  if(B.daten.rhr<8){
+    h+=`<div class="card" style="border-color:var(--line2)">
+      <div style="font-size:13px;color:var(--mid);line-height:1.75">
+      <b style="color:var(--ink)">Für den wichtigsten Wert fehlen noch Daten.</b> Der Ruhepuls am Morgen,
+      vor dem Aufstehen gemessen, ist der praktischste Frühindikator. Trag ihn im Check-in ein –
+      ab etwa acht Messungen kann die App einen Ausgangswert bilden.
+      ${B.daten.rhr?`Bisher ${B.daten.rhr} Messungen.`:""}</div>
+      <button class="btn" onclick="go('mehr','checkin')" style="margin:11px 0 0">Zum Check-in</button></div>`;
+  }
+  if(B.quote){
+    h+=`<div class="card"><h4>Belastungsverlauf</h4>
+      <div style="display:flex;align-items:baseline;gap:9px;margin-top:2px">
+        <div class="num" style="font-size:28px;font-weight:700;color:${B.quote>1.5?"var(--warn)":"var(--ok)"}">${B.quote.toFixed(2)}</div>
+        <div style="font-size:13px;color:var(--mid)">diese Woche gegen den Schnitt der vier davor</div>
+      </div>
+      <div style="font-size:12.5px;color:var(--mid);line-height:1.7;margin-top:9px">
+      Werte zwischen 0,8 und 1,3 gelten als unauffällig. Über 1,5 steigt das Verletzungsrisiko,
+      unter 0,8 verlierst du Form.</div></div>`;
+  }
+  h+=`<div class="card"><h4>Was diese Seite nicht kann</h4>
+    <div style="font-size:13px;color:var(--mid);line-height:1.85">
+    Sie stellt keine Diagnose. Das Übertrainingssyndrom wird durch Ausschluss festgestellt –
+    ein Arzt muss zuerst andere Ursachen abklären, etwa Blutarmut, Schilddrüsenstörungen,
+    Infekte oder eine depressive Episode. Es gibt keinen Bluttest dafür.<br><br>
+    Was hier steht, sind Auffälligkeiten in deinen eigenen Zahlen. Sie ersetzen weder dein
+    Körpergefühl noch eine ärztliche Abklärung, wenn etwas länger als zwei Wochen anhält.</div></div>`;
+  document.getElementById("p-mehr").innerHTML=h;
+}
+
+/* ─── Anpassungen ─── */
+function rAuto(){
+  const a=me();
+  const V=alleVorschlaege(a);
+  let h=back+`<h1 style="font-size:25px;font-weight:800;letter-spacing:-.02em;margin-bottom:5px">Anpassungen</h1>
+    <div style="font-size:13px;color:var(--mid);line-height:1.6;margin-bottom:16px">
+    Die App vergleicht die Vorgaben mit dem, was tatsächlich eingetragen wurde, und schlägt
+    Änderungen vor. Nichts davon passiert von selbst – du entscheidest.</div>`;
+  if(!V.length){
+    h+=`<div class="empty">Keine Anpassung nötig.<br>Die Vorgaben passen zu dem, was du zuletzt geleistet hast.</div>`;
+  } else {
+    V.forEach((v,i)=>{
+      const titel=v.typ==="kraft"?(EX[v.ex]||{n:v.ex}).n
+        :v.typ==="zone"?"Lockeres Tempo":"Long Run";
+      const einheit=v.typ==="kraft"?" kg":v.typ==="long"?" km":"";
+      const hoch=v.typ==="zone"?false:(parseFloat(v.auf)>parseFloat(v.von));
+      h+=`<div class="card">
+        <div class="lbl">${v.typ==="kraft"?"Maximalkraft":v.typ==="zone"?"Tempozone":"Wochenumfang"}</div>
+        <div style="font-size:17px;font-weight:650;margin:2px 0 10px">${esc(titel)}</div>
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:11px">
+          <div class="num" style="font-size:19px;color:var(--dim)">${v.von}${einheit}</div>
+          <div style="color:var(--dim)">→</div>
+          <div class="num" style="font-size:23px;font-weight:700;color:${hoch?"var(--ok)":"var(--warn)"}">${v.auf}${einheit}</div>
+        </div>
+        <div style="font-size:13px;color:var(--mid);line-height:1.7">${esc(v.grund)}</div>
+        <button class="btn btn-go" data-vn="${i}" style="margin:12px 0 0">Übernehmen</button>
+      </div>`;
+    });
+    if(V.length>1)h+=`<button class="btn" id="vall">Alle übernehmen</button>`;
+  }
+  const log=(DB.autoLog||[]).filter(x=>x.ath===a).slice(-8).reverse();
+  if(log.length){
+    h+=`<div class="sec">Bisher übernommen</div>`;
+    log.forEach(x=>{
+      const n=x.typ==="kraft"?(EX[x.ex]||{n:x.ex}).n:x.typ==="zone"?"Lockeres Tempo":"Long Run";
+      h+=`<div class="ex"><div class="exh"><div class="exn">
+        <div class="nm">${esc(n)}</div>
+        <div class="sb">${x.von} → ${x.auf} · ${new Date(x.at).toLocaleDateString("de-DE",{day:"numeric",month:"short"})}</div>
+      </div></div></div>`;
+    });
+  }
+  h+=`<div class="card"><h4>Wonach entschieden wird</h4>
+    <div style="font-size:13px;color:var(--mid);line-height:1.85">
+    <b style="color:var(--ink)">Nach oben</b>, wenn die hochgerechnete Maximalkraft die Vorgabe um mehr als zwei Prozent übersteigt.<br>
+    <b style="color:var(--ink)">Nach unten</b>, wenn drei Einheiten in Folge deutlich darunter bleiben – oder nach einer Pause von mehr als drei Wochen, weil die Maximalkraft dann um etwa drei Prozent je Woche nachlässt.<br>
+    <b style="color:var(--ink)">Gleich bleiben</b> ist der Normalfall. Nicht jede Woche bringt einen Zuwachs, und das muss sie auch nicht.<br><br>
+    Beim Laufen wird die Zone am Puls geprüft: Liegt der lockere Lauf dauerhaft unter 66 Prozent des Maximums, war er zu langsam, über 78 Prozent zu schnell. Der Long Run steigt um acht Prozent, wenn der letzte stand, und wird in jeder vierten Woche um ein Fünftel zurückgenommen.</div></div>`;
+  document.getElementById("p-mehr").innerHTML=h;
+  document.querySelectorAll("[data-vn]").forEach(b=>b.onclick=()=>{
+    vorschlagUebernehmen(a,V[+b.dataset.vn]);rAuto();toast("Übernommen");});
+  document.getElementById("vall")?.addEventListener("click",()=>{
+    V.forEach(v=>vorschlagUebernehmen(a,v));rAuto();toast(V.length+" übernommen");});
 }
 
 /* ─── Reisen ─── */
@@ -6581,7 +7088,7 @@ function rCheckin(){
   for(let i=13;i>=0;i--){
     const dt=new Date();dt.setDate(dt.getDate()-i);
     const k=iso(dt), e=DB.checkins[a][k];
-    const fil=e&&(e.sleep||e.energy||e.sore||e.bw);
+    const fil=e&&(e.sleep||e.energy||e.sore||e.bw||e.rhr);
     strip+=`<button class="dchip${k===d?" sel":""}${fil?" fil":""}" data-dt="${k}">
       <span class="dw">${WD[dt.getDay()]}</span><span class="dn num">${dt.getDate()}</span>
       ${fil?'<i></i>':'<span style="height:4px"></span>'}</button>`;
@@ -6603,13 +7110,18 @@ function rCheckin(){
       <div class="frow"><label>Schlaf · 1 schlecht bis 5 top</label><div class="scale">${sc("sleep",c.sleep)}</div></div>
       <div class="frow"><label>Energie</label><div class="scale">${sc("energy",c.energy)}</div></div>
       <div class="frow"><label>Muskelkater · 1 keiner bis 5 stark</label><div class="scale">${sc("sore",c.sore)}</div></div>
+      <div class="frow"><label>Ruhepuls morgens · vor dem Aufstehen</label>
+        <input class="inp num" type="number" inputmode="numeric" id="crhr" value="${c.rhr||""}" placeholder="z.B. 48" style="width:100%"></div>
       <div class="frow"><label>Körpergewicht in kg</label>
         <input class="inp num" type="number" inputmode="decimal" id="cbw" value="${c.bw||""}" style="width:100%"></div>
+      <div class="frow"><label>Angeschlagen oder krank</label>
+        <div class="seg"><button data-ck="0" aria-pressed="${!c.krank}">Nein</button>
+        <button data-ck="1" aria-pressed="${!!c.krank}">Ja</button></div></div>
       <div class="frow" style="margin-bottom:0"><label>Notiz</label>
         <textarea class="ta" id="cnote" style="min-height:56px" placeholder="Knie zwickt, schlecht geschlafen, …">${esc(c.note||"")}</textarea></div>
     </div>`;
   const keys=Object.keys(DB.checkins[a]).filter(k=>{const e=DB.checkins[a][k];
-    return e&&(e.sleep||e.energy||e.sore||e.bw||e.note);}).sort().reverse().slice(0,14);
+    return e&&(e.sleep||e.energy||e.sore||e.bw||e.rhr||e.note);}).sort().reverse().slice(0,14);
   if(keys.length){
     const avg=f=>{const v=keys.map(k=>DB.checkins[a][k][f]).filter(Boolean);
       return v.length?(v.reduce((x,y)=>x+ +y,0)/v.length).toFixed(1):"–";};
@@ -6638,6 +7150,11 @@ function rCheckin(){
   document.getElementById("cbw").oninput=e=>{const x=DB.checkins[a][d]||{};
     x.bw=e.target.value;DB.checkins[a][d]=x;
     if(e.target.value&&d===todayISO())DB.bw[a]=parseFloat(e.target.value);saveCheck(a,d);};
+  document.getElementById("crhr").oninput=e=>{const x=DB.checkins[a][d]||{};
+    x.rhr=e.target.value;DB.checkins[a][d]=x;saveCheck(a,d);};
+  document.querySelectorAll("[data-ck]").forEach(b=>b.onclick=()=>{
+    const x=DB.checkins[a][d]||{};
+    x.krank=b.dataset.ck==="1";DB.checkins[a][d]=x;saveCheck(a,d);rCheckin();});
   document.getElementById("cnote").oninput=e=>{const x=DB.checkins[a][d]||{};
     x.note=e.target.value;DB.checkins[a][d]=x;saveCheck(a,d);};
 }
@@ -6853,7 +7370,7 @@ function rProtokollDay(d){
         <input class="inp num" type="number" placeholder="${it.unit||"Wdh"}" data-ed="${it.key}-r${s}" value="${esc(lg[`${it.key}-r${s}`]||"")}"><span class="u">${it.unit||"Wdh"}</span></div>`;
     }
     if(it.cardio){
-      const CF={dist:["Distanz","km"],pace:["Pace","/km"],time:["Dauer","min"],hr:["Ø Puls","bpm"]};
+      const CF={dist:["Distanz","km"],pace:["Pace","/km"],time:["Dauer",""],hr:["Ø Puls","bpm"]};
       it.cardio.forEach(f=>h+=`<div class="erow"><span class="elbl">${CF[f][0]}</span>
         <input class="inp num" data-ed="${it.key}-c-${f}" value="${esc(lg[`${it.key}-c-${f}`]||"")}"><span class="u">${CF[f][1]}</span></div>`);
     }
@@ -7170,7 +7687,7 @@ function mergeRemote(r){
     if(DB.msgs.length>200)DB.msgs=DB.msgs.sort((a,b)=>a.at-b.at).slice(-200);
   }
   // Einstellungen: der zuletzt gespeicherte Stand gewinnt
-  const cfg=["gyms","customEq","customEx","exEq","tests","race","travel","gh","hrmax","bestStreak","planSince","waveOff","best","cycle","start","maxes","bw","zones","longBase","longMax",
+  const cfg=["gyms","customEq","customEx","exEq","tests","race","travel","gh","hrmax","autoLog","bestStreak","planSince","waveOff","best","cycle","start","maxes","bw","zones","longBase","longMax",
     "pullStage","swaps","waNum","archive","reviewDone","gym","templates","custom"];
   if((r.cfgTs||0)>(DB.cfgTs||0)){
     cfg.forEach(k=>{if(r[k]!==undefined){DB[k]=r[k];changed++;}});
