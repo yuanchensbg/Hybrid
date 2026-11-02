@@ -1467,7 +1467,7 @@ const ANAME={yuan:"Yuan",yara:"Yara"};
 /* ══════════ SPEICHER ══════════ */
 /* Versionsstand – steht unter Mehr ganz unten. Damit lässt sich prüfen,
    ob auf einem Gerät wirklich die aktuelle Datei läuft. */
-const BUILD={datum:"02.11.2026",nr:110};
+const BUILD={datum:"02.11.2026",nr:111};
 const DEF={
  me:"yuan", start:"2026-10-18", gyms:null, gym:"citygate",
  log:{}, archive:[], checkins:{yuan:{},yara:{}}, protein:{yuan:{},yara:{}},
@@ -2953,7 +2953,9 @@ function renderHeute(){
     <div style="height:12px"></div>
     <button class="btn" id="cuedit">${ses.custom?"Eigenen Tag bearbeiten":"Diesen Tag durch eigenes Training ersetzen"}</button>
     ${(ses.k!=="rest"&&!ses.verschoben&&selDate>=todayISO())?`<button class="btn" id="shiftday">Einheit auf morgen schieben</button>`:""}
-    <button class="btn btn-go" id="shday">Ergebnisse teilen</button>
+    ${(ses.k!=="rest"&&items.some(x=>Object.keys(lg).some(kk=>kk.startsWith(x.key+"-")&&kk!==x.key+"-eq"&&lg[kk])))
+      ?`<button class="btn btn-go" id="bilday">Zusammenfassung ansehen</button>`:""}
+    <button class="btn" id="shday">Ergebnisse teilen</button>
     <button class="btn" id="wa">Ganzes Protokoll an WhatsApp</button>`;
   document.getElementById("p-heute").innerHTML=h;
   bindHeute(ses,ath,lg,items);
@@ -4173,6 +4175,24 @@ function renderForm(){
       und sagen über den Einsatz nichts aus.</div>
     </div>`;
   }
+  // ── Letzte Einheiten mit Zusammenfassung ──
+  const letzte=[];
+  Object.keys(DB.log||{}).sort().reverse().forEach(d=>{
+    if(letzte.length>=8)return;
+    const lgd=(DB.log[d]||{})[ath]; if(!lgd)return;
+    const s2=sessionFor(d,ath); if(s2.k==="rest")return;
+    const q=schnellTon(d,ath);
+    if(q.saetze||q.ton)letzte.push({d,n:s2.n,...q});
+  });
+  if(letzte.length){
+    h+=`<div class="sec">Letzte Einheiten</div>`;
+    letzte.forEach(x=>{
+      h+=`<button class="mi" onclick="zeigeBilanz('${x.d}','${ath}')" style="width:100%;text-align:left">
+        <span class="mg" style="font-size:11.5px;color:var(--dim)">${new Date(x.d+"T12:00:00").toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit"})}</span>
+        <span class="md">${esc(x.n)}<div class="ms">${x.saetze} Sätze${x.ton?" · "+(x.ton/1000).toFixed(1)+" t":""}${x.dauer?" · "+dauerTxt(x.dauer):""}</div></span>
+        <span class="ma">›</span></button>`;
+    });
+  }
   const ms=mileStats(ath);
   h+=`<div class="sec">Meilensteine</div>`;
   MILES.forEach(m=>{
@@ -4571,11 +4591,30 @@ async function spRefresh(){
   return false;
 }
 async function spCall(path,method="GET"){
-  if(!spOK()&&!await spRefresh())return null;
-  const r=await fetch("https://api.spotify.com/v1"+path,{method,headers:{Authorization:"Bearer "+SPd().tok}});
-  if(r.status===204||r.status===202)return{};
-  if(!r.ok)return null;
-  try{return await r.json();}catch(e){return{};}
+  const r=await spRaw(path,method);
+  return r.ok?r.data:null;
+}
+/* Wie spCall, gibt aber den Fehler zurück – nötig, wo der Mensch eine
+   Rückmeldung braucht statt eines stillen Fehlschlags. */
+async function spRaw(path,method="GET"){
+  if(!spOK()&&!await spRefresh())return {ok:false,status:401,grund:"Nicht angemeldet"};
+  let r;
+  try{
+    r=await fetch("https://api.spotify.com/v1"+path,{method,headers:{Authorization:"Bearer "+SPd().tok}});
+  }catch(e){return {ok:false,status:0,grund:"Keine Verbindung"};}
+  if(r.status===204||r.status===202)return {ok:true,data:{},status:r.status};
+  let d=null;
+  try{d=await r.json();}catch(e){d={};}
+  if(r.ok)return {ok:true,data:d,status:r.status};
+  const m=(d&&d.error&&d.error.reason)||"";
+  const grund=
+    r.status===403&&m==="PREMIUM_REQUIRED" ? "Dafür braucht Spotify Premium." :
+    r.status===403 ? "Spotify erlaubt das auf diesem Gerät nicht." :
+    r.status===404 ? "Kein aktives Wiedergabegerät. Starte die Wiedergabe kurz in Spotify." :
+    r.status===401 ? "Anmeldung abgelaufen. Unter Mehr → Musik neu verbinden." :
+    r.status===429 ? "Zu viele Anfragen, kurz warten." :
+    "Spotify meldet Fehler "+r.status;
+  return {ok:false,status:r.status,grund,data:d};
 }
 
 /* ══════════ MEHR ══════════ */
@@ -7990,9 +8029,14 @@ function rMusik(){
   document.getElementById("spout")?.addEventListener("click",()=>{DB.sp[me()]={cid:s.cid};save();plShow();rMusik();});
   document.querySelectorAll("[data-sp]").forEach(b=>b.onclick=async()=>{
     const a=b.dataset.sp;
-    if(a==="next")await spCall("/me/player/next","POST");
-    else if(a==="prev")await spCall("/me/player/previous","POST");
-    else{const d=await spCall("/me/player");await spCall("/me/player/"+(d&&d.is_playing?"pause":"play"),"PUT");}
+    if(a==="next"){const r=await spRaw("/me/player/next","POST");if(!r.ok)toast(r.grund);}
+    else if(a==="prev"){const r=await spRaw("/me/player/previous","POST");if(!r.ok)toast(r.grund);}
+    else{
+      const st=await spRaw("/me/player");
+      if(!st.ok){toast(st.grund);return;}
+      const r=await spRaw("/me/player/"+(st.data&&st.data.is_playing?"pause":"play"),"PUT");
+      if(!r.ok)toast(r.grund);
+    }
     setTimeout(spNow,400);});
   if(spOK()||s.ref)spNow();
   plShow();
@@ -9081,6 +9125,11 @@ async function plNow(){
   t1.textContent=d.item.name;
   t2.textContent=d.item.artists.map(x=>x.name).join(", ");
   if(im)im.src=d.item.album?.images?.[DB.fabBig?1:2]?.url||d.item.album?.images?.[0]?.url||"";
+  const kannVol=!(d.device&&(d.device.supports_volume===false||d.device.volume_percent===null));
+  ["pvolup","pvoldn"].forEach(id=>{
+    const b=document.getElementById(id);
+    if(b){b.style.opacity=kannVol?"1":".35";b.title=kannVol?"":"Dieses Gerät lässt sich nicht fernregeln";}
+  });
   plLen=d.item.duration_ms||0;
   plAt=d.progress_ms||0;
   plPlaying=!!d.is_playing;
@@ -9134,10 +9183,13 @@ function plInit(){
     else if(a==="prev")await spCall("/me/player/previous","POST");
     else if(a==="fwd15"||a==="back15"){
       const d=await spCall("/me/player");
-      if(d&&d.progress_ms!=null){
-        const ziel=Math.max(0,d.progress_ms+(a==="fwd15"?15000:-15000));
-        await spCall("/me/player/seek?position_ms="+Math.round(ziel),"PUT");
-        plSeekLokal(ziel);
+      const st=await spRaw("/me/player");
+      if(!st.ok){toast(st.grund);return;}
+      const pr=st.data&&st.data.progress_ms;
+      if(pr!=null){
+        const ziel=Math.max(0,pr+(a==="fwd15"?15000:-15000));
+        const r=await spRaw("/me/player/seek?position_ms="+Math.round(ziel),"PUT");
+        if(!r.ok)toast(r.grund); else plSeekLokal(ziel);
       }
     }
     else{const d=await spCall("/me/player");await spCall("/me/player/"+(d&&d.is_playing?"pause":"play"),"PUT");}
@@ -9168,7 +9220,8 @@ function plInit(){
       const a=anteil(ev.changedTouches?{touches:[ev.changedTouches[0]]}:ev);
       const ms=Math.round(a*plLen);
       plSeekLokal(ms);
-      await spCall("/me/player/seek?position_ms="+ms,"PUT");
+      const r=await spRaw("/me/player/seek?position_ms="+ms,"PUT");
+      if(!r.ok)toast(r.grund);
       setTimeout(plNow,500);
     };
     ["mousedown","touchstart"].forEach(e2=>seek.addEventListener(e2,sStart,{passive:false}));
@@ -9178,18 +9231,31 @@ function plInit(){
 
   /* Lautstärke, Zufallswiedergabe, Größe */
   const vol=async d=>{
-    const st=await spCall("/me/player");
-    const v=Math.min(100,Math.max(0,((st&&st.device&&st.device.volume_percent)||50)+d));
-    await spCall("/me/player/volume?volume_percent="+v,"PUT");
-    toast("Lautstärke "+v+" %");
+    const st=await spRaw("/me/player");
+    if(!st.ok){toast(st.grund);return;}
+    const dev=st.data&&st.data.device;
+    if(!dev){toast("Kein aktives Gerät. Starte die Wiedergabe kurz in Spotify.");return;}
+    /* Viele Geräte lassen sich nicht fernregeln – iPhones etwa nur über die
+       Seitentasten. Spotify meldet das im Feld supports_volume. */
+    if(dev.supports_volume===false||dev.volume_percent===null){
+      toast("Die Lautstärke dieses Geräts lässt sich nicht fernsteuern – nimm die Seitentasten.");
+      return;
+    }
+    const alt=typeof dev.volume_percent==="number"?dev.volume_percent:50;
+    const v=Math.min(100,Math.max(0,alt+d));
+    if(v===alt){toast(d>0?"Schon auf 100 %":"Schon auf 0 %");return;}
+    const r=await spRaw("/me/player/volume?volume_percent="+v,"PUT");
+    toast(r.ok?"Lautstärke "+v+" %":r.grund);
   };
   document.getElementById("pvolup")?.addEventListener("click",e=>{e.stopPropagation();vol(10);});
   document.getElementById("pvoldn")?.addEventListener("click",e=>{e.stopPropagation();vol(-10);});
   document.getElementById("pshuffle")?.addEventListener("click",async e=>{
     e.stopPropagation();
-    const st=await spCall("/me/player");
-    const neu=!(st&&st.shuffle_state);
-    await spCall("/me/player/shuffle?state="+neu,"PUT");
+    const st=await spRaw("/me/player");
+    if(!st.ok){toast(st.grund);return;}
+    const neu=!(st.data&&st.data.shuffle_state);
+    const r=await spRaw("/me/player/shuffle?state="+neu,"PUT");
+    if(!r.ok){toast(r.grund);return;}
     e.currentTarget.classList.toggle("an",neu);
     toast(neu?"Zufallswiedergabe an":"Zufallswiedergabe aus");
   });
