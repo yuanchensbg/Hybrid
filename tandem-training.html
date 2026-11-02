@@ -133,6 +133,7 @@ header{flex:0 0 auto;background:var(--bg);border-bottom:1px solid var(--line);
 main{flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;
   padding:16px 16px 36px;width:100%;max-width:620px;margin:0 auto}
 .page{display:none}.page.on{display:block}
+#p-heute{will-change:transform,opacity}
 
 /* ─── SESSION HERO ─── */
 .hero{margin-bottom:18px}
@@ -198,6 +199,11 @@ main{flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-b
 .fig .k{font-size:9px;color:var(--dim);letter-spacing:.04em;text-transform:uppercase;margin-bottom:3px}
 .fig .v{font-size:17px;font-weight:650}
 .fig.tap .v{color:var(--me)}
+.klbl{font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--dim);margin-bottom:5px}
+.rbars{display:flex;align-items:flex-end;gap:3px;height:56px}
+.rb{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end}
+.rbb{width:100%;border-radius:3px 3px 0 0}
+.rbl{font-size:8.5px;color:var(--dim);margin-top:3px}
 .bgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:4px}
 .bgrid>div{background:var(--surf2);border-radius:11px;padding:11px 4px;text-align:center}
 .bv{font-size:19px;font-weight:700;line-height:1.1}
@@ -768,8 +774,8 @@ const EX={
  plank:{n:"Plank",o:[],a:["beinheben","pallof"],h:"Gerade Linie, Gesäß nicht hochstrecken, Hüfte nicht durchhängen."},
 
  /* Hybrid / HYROX */
- skierg:{n:"SkiErg",o:["skierg","concept2","kabel"],a:["row","burpee","kbswing"],
-  h:"<b>Wettkampf: 1000 m als erste Station, direkt nach dem ersten Kilometer.</b><br><br>Der Zug beginnt mit Hüftbeugung und Rumpf, nicht mit den Armen. Bis zu den Oberschenkeln durchziehen, entspannt zurückführen.<br><br><b>Hier wird das Rennen verloren, nicht gewonnen.</b> Wer die erste Station zu hart angeht, bezahlt es an den Lunges und Wall Balls. Gleichmäßiges Tempo, das sich noch zu langsam anfühlt."},
+ skierg:{n:"SkiErg",o:["skierg","concept2","kabel","kabelturm"],a:["straightarm","row","burpee","kbswing"],
+  h:"<b>Wettkampf: 1000 m als erste Station, direkt nach dem ersten Kilometer.</b><br><br>Der Zug beginnt mit Hüftbeugung und Rumpf, nicht mit den Armen. Bis zu den Oberschenkeln durchziehen, entspannt zurückführen.<br><br><b>Hier wird das Rennen verloren, nicht gewonnen.</b> Wer die erste Station zu hart angeht, bezahlt es an den Lunges und Wall Balls. Gleichmäßiges Tempo, das sich noch zu langsam anfühlt.<br><br><b>Ohne SkiErg:</b> Am Kabelturm mit Seil oder Stange von oben nach unten ziehen, Hüfte beugt mit – dieselbe Kette, nur ohne Widerstandsrad. Als Gerät \u201eKabelzug\u201c wählen, dann steht die passende Anleitung dabei."},
  row:{n:"Rudern",o:["concept2","assaultbike"],a:["skierg","kbswing","burpeeplain"],
   h:"<b>Wettkampf: 1000 m als fünfte Station, direkt nach den Burpees.</b><br><br>Reihenfolge: Beine, Rumpf, Arme. Zurück in umgekehrter Folge, Damper 4 bis 5.<br><br>Nach den Burpees ist die Atmung hoch – die ersten zweihundert Meter bewusst ruhig rudern und den Puls kontrolliert senken. Das ist die beste Erholungsgelegenheit im ganzen Rennen."},
  wallballs:{n:"Wall Balls",o:["wallball","medball"],a:["thruster","goblet","kbswing"],
@@ -1467,7 +1473,7 @@ const ANAME={yuan:"Yuan",yara:"Yara"};
 /* ══════════ SPEICHER ══════════ */
 /* Versionsstand – steht unter Mehr ganz unten. Damit lässt sich prüfen,
    ob auf einem Gerät wirklich die aktuelle Datei läuft. */
-const BUILD={datum:"02.11.2026",nr:119};
+const BUILD={datum:"02.11.2026",nr:127};
 const DEF={
  me:"yuan", start:"2026-10-18", gyms:null, gym:"citygate",
  log:{}, archive:[], checkins:{yuan:{},yara:{}}, protein:{yuan:{},yara:{}},
@@ -2478,6 +2484,12 @@ function progression(ath,it,date,eqJetzt){
   const fest=(lo===hi);                       // feste Wiederholungszahl statt Bereich
   if(p.minR>=hi){
     const neu=p.top+inc;
+    /* Wenn die schwerste vorhandene Hantel erreicht ist, hilft mehr Gewicht
+       nicht weiter – dann steigern Wiederholungen oder Ausführungstempo. */
+    const gym=curGym();
+    const grenze=(eqJetzt==="kurzhantel"&&gym&&gym.dbMax)?gym.dbMax:0;
+    if(grenze&&neu>grenze)
+      return {kg:p.top,txt:`${kg(p.top)} ist die schwerste Hantel hier. Statt mehr Gewicht: zwei Wiederholungen mehr je Satz, oder dieselben ${hi} mit drei Sekunden Absenken. Beides erzeugt denselben Reiz.`};
     return {kg:neu,txt:fest
       ? `Letztes Mal${amGeraet} alle Sätze auf ${hi} geschafft – heute ${kg(neu)} bei denselben ${hi} Wiederholungen.`
       : `Letztes Mal${amGeraet} alle Sätze auf ${hi} – heute ${kg(neu)} und zurück auf ${lo} Wiederholungen.`};
@@ -3116,6 +3128,15 @@ function exCard(it,ath,lg,ses){
         <span class="u">${c[1]}</span></div>`;
     });
     h+=`</div>`;
+    // Garmin-Datei statt Tippen
+    h+=`<button class="fillbtn" data-gpull="${k}" style="color:var(--me)">Letzten Lauf von Garmin holen</button>
+    <label class="fillbtn" style="display:block;text-align:center;cursor:pointer">
+      Oder Datei auswählen (TCX, GPX)
+      <input type="file" data-gmn="${k}" accept=".tcx,.gpx,application/xml,text/xml" style="display:none">
+    </label>
+    <div class="hintl" id="gmn-${k}" style="border-top:none">
+    In Garmin Connect die Aktivität öffnen, auf das Zahnrad tippen und als TCX exportieren.
+    Distanz, Dauer, Pace und Puls werden dann eingetragen.</div>`;
   }
   if(swapAktiv){
     const orig=EX[it.orig]||{};
@@ -3173,6 +3194,51 @@ function bindHeute(ses,ath,lg,items){
     i.onblur=()=>{const v=clockFmt(i.value);i.value=v;
       if(v)lg[i.dataset.clk]=v; else delete lg[i.dataset.clk];
       saveDay(lg);};
+  });
+  q("[data-gpull]",b=>b.onclick=async ()=>{
+    const k=b.dataset.gpull, msg=document.getElementById("gmn-"+k);
+    const melde=t=>{if(msg)msg.innerHTML=`<span style="color:var(--mid)">${esc(t)}</span>`;};
+    b.disabled=true;
+    try{
+      const a=await garminHolen(melde);
+      if(!a||!a.km)throw new Error("Keine Laufdaten in der Antwort.");
+      lg[`${k}-c-dist`]=String(a.km).replace(".",",");
+      if(a.sek)lg[`${k}-c-time`]=zeitStr(a.sek);
+      if(a.paceSek)lg[`${k}-c-pace`]=paceStr(a.paceSek);
+      if(a.hr)lg[`${k}-c-hr`]=String(a.hr);
+      if(a.name)lg[`${k}-note`]=(lg[`${k}-note`]?lg[`${k}-note`]+" · ":"")+a.name;
+      // Runden und Messpunkte für die Kurven aufbewahren
+      if(a.runden||a.messpunkte)lg[`${k}-garmin`]=JSON.stringify({
+        runden:a.runden||null,messpunkte:a.messpunkte||null,
+        frequenz:a.schrittfrequenz||null,wirkungAerob:a.wirkungAerob||null,
+        wirkungAnaerob:a.wirkungAnaerob||null,hoehe:a.hoehe||null,id:a.id||null});
+      saveDay(lg);
+      if(msg)msg.innerHTML=`<span style="color:var(--ok)">${a.km} km · ${zeitStr(a.sek)} · ${paceStr(a.paceSek)} /km${a.hr?" · "+a.hr+" bpm":""}${
+        a.datum&&a.datum!==selDate?` <span style="color:var(--warn)">· Aktivität vom ${a.datum.slice(8)}.${a.datum.slice(5,7)}.</span>`:""}</span>`;
+      setTimeout(renderHeute,1400);
+    }catch(e){
+      if(msg)msg.innerHTML=`<span style="color:var(--warn)">${esc(e.message||"Fehlgeschlagen")}</span>`;
+      b.disabled=false;
+    }
+  });
+  q("[data-gmn]",el=>el.onchange=async ev=>{
+    const f=ev.target.files&&ev.target.files[0];
+    if(!f)return;
+    const k=el.dataset.gmn, msg=document.getElementById("gmn-"+k);
+    if(msg)msg.innerHTML=`<span style="color:var(--mid)">Wird gelesen …</span>`;
+    try{
+      const r=laufDatei(await f.text());
+      lg[`${k}-c-dist`]=String(r.km).replace(".",",");
+      if(r.sek)lg[`${k}-c-time`]=zeitStr(r.sek);
+      if(r.paceSek)lg[`${k}-c-pace`]=paceStr(r.paceSek);
+      if(r.hr)lg[`${k}-c-hr`]=String(r.hr);
+      saveDay(lg);
+      if(msg)msg.innerHTML=`<span style="color:var(--ok)">${r.km} km · ${zeitStr(r.sek)} · ${paceStr(r.paceSek)} /km${r.hr?" · "+r.hr+" bpm":""}${r.hrMax?" (max "+r.hrMax+")":""}${
+        r.datum&&r.datum!==selDate?` <span style="color:var(--warn)">· Datei vom ${r.datum.slice(8)}.${r.datum.slice(5,7)}.</span>`:""}</span>`;
+      setTimeout(renderHeute,1200);
+    }catch(e){
+      if(msg)msg.innerHTML=`<span style="color:var(--warn)">${esc(e.message||"Fehlgeschlagen")}</span>`;
+    }
   });
   q("[data-c]",i=>{
     i.oninput=()=>{lg[i.dataset.c]=i.value;saveDay(lg);};
@@ -4875,6 +4941,14 @@ function rGyms(){
       <div class="opts" style="margin-bottom:12px">
         ${PLATTEN_STD.map(p=>`<button class="opt${vorh.includes(p)?" sel":""}" data-plate="${p}">${p.toLocaleString("de-DE")}</button>`).join("")}
       </div>
+      <div class="lbl">Schwerste Kurzhantel</div>
+      <div class="erow"><span class="elbl" style="width:112px">bis</span>
+        <input class="inp num" type="number" inputmode="decimal" id="dbmax"
+          value="${g.dbMax||""}" placeholder="z.B. 22" style="flex:1">
+        <span class="u">kg</span></div>
+      <div style="font-size:11.5px;color:var(--dim);line-height:1.55;margin:6px 0 12px">
+      Ist die Grenze erreicht, schlägt die App statt mehr Gewicht mehr Wiederholungen
+      oder eine langsamere Ausführung vor.</div>
       <div class="lbl">Stangengewicht</div>
       ${[["langhantel","Langhantel"],["sz","SZ-Stange"],["trapbar","Trap-Bar"],["multipresse","Multipresse"]]
         .filter(([t])=>g.eq.includes(t))
@@ -4902,6 +4976,10 @@ function rGyms(){
     if(!akt.length){toast("Mindestens eine Scheibengröße");return;}
     g.plates=akt.sort((x,y)=>y-x);
     save();rGyms();});
+  document.getElementById("dbmax")?.addEventListener("input",e=>{
+    const v=parseFloat(e.target.value);
+    if(v>0)g.dbMax=v; else delete g.dbMax;
+    save();});
   document.querySelectorAll("[data-bar]").forEach(el=>el.oninput=()=>{
     const v=parseFloat(el.value);
     g.bars=g.bars||{};
@@ -6606,6 +6684,10 @@ function rUpdate(){
     ${DB.ghTok?`<button class="btn btn-r" id="ghtokdel" style="margin:10px 0 0">Token entfernen</button>`:""}
   </div>
   <div class="card"><h4>Wie das zusammenspielt</h4>
+    ${/github\.io$/.test(location.hostname)?`<div style="font-size:13px;color:var(--ok);line-height:1.75;margin-bottom:10px">
+      <b>Diese App läuft auf GitHub Pages.</b> Ein Commit im Repository genügt – beim nächsten
+      Öffnen ist die neue Fassung da, ohne Knopfdruck. Die Einspielfunktion oben brauchst du
+      nur, wenn eine Fassung sofort wirken soll.</div>`:""}
     <div style="font-size:13px;color:var(--mid);line-height:1.8">
     Die App liegt weiterhin auf Netlify – dort musst du nie wieder etwas hochladen.
     Neue Fassungen legst du nur im GitHub-Repository ab. Beim Aktualisieren holt die App
@@ -6821,6 +6903,110 @@ function rSplit(){
     shareText(txt);};
 }
 
+/* ══════════ GARMIN-DATEI EINLESEN ══════════
+   Liest TCX und GPX aus Garmin Connect. FIT bleibt außen vor – das ist ein
+   Binärformat und würde einen eigenen Decoder brauchen. */
+function haversine(a,b,c,d){
+  const R=6371000, r=Math.PI/180;
+  const dLat=(c-a)*r, dLon=(d-b)*r;
+  const x=Math.sin(dLat/2)**2+Math.cos(a*r)*Math.cos(c*r)*Math.sin(dLon/2)**2;
+  return 2*R*Math.asin(Math.sqrt(x));
+}
+function laufDatei(text){
+  const doc=new DOMParser().parseFromString(text,"application/xml");
+  if(doc.querySelector("parsererror"))throw new Error("Datei konnte nicht gelesen werden.");
+  const zahl=v=>{const x=parseFloat(v);return isNaN(x)?0:x;};
+  let meter=0, sek=0, hrSumme=0, hrAnzahl=0, hrMaxW=0, start=null, ende=null;
+  const splits=[];
+
+  // ── TCX ──
+  const laps=[...doc.getElementsByTagName("Lap")];
+  if(laps.length){
+    laps.forEach((lp,i)=>{
+      const d=zahl(lp.getElementsByTagName("DistanceMeters")[0]?.textContent);
+      const t=zahl(lp.getElementsByTagName("TotalTimeSeconds")[0]?.textContent);
+      meter+=d; sek+=t;
+      const hr=zahl(lp.getElementsByTagName("AverageHeartRateBpm")[0]
+        ?.getElementsByTagName("Value")[0]?.textContent);
+      const hx=zahl(lp.getElementsByTagName("MaximumHeartRateBpm")[0]
+        ?.getElementsByTagName("Value")[0]?.textContent);
+      if(hx>hrMaxW)hrMaxW=hx;
+      if(hr&&d){hrSumme+=hr*d;hrAnzahl+=d;}
+      if(d>50)splits.push({km:d/1000,sek:t,hr});
+      const st=lp.getAttribute("StartTime");
+      if(st&&!start)start=st;
+    });
+  } else {
+    // ── GPX ──
+    const pts=[...doc.getElementsByTagName("trkpt")];
+    if(!pts.length)throw new Error("Weder TCX- noch GPX-Daten gefunden.");
+    let vorLat=null,vorLon=null;
+    pts.forEach(p=>{
+      const la=zahl(p.getAttribute("lat")), lo=zahl(p.getAttribute("lon"));
+      if(vorLat!==null)meter+=haversine(vorLat,vorLon,la,lo);
+      vorLat=la;vorLon=lo;
+      const zeit=p.getElementsByTagName("time")[0]?.textContent;
+      if(zeit){ if(!start)start=zeit; ende=zeit; }
+      const hrEl=[...p.getElementsByTagName("*")].find(e=>/hr$/i.test(e.tagName));
+      const hr=hrEl?zahl(hrEl.textContent):0;
+      if(hr){hrSumme+=hr;hrAnzahl++;if(hr>hrMaxW)hrMaxW=hr;}
+    });
+    if(start&&ende)sek=Math.max(0,(new Date(ende)-new Date(start))/1000);
+  }
+  if(!meter)throw new Error("Keine Distanz in der Datei gefunden.");
+  const km=Math.round(meter/100)/10;
+  const paceSek=sek?Math.round(sek/(meter/1000)):0;
+  const hrSchnitt=hrAnzahl?Math.round(hrSumme/hrAnzahl):0;
+  return {km,sek,paceSek,hr:hrSchnitt,hrMax:hrMaxW,
+    datum:start?start.slice(0,10):null,splits};
+}
+const paceStr=s=>s?Math.floor(s/60)+":"+String(Math.round(s%60)).padStart(2,"0"):"";
+const zeitStr=s=>{s=Math.round(s);
+  return s>=3600?Math.floor(s/3600)+":"+String(Math.floor(s%3600/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0")
+    :Math.floor(s/60)+":"+String(s%60).padStart(2,"0");};
+
+/* ══════════ GARMIN ÜBER GITHUB ══════════
+   Ein Knopf stößt im Repository eine Aktion an, die den letzten Lauf von
+   Garmin holt und als Datei ablegt. Die App wartet darauf und trägt ein.
+   Der Garmin-Zugang liegt dabei im Repository, nicht auf dem Telefon. */
+const GH_LAUF="garmin/latest.json";
+async function ghDatei(pfad){
+  const g=gh();
+  const url=`https://raw.githubusercontent.com/${g.user}/${g.repo}/${g.branch}/${pfad}?t=${Date.now()}`;
+  try{
+    const r=await fetch(url,{cache:"no-store"});
+    if(!r.ok)return null;
+    return await r.json();
+  }catch(e){return null;}
+}
+async function ghAktionStarten(){
+  const g=gh();
+  if(!DB.ghTok)throw new Error("Kein GitHub-Token hinterlegt. Unter Mehr → Updates eintragen.");
+  const url=`https://api.github.com/repos/${g.user}/${g.repo}/actions/workflows/garmin.yml/dispatches`;
+  const r=await fetch(url,{method:"POST",
+    headers:{Authorization:"Bearer "+DB.ghTok,Accept:"application/vnd.github+json",
+      "Content-Type":"application/json"},
+    body:JSON.stringify({ref:g.branch})});
+  if(r.status===204)return true;
+  if(r.status===403)throw new Error("Der Token darf keine Aktionen starten. Im Token unter Repository permissions zusätzlich Actions auf Read and write stellen.");
+  if(r.status===404)throw new Error("Die Datei .github/workflows/garmin.yml fehlt im Repository.");
+  throw new Error("GitHub meldet "+r.status);
+}
+/* Holt den letzten Lauf: Aktion anstoßen, dann auf die neue Datei warten */
+async function garminHolen(melde){
+  const vorher=await ghDatei(GH_LAUF);
+  const marke=vorher&&vorher.geholt;
+  melde("Garmin wird abgefragt …");
+  await ghAktionStarten();
+  for(let i=0;i<40;i++){                       // bis zu zwei Minuten
+    await new Promise(r=>setTimeout(r,3000));
+    melde("Warte auf Antwort … "+((i+1)*3)+" s");
+    const neu=await ghDatei(GH_LAUF);
+    if(neu&&neu.geholt&&neu.geholt!==marke)return neu;
+  }
+  throw new Error("Keine Antwort innerhalb von zwei Minuten. Schau im Repository unter Actions, ob der Lauf durchgelaufen ist.");
+}
+
 /* ══════════ TRAININGSDAUER ══════════
    Läuft über Zeitstempel, damit er auch bei gesperrtem Bildschirm stimmt.
    Startet beim ersten Satz, endet beim Abschließen der Einheit. */
@@ -6916,6 +7102,109 @@ function schnellTon(date,ath){
   });
   return {date,ton:Math.round(ton),saetze,dauer:tDauer(date,ath)};
 }
+/* Zeichnet eine Kurve als SVG – ohne Bibliothek, damit es zum Rest passt */
+function kurve(werte, farbe, hoehe, einheit, umkehren){
+  const gueltig=werte.filter(v=>typeof v==="number"&&!isNaN(v));
+  if(gueltig.length<4)return "";
+  const min=Math.min(...gueltig), max=Math.max(...gueltig);
+  const spanne=(max-min)||1;
+  const B=300, H=hoehe||54;
+  const punkte=werte.map((v,i)=>{
+    const x=(i/(werte.length-1))*B;
+    const anteil=(v-min)/spanne;
+    const y=(umkehren?anteil:1-anteil)*(H-8)+4;
+    return x.toFixed(1)+","+y.toFixed(1);
+  }).join(" ");
+  const flaeche=`0,${H} `+punkte+` ${B},${H}`;
+  return `<svg viewBox="0 0 ${B} ${H}" preserveAspectRatio="none" style="width:100%;height:${H}px;display:block">
+    <polygon points="${flaeche}" fill="${farbe}" opacity=".13"/>
+    <polyline points="${punkte}" fill="none" stroke="${farbe}" stroke-width="1.6"
+      stroke-linejoin="round" stroke-linecap="round"/>
+  </svg>`;
+}
+/* Balken je Kilometer, schnellster hervorgehoben */
+function rundenBalken(runden){
+  if(!runden||runden.length<2)return "";
+  const paces=runden.map(r=>r.sek/Math.max(.1,r.km));
+  const min=Math.min(...paces), max=Math.max(...paces);
+  const spanne=(max-min)||1;
+  return `<div class="rbars">${runden.map((r,i)=>{
+    const p=paces[i];
+    const anteil=1-(p-min)/spanne;          // schneller = höher
+    const h=18+anteil*30;
+    const schnellster=(p===min);
+    return `<div class="rb" title="km ${i+1}">
+      <div class="rbb" style="height:${h}px;background:${schnellster?"var(--me)":"var(--line2)"}"></div>
+      <div class="rbl">${i+1}</div></div>`;
+  }).join("")}</div>`;
+}
+const pzFmt=s=>Math.floor(s/60)+":"+String(Math.round(s%60)).padStart(2,"0");
+
+/* ── Auswertung einer Laufeinheit ── */
+function laufBilanz(date,ath){
+  const ses=sessionFor(date,ath);
+  if(ses.k!=="lauf")return null;
+  const lg=LR(date,ath);
+  const z=(k)=>{const v=lg["run0-c-"+k]||lg["run1-c-"+k];return v||null;};
+  const km=parseFloat(String(z("dist")||"").replace(",","."));
+  const hr=parseFloat(z("hr"));
+  const pace=z("pace"), zeit=z("time");
+  if(isNaN(km)||!km)return null;
+  const sek=s=>{if(!s)return 0;const t=String(s).split(":").map(Number);
+    return t.length===3?t[0]*3600+t[1]*60+t[2]:t.length===2?t[0]*60+t[1]:t[0];};
+  const paceS=sek(pace)||(sek(zeit)?Math.round(sek(zeit)/km):0);
+  const dauer=sek(zeit)||Math.round(paceS*km);
+  const m=hrMax(ath);
+  const anteil=(m&&hr)?hr/m:0;
+  // Vergleich mit den letzten drei gleichartigen Läufen
+  const frueher=[];
+  Object.keys(DB.log||{}).sort().reverse().forEach(d=>{
+    if(d>=date||frueher.length>=3)return;
+    const s2=sessionFor(d,ath); if(s2.n!==ses.n)return;
+    const l2=LR(d,ath);
+    const k2=parseFloat(String(l2["run0-c-dist"]||l2["run1-c-dist"]||"").replace(",","."));
+    const h2=parseFloat(l2["run0-c-hr"]||l2["run1-c-hr"]);
+    const p2=sek(l2["run0-c-pace"]||l2["run1-c-pace"]);
+    if(k2>0)frueher.push({date:d,km:k2,hr:h2||0,paceS:p2||0});
+  });
+  let gmn=null;
+  try{ gmn=JSON.parse(lg["run0-garmin"]||lg["run1-garmin"]||"null"); }catch(e){}
+  return {ses,km,hr,paceS,dauer,anteil,frueher,gmn,
+    ziel:ses.run&&ses.run.hr?ses.run.hr:null,
+    zone:ses.run&&ses.run.zone};
+}
+function laufText(b,ath){
+  const t=[], m=hrMax(ath);
+  const pz=s=>Math.floor(s/60)+":"+String(Math.round(s%60)).padStart(2,"0");
+  // Lag der Puls im vorgesehenen Bereich?
+  if(b.ziel&&m&&b.hr){
+    const von=Math.round(m*b.ziel[0]), bis=Math.round(m*b.ziel[1]);
+    if(b.hr>bis+4)t.push({ok:0,s:`${Math.round(b.hr)} Schläge im Schnitt, vorgesehen waren ${von} bis ${bis}. Zu schnell gelaufen – das kostet Erholung für die harte Einheit, ohne den Grundlagenreiz zu verbessern.`});
+    else if(b.hr<von-6)t.push({ok:0,s:`${Math.round(b.hr)} Schläge, vorgesehen waren ${von} bis ${bis}. Du kannst etwas zulegen, ohne dass es anstrengend wird.`});
+    else t.push({ok:1,s:`${Math.round(b.hr)} Schläge liegen im Zielbereich ${von} bis ${bis}. Genau richtig gesteuert.`});
+  } else if(m&&b.hr){
+    t.push({ok:1,s:`${Math.round(b.hr)} Schläge sind ${Math.round(b.anteil*100)} Prozent deines Maximums.`});
+  }
+  // Laufökonomie: gleiches Tempo bei weniger Puls heißt Fortschritt
+  const gleich=b.frueher.filter(f=>f.hr&&f.paceS);
+  if(gleich.length>=2&&b.hr&&b.paceS){
+    const altEff=gleich.reduce((a,f)=>a+f.paceS*f.hr,0)/gleich.length;
+    const neuEff=b.paceS*b.hr;
+    const d=Math.round((1-neuEff/altEff)*100);
+    if(d>=3)t.push({ok:1,s:`Bei diesem Puls läufst du ${d} Prozent wirtschaftlicher als in den letzten Einheiten. Das ist der Fortschritt, den Grundlagentraining erzeugt.`});
+    else if(d<=-5)t.push({ok:0,s:`${Math.abs(d)} Prozent unwirtschaftlicher als zuletzt – mehr Puls für dasselbe Tempo. Einmal ist das Tagesform, mehrmals ein Zeichen für zu wenig Erholung.`});
+  }
+  // Umfang gegenüber den Vorwochen
+  if(b.frueher.length){
+    const schnitt=b.frueher.reduce((a,f)=>a+f.km,0)/b.frueher.length;
+    const d=Math.round((b.km/schnitt-1)*100);
+    if(d>=15)t.push({ok:0,s:`${b.km} km sind ${d} Prozent mehr als im Schnitt der letzten Male. Über zehn Prozent Sprung belastet Sehnen und Knochen stärker, als es dem Kreislauf nützt.`});
+    else if(Math.abs(d)<=12)t.push({ok:1,s:`${b.km} km liegen im Rahmen der letzten Einheiten.`});
+  }
+  if(b.paceS)t.push({ok:1,s:`Schnitt ${pz(b.paceS)} pro Kilometer über ${dauerTxt(b.dauer)}.`});
+  return t;
+}
+
 /* Rückmeldung in Worten – konkret, nicht lobend */
 function bilanzText(b,ath){
   const t=[];
@@ -7444,6 +7733,71 @@ function rSci(){
   document.getElementById("p-mehr").innerHTML=h;
 }
 
+function zeigeLaufBilanz(b,date,ath){
+  const t=laufText(b,ath);
+  const pz=s=>Math.floor(s/60)+":"+String(Math.round(s%60)).padStart(2,"0");
+  const m=hrMax(ath);
+  showModal(`<h3>${esc(b.ses.n)}</h3>
+    <div style="font-size:12.5px;color:var(--dim);margin:-6px 0 14px">
+      ${new Date(date+"T12:00:00").toLocaleDateString("de-DE",{weekday:"long",day:"numeric",month:"long"})}</div>
+    <div class="bgrid">
+      <div><div class="bv num">${b.km.toLocaleString("de-DE")}<span style="font-size:13px;color:var(--dim)"> km</span></div><div class="bl">Distanz</div></div>
+      <div><div class="bv num">${b.dauer?dauerTxt(b.dauer):"–"}</div><div class="bl">Dauer</div></div>
+      <div><div class="bv num">${b.paceS?pz(b.paceS):"–"}</div><div class="bl">pro km</div></div>
+      <div><div class="bv num">${b.hr?Math.round(b.hr):"–"}</div><div class="bl">Puls</div></div>
+    </div>
+    ${(b.anteil&&m)?`<div class="bdelta" style="color:${
+      b.ziel?((b.anteil>=b.ziel[0]-.03&&b.anteil<=b.ziel[1]+.02)?"var(--ok)":"var(--warn)"):"var(--mid)"}">
+      ${Math.round(b.anteil*100)} % der maximalen Herzfrequenz${b.ziel?` · vorgesehen ${Math.round(b.ziel[0]*100)}–${Math.round(b.ziel[1]*100)} %`:""}</div>`:""}
+    <div class="sec" style="margin:16px 0 8px">Rückmeldung</div>
+    ${t.map(x=>`<div class="bfeed">
+      <span style="color:${x.ok?"var(--ok)":"var(--warn)"};flex-shrink:0">${x.ok?"✓":"!"}</span>
+      <span>${esc(x.s)}</span></div>`).join("")||`<div class="bfeed"><span>–</span></div>`}
+    ${(b.gmn&&b.gmn.messpunkte&&b.gmn.messpunkte.length>3)?`
+      <div class="sec" style="margin:16px 0 8px">Verlauf</div>
+      <div class="card" style="padding:12px 13px">
+        <div class="klbl">Puls${(()=>{const w=b.gmn.messpunkte.map(p=>p.hr).filter(x=>x);
+          return w.length?` · ${Math.round(Math.min(...w))} bis ${Math.round(Math.max(...w))}`:"";})()}</div>
+        ${kurve(b.gmn.messpunkte.map(p=>p.hr),"var(--red)",54)}
+        <div class="klbl" style="margin-top:12px">Tempo</div>
+        ${kurve(b.gmn.messpunkte.map(p=>p.tempo),"var(--me)",48)}
+        ${b.gmn.messpunkte.some(p=>p.hoehe)?`<div class="klbl" style="margin-top:12px">Höhe</div>
+          ${kurve(b.gmn.messpunkte.map(p=>p.hoehe),"var(--ok)",36)}`:""}
+        ${b.gmn.messpunkte.some(p=>p.frequenz)?`<div class="klbl" style="margin-top:12px">Schrittfrequenz${
+          b.gmn.frequenz?" · Schnitt "+Math.round(b.gmn.frequenz):""}</div>
+          ${kurve(b.gmn.messpunkte.map(p=>p.frequenz),"var(--both)",36)}`:""}
+      </div>`:""}
+    ${(b.gmn&&b.gmn.runden&&b.gmn.runden.length>1)?`
+      <div class="sec" style="margin:16px 0 8px">Je Kilometer</div>
+      <div class="card" style="padding:14px 13px 10px">
+        ${rundenBalken(b.gmn.runden)}
+        <div style="font-size:11.5px;color:var(--dim);line-height:1.6;margin-top:10px">
+        ${(()=>{const p=b.gmn.runden.map(r=>r.sek/Math.max(.1,r.km));
+          const schnell=Math.min(...p), langsam=Math.max(...p);
+          const h=b.gmn.runden.length>2?p.slice(0,Math.floor(p.length/2)):p;
+          const r2=b.gmn.runden.length>2?p.slice(Math.floor(p.length/2)):p;
+          const m=a=>a.reduce((x,y)=>x+y,0)/a.length;
+          const drift=Math.round(m(r2)-m(h));
+          return `Schnellster ${pzFmt(schnell)}, langsamster ${pzFmt(langsam)}. `+
+            (Math.abs(drift)<8?"Gleichmäßig durchgelaufen."
+             :drift>0?`Zweite Hälfte ${drift} Sekunden langsamer je Kilometer – zu schnell gestartet.`
+             :`Zweite Hälfte ${Math.abs(drift)} Sekunden schneller – sauber gesteigert.`);
+        })()}</div>
+      </div>`:""}
+    ${b.frueher.length?`<div class="sec" style="margin:16px 0 8px">Die letzten Male</div>
+      <table class="awtab">
+        ${b.frueher.map(f=>`<tr>
+          <td style="font-size:12.5px">${new Date(f.date+"T12:00:00").toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit"})}</td>
+          <td class="awr" style="text-align:right">${f.km.toLocaleString("de-DE")} km</td>
+          <td class="awr" style="text-align:right">${f.paceS?pz(f.paceS):"–"}</td>
+          <td class="awp">${f.hr?Math.round(f.hr)+" bpm":"–"}</td>
+        </tr>`).join("")}
+      </table>`:""}
+    <div style="height:14px"></div>
+    <button class="btn btn-go" onclick="closeModal();shareDay('${date}')">Ergebnisse teilen</button>
+    <button class="btn" onclick="closeModal()">Schließen</button>`);
+}
+
 /* ─── Belastung ─── */
 function rBelastung(){
   const a=me(), B=belastung(a), T=BELTXT[B.stufe];
@@ -7516,6 +7870,8 @@ function zeigeBilanz(date,ath){
   }
 }
 function zeigeBilanzIntern(date,ath){
+  const lb=laufBilanz(date,ath);
+  if(lb)return zeigeLaufBilanz(lb,date,ath);
   const b=bilanz(date,ath);
   if(!b){showModal(`<h3>Fertig</h3><button class="btn" onclick="closeModal()">Schließen</button>`);return;}
   const t=bilanzText(b,ath);
@@ -9539,6 +9895,80 @@ function plInit(){
   window.addEventListener("orientationchange",()=>setTimeout(plPos,250));
 }
 
+/* ══════════ WISCHGESTEN ══════════
+   Links und rechts blättert durch die Tage. Nur auf der Heute-Seite, nur bei
+   deutlich waagrechter Bewegung – sonst käme das Scrollen durcheinander. */
+function tagWischen(){
+  const z=document.getElementById("p-heute");
+  if(!z)return;
+  let sx=0,sy=0,t0=0,aktiv=false,zieht=false,dx=0;
+  const breite=()=>window.innerWidth||390;
+  const setzen=(v,sofort)=>{
+    z.style.transition=sofort?"none":"transform .22s cubic-bezier(.22,.8,.3,1), opacity .22s ease";
+    z.style.transform="translateX("+v+"px)";
+    // Weiter gezogen heißt blasser – das Blatt löst sich sichtbar ab
+    z.style.opacity=String(Math.max(.25,1-Math.abs(v)/(breite()*.9)));
+  };
+  const zurueck=()=>{z.style.transition="";z.style.transform="";z.style.opacity="";};
+  z.addEventListener("touchstart",e=>{
+    if(e.touches.length!==1)return;
+    const t=e.touches[0];
+    let el=e.target;
+    for(let i=0;i<6&&el;i++){
+      if(el.scrollWidth>el.clientWidth+8)return;
+      if(el.tagName==="INPUT"||el.tagName==="TEXTAREA")return;
+      el=el.parentElement;
+    }
+    sx=t.clientX;sy=t.clientY;t0=Date.now();aktiv=true;zieht=false;dx=0;
+  },{passive:true});
+  z.addEventListener("touchmove",e=>{
+    if(!aktiv||e.touches.length!==1)return;
+    const t=e.touches[0];
+    dx=t.clientX-sx;
+    const dy=t.clientY-sy;
+    if(!zieht){
+      // Richtung erst festlegen, wenn die Bewegung eindeutig ist
+      if(Math.abs(dx)<14)return;
+      if(Math.abs(dx)<Math.abs(dy)*1.3){aktiv=false;return;}
+      zieht=true;
+    }
+    // Am Finger kleben, mit leichtem Widerstand zum Rand hin
+    const w=breite();
+    const gedaempft=Math.sign(dx)*w*0.42*Math.tanh(Math.abs(dx)/(w*0.42));
+    setzen(gedaempft,true);
+    if(e.cancelable)e.preventDefault();
+  },{passive:false});
+  const los=()=>{
+    if(!aktiv){zieht=false;return;}
+    aktiv=false;
+    if(!zieht)return;
+    zieht=false;
+    const w=breite(), dt=Date.now()-t0;
+    const schnell=Math.abs(dx)>45&&dt<260;      // kurzer Schlenker zählt auch
+    if(Math.abs(dx)<w*0.22&&!schnell){setzen(0);setTimeout(zurueck,240);return;}
+    const raus=dx<0?-w:w;
+    setzen(raus);
+    setTimeout(()=>{
+      const d=new Date(selDate+"T12:00:00");
+      d.setDate(d.getDate()+(dx<0?1:-1));
+      selDate=iso(d);
+      // Neuer Tag kommt von der Gegenseite hereingeschoben
+      z.style.transition="none";
+      z.style.transform="translateX("+(dx<0?w:-w)+"px)";
+      z.style.opacity=".25";
+      render();
+      requestAnimationFrame(()=>{
+        z.style.transition="transform .24s cubic-bezier(.22,.8,.3,1), opacity .24s ease";
+        z.style.transform="translateX(0)";
+        z.style.opacity="1";
+        setTimeout(zurueck,260);
+      });
+    },190);
+  };
+  z.addEventListener("touchend",los);
+  z.addEventListener("touchcancel",los);
+}
+
 /* ══════════ NAVIGATION & START ══════════ */
 function render(){
   renderHead();
@@ -9565,6 +9995,7 @@ document.querySelectorAll(".whoswitch button").forEach(b=>b.onclick=()=>{
   toast("Profil: "+ANAME[DB.me]);});
 plInit();
 woResumeInit();
+tagWischen();
 document.getElementById("tp").onclick=pauseTimer;
 document.getElementById("tx").onclick=stopTimer;
 document.getElementById("wx").onclick=()=>{wrEnd();clearInterval(woUhr);
@@ -9592,11 +10023,21 @@ wrDragInit();
   const wo=document.getElementById("wo"), grip=document.getElementById("wgrip");
   if(!wo)return;
   let sy=0,sx=0,aktiv=false,dy=0;
+  const wb=document.getElementById("wb");
   const start=e=>{
     const t=e.touches?e.touches[0]:e;
     const vomGriff=grip&&grip.contains(e.target);
     const vonOben=t.clientY<120;
-    if(!vomGriff&&!vonOben)return;
+    /* Auch aus dem Inhalt heraus, sobald er ganz oben steht – dann gibt es
+       nichts mehr zu scrollen und die Geste ist eindeutig. */
+    const amAnfang=wb&&wb.scrollTop<=0&&wb.contains(e.target);
+    if(!vomGriff&&!vonOben&&!amAnfang)return;
+    // In Eingabefeldern nicht auslösen
+    let el=e.target;
+    for(let i=0;i<5&&el;i++){
+      if(el.tagName==="INPUT"||el.tagName==="TEXTAREA")return;
+      el=el.parentElement;
+    }
     // In der Pausenansicht nicht schließen
     if(document.getElementById("wrest")?.classList.contains("on")&&!wrMini)return;
     aktiv=true;sy=t.clientY;sx=t.clientX;dy=0;
@@ -9606,6 +10047,8 @@ wrDragInit();
     const t=e.touches?e.touches[0]:e;
     dy=t.clientY-sy;
     if(Math.abs(t.clientX-sx)>Math.abs(dy))return;
+    // Nach oben gewischt: normales Scrollen zulassen
+    if(dy<0){aktiv=false;return;}
     if(dy>0){
       wo.style.transform="translateY("+Math.min(dy,460)+"px)";
       wo.style.opacity=String(Math.max(.35,1-dy/560));
