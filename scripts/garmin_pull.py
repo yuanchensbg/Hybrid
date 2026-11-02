@@ -173,10 +173,93 @@ if isinstance(detail, dict):
         if wert not in (None, ""):
             ergebnis[ziel_feld] = wert
 
+# ── 5. Zeitreihen und Runden holen ───────────────────────────────────
+# Garmin liefert keine Bilder, sondern Messpunkte. Daraus zeichnet die App
+# ihre eigenen Kurven. Die Punktzahl wird reduziert, damit die Datei klein
+# bleibt – für eine Kurve auf dem Telefon reichen rund 200 Werte.
+def ausduennen(punkte, ziel_anzahl=200):
+    if len(punkte) <= ziel_anzahl:
+        return punkte
+    schritt = len(punkte) / ziel_anzahl
+    return [punkte[int(i * schritt)] for i in range(ziel_anzahl)]
+
+
+if aid:
+    # Runden je Kilometer
+    st_s, txt_s = curl(
+        f"https://personal.connectapi.garmin.com/activity-service/activity/{aid}/splits",
+        KOPF)
+    print(f"Runden: HTTP {st_s}, {len(txt_s)} Zeichen")
+    if st_s == 200:
+        ds = als_json(txt_s)
+        runden = None
+        if isinstance(ds, dict):
+            for f in ("lapDTOs", "splits", "laps"):
+                if isinstance(ds.get(f), list):
+                    runden = ds[f]
+                    break
+        elif isinstance(ds, list):
+            runden = ds
+        if runden:
+            ergebnis["runden"] = [{
+                "nr": i + 1,
+                "km": round(float(r.get("distance") or 0) / 10) / 100,
+                "sek": round(float(r.get("duration") or 0)),
+                "hr": int(float(r.get("averageHR") or 0)),
+                "hoehe": round(float(r.get("elevationGain") or 0)),
+            } for i, r in enumerate(runden)]
+            print(f"  {len(ergebnis['runden'])} Runden")
+
+    # Messpunkte über die Zeit
+    for pfad in (f"/activity-service/activity/{aid}/details?maxChartSize=1000",
+                 f"/activity-service/activity/{aid}/details"):
+        st_m, txt_m = curl("https://personal.connectapi.garmin.com" + pfad, KOPF)
+        print(f"Messpunkte: HTTP {st_m}, {len(txt_m)} Zeichen  ({pfad.split('?')[0][-20:]})")
+        if st_m != 200:
+            continue
+        dm = als_json(txt_m)
+        if not isinstance(dm, dict):
+            continue
+        schluessel = dm.get("metricDescriptors") or []
+        zeilen = dm.get("activityDetailMetrics") or []
+        if not schluessel or not zeilen:
+            print("  keine verwertbaren Messpunkte:", txt_m[:160])
+            break
+        # Spaltennamen auf Index abbilden
+        spalte = {}
+        for sd in schluessel:
+            name = str(sd.get("key") or "")
+            spalte[name] = sd.get("metricsIndex")
+        gesucht = {
+            "sek": "sumElapsedDuration",
+            "km": "sumDistance",
+            "hr": "directHeartRate",
+            "tempo": "directSpeed",
+            "hoehe": "directElevation",
+            "frequenz": "directRunCadence",
+        }
+        reihen = []
+        for z in ausduennen(zeilen):
+            w = z.get("metrics") or []
+            punkt = {}
+            for kurz_name, lang_name in gesucht.items():
+                idx = spalte.get(lang_name)
+                if idx is not None and idx < len(w) and w[idx] is not None:
+                    punkt[kurz_name] = round(float(w[idx]), 2)
+            if punkt:
+                reihen.append(punkt)
+        if reihen:
+            ergebnis["messpunkte"] = reihen
+            print(f"  {len(reihen)} Messpunkte übernommen")
+        break
+
 ziel = pathlib.Path("garmin")
 ziel.mkdir(exist_ok=True)
 (ziel / "latest.json").write_text(
     json.dumps(ergebnis, ensure_ascii=False, indent=2), encoding="utf-8")
 
-kurz = {k: v for k, v in ergebnis.items() if k not in ("roh", "detail")}
+kurz = {k: v for k, v in ergebnis.items()
+        if k not in ("roh", "detail", "messpunkte", "runden")}
+kurz["runden"] = len(ergebnis.get("runden") or [])
+kurz["messpunkte"] = len(ergebnis.get("messpunkte") or [])
 print("Geschrieben:", json.dumps(kurz, ensure_ascii=False))
