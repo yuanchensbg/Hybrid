@@ -1467,7 +1467,7 @@ const ANAME={yuan:"Yuan",yara:"Yara"};
 /* ══════════ SPEICHER ══════════ */
 /* Versionsstand – steht unter Mehr ganz unten. Damit lässt sich prüfen,
    ob auf einem Gerät wirklich die aktuelle Datei läuft. */
-const BUILD={datum:"02.11.2026",nr:106};
+const BUILD={datum:"02.11.2026",nr:107};
 const DEF={
  me:"yuan", start:"2026-10-18", gyms:null, gym:"citygate",
  log:{}, archive:[], checkins:{yuan:{},yara:{}}, protein:{yuan:{},yara:{}},
@@ -3467,15 +3467,33 @@ function woRest(p){
 /* Pausenanzeige verkleinern: schwebt dann über der Seite und lässt sich
    verschieben, während du scrollst oder Sätze einträgst. */
 let wrMini=false;
+/* Die verkleinerte Pausenuhr rastet wie der Player an einer Kante ein,
+   statt frei in der Mitte stehen zu bleiben. */
+function wrDock(x,y,bw,bh){
+  const W=window.innerWidth, H=window.innerHeight;
+  const links=x, rechts=W-(x+bw), oben=y-58, unten=H-(y+bh)-72;
+  const min=Math.min(links,rechts,oben,unten);
+  if(min===links) return {kante:"l",p:(y-58)/Math.max(1,H-130-bh)};
+  if(min===rechts)return {kante:"r",p:(y-58)/Math.max(1,H-130-bh)};
+  if(min===oben)  return {kante:"o",p:x/Math.max(1,W-bw)};
+  return {kante:"u",p:x/Math.max(1,W-bw)};
+}
 function wrPos(){
   const w=document.getElementById("wrest");
   if(!w||!wrMini)return;
-  const p=DB.wrPos||{};
-  const maxX=Math.max(8,window.innerWidth-120);
-  const maxY=Math.max(60,window.innerHeight-70);
-  const x=Math.min(maxX,Math.max(8,p.x!==undefined?p.x:maxX-8));
-  const y=Math.min(maxY,Math.max(60,p.y!==undefined?p.y:110));
-  w.style.left=x+"px";w.style.top=y+"px";
+  const d=DB.wrPos||{kante:"o",p:.5};
+  const bw=w.offsetWidth||96, bh=w.offsetHeight||44;
+  const W=window.innerWidth, H=window.innerHeight;
+  const rand=10, xMin=rand, xMax=Math.max(rand,W-bw-rand);
+  const yMin=58, yMax=Math.max(58,H-bh-72);
+  const a=Math.min(1,Math.max(0,d.p!==undefined?d.p:.5));
+  let x,y;
+  if(d.kante==="l"){x=xMin;y=yMin+a*(yMax-yMin);}
+  else if(d.kante==="r"){x=xMax;y=yMin+a*(yMax-yMin);}
+  else if(d.kante==="u"){y=yMax;x=xMin+a*(xMax-xMin);}
+  else {y=yMin;x=xMin+a*(xMax-xMin);}
+  w.style.left=Math.round(Math.min(Math.max(xMin,x),xMax))+"px";
+  w.style.top=Math.round(Math.min(Math.max(yMin,y),yMax))+"px";
 }
 function wrSetMini(on){
   const w=document.getElementById("wrest");
@@ -3500,13 +3518,22 @@ function wrDragInit(){
     const p=e.touches?e.touches[0]:e;
     const dx=p.clientX-sx, dy=p.clientY-sy;
     if(Math.abs(dx)>4||Math.abs(dy)>4)moved=true;
-    DB.wrPos={x:ox+dx,y:oy+dy};
-    wrPos();e.preventDefault();
+    // Während des Ziehens frei folgen, beim Loslassen andocken
+    w.style.left=Math.round(ox+dx)+"px";
+    w.style.top=Math.round(oy+dy)+"px";
+    e.preventDefault();
   };
   const end=()=>{
     if(!drag)return;
     drag=false;
-    if(moved)save(true); else wrSetMini(false);   // Tippen vergrößert wieder
+    if(moved){
+      const r=w.getBoundingClientRect();
+      DB.wrPos=wrDock(r.left,r.top,r.width,r.height);
+      w.style.transition="left .16s ease, top .16s ease";
+      wrPos();
+      setTimeout(()=>{w.style.transition="";},200);
+      save(true);
+    } else wrSetMini(false);                      // Tippen vergrößert wieder
   };
   // Im großen Zustand verkleinert ein Tipp auf die Zeit, im kleinen zieht er
   const tippen=e=>{
@@ -6733,10 +6760,18 @@ function bilanz(date,ath){
   });
   const dauer=tDauer(date,ath);
   // Vergleich mit den letzten drei gleichen Einheiten
+  /* Verglichen wird mit derselben Wellenstufe – eine Volumenwoche gegen eine
+     Spitzenwoche zu stellen ergibt immer ein Minus, ohne dass etwas fehlt. */
+  const stufeHeute=(items.find(x=>x.sch==="main")||{}).wave;
   const frueher=[];
   Object.keys(DB.log||{}).sort().reverse().forEach(d=>{
     if(d>=date||frueher.length>=3)return;
-    if(sessionFor(d,ath).n!==ses.n)return;
+    const s2=sessionFor(d,ath);
+    if(s2.n!==ses.n)return;
+    if(stufeHeute){
+      const h2=buildSession(s2,ath,true).find(x=>x.sch==="main");
+      if(h2&&h2.wave&&h2.wave.n!==stufeHeute.n)return;
+    }
     const b=schnellTon(d,ath);
     if(b.ton>0)frueher.push(b);
   });
@@ -6767,7 +6802,7 @@ function bilanzText(b,ath){
   if(b.delta!==null){
     if(b.delta>=8)t.push({ok:1,s:`${b.delta} Prozent mehr bewegt als bei den letzten Malen. Das ist der Fortschritt, den die Welle erzeugen soll.`});
     else if(b.delta<=-12)t.push({ok:0,s:`${Math.abs(b.delta)} Prozent weniger als zuletzt. Einmal ist das normal, zweimal hintereinander schau in den Check-in.`});
-    else t.push({ok:1,s:`Auf dem Niveau der letzten Einheiten, ${b.delta>=0?"+":""}${b.delta} Prozent.`});
+    else t.push({ok:1,s:`Auf dem Niveau der letzten ${b.ses.k==="kraft"?"gleichen":""} Einheiten, ${b.delta>=0?"+":""}${b.delta} Prozent.`});
   }
   const fehlend=b.geplant-b.saetze;
   if(fehlend>=3)t.push({ok:0,s:`${fehlend} Sätze weniger als geplant. Falls es an der Zeit lag, lieber Nebenübungen streichen als überall kürzen.`});
@@ -6873,7 +6908,8 @@ function letzteLeistungen(ath,exId,anzahl){
         const e=e1rm(w,r);
         if(e>best){best=e;bw=w;br=r;}
       }
-      if(best)out.push({date:d,e1:best,kg:bw,reps:br});
+      if(best)out.push({date:d,e1:best,kg:bw,reps:br,
+        ziel:it.target||0,stufe:(it.wave&&it.wave.n)||""});
     });
   });
   return out;
@@ -7137,20 +7173,23 @@ function belastung(ath){
   if(krank>=3)flags.push({s:2,t:"Häufig angeschlagen",
     d:`${krank} Tage in drei Wochen als angeschlagen eingetragen. In der Konsensarbeit zeigte über die Hälfte der überlasteten Sportler Infekte – bei den lediglich überlasteten keiner.`});
 
-  // Leistungsabfall: 5 bis 10 Prozent über mehr als zwei Wochen
+  /* Leistungsabfall – gemessen an der Planvorgabe, nicht absolut.
+     Die Welle senkt die Last in der Volumen- und Entlastungswoche planmäßig
+     ab; roh verglichen sähe jede Entlastung wie ein Einbruch aus. */
   let abfall=null;
   BIG3.forEach(ex=>{
-    const L=letzteLeistungen(ath,ex,6);
+    const L=letzteLeistungen(ath,ex,6).filter(x=>x.ziel>0);
     if(L.length<4)return;
-    const neu=Math.max(...L.slice(0,2).map(x=>x.e1));
-    const alt=Math.max(...L.slice(2).map(x=>x.e1));
+    const quote=x=>x.e1/x.ziel;              // wie weit über der Vorgabe
+    const neu=Math.max(...L.slice(0,2).map(quote));
+    const alt=Math.max(...L.slice(2).map(quote));
     if(alt&&neu<alt*.95){
       const p=Math.round((1-neu/alt)*100);
       if(!abfall||p>abfall.p)abfall={ex,p};
     }
   });
   if(abfall)flags.push({s:2,t:"Leistung fällt",
-    d:`${(EX[abfall.ex]||{n:abfall.ex}).n}: ${abfall.p} Prozent unter dem besten Wert der Wochen davor. Ein Abfall von fünf bis zehn Prozent über mehr als zwei Wochen ist das bestimmende Zeichen.`});
+    d:`${(EX[abfall.ex]||{n:abfall.ex}).n}: ${abfall.p} Prozent schwächer im Verhältnis zur Tagesvorgabe als in den Wochen davor. Die planmäßige Absenkung in Volumen- und Entlastungswochen ist dabei herausgerechnet.`});
 
   // Belastungssprung: akute gegen chronische Woche
   const akut=wochenLast(ath,0);
@@ -7336,7 +7375,7 @@ function zeigeBilanz(date,ath){
       <div><div class="bv num">${b.wdh}</div><div class="bl">Wdh</div></div>
     </div>
     ${b.delta!==null?`<div class="bdelta" style="color:${b.delta>=0?"var(--ok)":"var(--warn)"}">
-      ${b.delta>=0?"+":""}${b.delta} % gegenüber den letzten ${b.frueher.length} Malen</div>`:""}
+      ${b.delta>=0?"+":""}${b.delta} % gegenüber den letzten ${b.frueher.length} Malen in dieser Wellenstufe</div>`:""}
     ${prs.length?`<div class="card" style="border-color:var(--me);margin:14px 0 0">
       <div style="font-size:14px;font-weight:600;color:var(--me)">🔥 ${prs.length===1?"Eine neue Bestleistung":prs.length+" neue Bestleistungen"}</div>
       <div style="font-size:12.5px;color:var(--mid);line-height:1.6;margin-top:5px">
@@ -8905,15 +8944,21 @@ function plPos(){
   const d=DB.fabPos||{kante:"r",p:.72};
   const {w,h}=plMasse();
   const W=window.innerWidth, H=window.innerHeight;
-  const rand=10;
-  let x,y;
+  const rand=10, oben=58, unten=72;          // Kopfzeile und Tableiste aussparen
   const anteil=Math.min(1,Math.max(0,d.p!==undefined?d.p:.72));
-  if(d.kante==="l"){x=rand;y=60+anteil*Math.max(0,H-130-h);}
-  else if(d.kante==="o"){y=62;x=anteil*Math.max(0,W-w);}
-  else if(d.kante==="u"){y=Math.max(60,H-h-76);x=anteil*Math.max(0,W-w);}
-  else {x=Math.max(rand,W-w-rand);y=60+anteil*Math.max(0,H-130-h);}
-  p.style.left=Math.round(Math.min(Math.max(rand,x),Math.max(rand,W-w-rand)))+"px";
-  p.style.top=Math.round(Math.min(Math.max(60,y),Math.max(60,H-h-70)))+"px";
+  // Verfügbarer Bereich, in dem der Player vollständig sichtbar ist
+  const xMin=rand, xMax=Math.max(rand,W-w-rand);
+  const yMin=oben,  yMax=Math.max(oben,H-h-unten);
+  let x,y;
+  if(d.kante==="l"){x=xMin;y=yMin+anteil*(yMax-yMin);}
+  else if(d.kante==="o"){y=yMin;x=xMin+anteil*(xMax-xMin);}
+  else if(d.kante==="u"){y=yMax;x=xMin+anteil*(xMax-xMin);}
+  else {x=xMax;y=yMin+anteil*(yMax-yMin);}
+  /* Nach dem Vergrößern passt die alte Kante womöglich nicht mehr –
+     dann weicht der Player auf die Seite aus, an der er ganz hineinpasst. */
+  if(w>W-2*rand){x=Math.max(0,Math.round((W-w)/2));}
+  p.style.left=Math.round(Math.min(Math.max(xMin,x),xMax))+"px";
+  p.style.top=Math.round(Math.min(Math.max(yMin,y),yMax))+"px";
 }
 let plLen=0, plAt=0, plTick=null, plPlaying=false;
 const msTxt=ms=>{const s=Math.max(0,Math.round(ms/1000));
@@ -8950,7 +8995,9 @@ function plToggle(open){
   plOpen=open;
   p.classList.toggle("open",open);
   p.classList.toggle("mini",!open);
-  plPos();
+  // Nach dem Umschalten ändert sich die Größe – zweimal nachjustieren,
+  // damit der Player auch während der Animation ganz im Bild bleibt.
+  plPos();setTimeout(plPos,60);setTimeout(plPos,220);
   if(open){plNow();clearInterval(plTimer);plTimer=setInterval(plNow,15000);}
   else clearInterval(plTimer);
 }
@@ -9080,7 +9127,7 @@ function plInit(){
     e.stopPropagation();
     DB.fabBig=!DB.fabBig;save(true);
     PL().classList.toggle("gross",!!DB.fabBig);
-    setTimeout(plPos,200);
+    plPos();setTimeout(plPos,60);setTimeout(plPos,220);
   });
   window.addEventListener("resize",()=>setTimeout(plPos,60));
   window.addEventListener("orientationchange",()=>setTimeout(plPos,250));
