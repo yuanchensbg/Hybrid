@@ -39,10 +39,11 @@ def hole(url, headers, method="GET", daten=None):
 # ── 1. Schlüssel gegen Token tauschen ────────────────────────────────
 # Garmin antwortet hier nicht zwingend mit JSON, deshalb beide Fälle.
 try:
+    # Kein enger Accept-Header: Garmin antwortet sonst mit 406.
     text, status, kopf = roh_holen(
         TOKEN_URL,
         {"Authorization": "ApiKey " + SCHLUESSEL,
-         "Accept": "application/json",
+         "Accept": "*/*",
          "Content-Length": "0"},
         "POST", b"")
 except urllib.error.HTTPError as e:
@@ -81,7 +82,7 @@ if not token:
 
 print(f"Token erhalten, {len(token)} Zeichen, beginnt mit {token[:8]}…")
 
-KOPF = {"Authorization": "Bearer " + token, "Accept": "application/json"}
+KOPF = {"Authorization": "Bearer " + token, "Accept": "*/*"}
 
 # ── 2. Aktivitäten suchen ────────────────────────────────────────────
 # Die genaue Adresse ist nicht öffentlich dokumentiert, deshalb werden
