@@ -198,6 +198,12 @@ main{flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-b
 .fig .k{font-size:9px;color:var(--dim);letter-spacing:.04em;text-transform:uppercase;margin-bottom:3px}
 .fig .v{font-size:17px;font-weight:650}
 .fig.tap .v{color:var(--me)}
+.bgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:4px}
+.bgrid>div{background:var(--surf2);border-radius:11px;padding:11px 4px;text-align:center}
+.bv{font-size:19px;font-weight:700;line-height:1.1}
+.bl{font-size:10.5px;color:var(--dim);margin-top:3px}
+.bdelta{font-size:12.5px;text-align:center;margin-top:10px}
+.bfeed{display:flex;gap:9px;font-size:13px;color:var(--mid);line-height:1.65;margin-bottom:9px}
 .awwrap{display:none;border-top:1px solid var(--line);padding:11px 13px 13px;background:var(--surf)}
 .awwrap.on{display:block}
 .awtab{width:100%;border-collapse:collapse;font-size:13px}
@@ -356,6 +362,11 @@ main{flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-b
 #player.on{display:block}
 #player.mini{width:48px;height:48px;border-radius:50%}
 #player.open{width:252px;height:auto;border-radius:18px}
+#player.gross{width:300px}
+#player.gross img{width:62px;height:62px;border-radius:11px}
+#player.gross .pt1{font-size:14.5px}
+#player.gross .pt2{font-size:12px}
+#player.gross .pctl button{padding:12px 0;font-size:16px}
 #player .pmini{width:48px;height:48px;display:grid;place-items:center;color:var(--me);font-size:19px;cursor:grab}
 #player.open .pmini{display:none}
 #player .pbody{display:none;padding:11px 12px 12px}
@@ -371,6 +382,22 @@ main{flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-b
 #player .pctl button{flex:1;padding:9px 0;background:var(--surf);border:1px solid var(--line);
   border-radius:9px;color:var(--ink);font-size:14px;cursor:pointer}
 #player .pctl button.pp{background:var(--me);border-color:var(--me);color:#0E1116}
+#player .pctl button[data-pc="back15"],#player .pctl button[data-pc="fwd15"]{
+  font-size:11px;color:var(--mid);flex:0 0 38px}
+/* Fortschrittsleiste mit Ziehpunkt */
+#player .pseek{margin-bottom:10px;padding:6px 2px;cursor:pointer;touch-action:none}
+#player .pbar{position:relative;height:4px;border-radius:2px;background:var(--line2)}
+#player .pbar i{position:absolute;left:0;top:0;bottom:0;border-radius:2px;background:var(--me);width:0}
+#player .pbar b{position:absolute;top:50%;width:12px;height:12px;margin:-6px 0 0 -6px;
+  border-radius:50%;background:var(--me);left:0;box-shadow:0 1px 4px rgba(0,0,0,.5)}
+#player.gross .pbar{height:6px}
+#player.gross .pbar b{width:16px;height:16px;margin:-8px 0 0 -8px}
+#player .ptimes{display:flex;justify-content:space-between;font-size:10.5px;color:var(--dim);margin-top:5px;
+  font-variant-numeric:tabular-nums}
+#player .pfoot{display:flex;gap:6px;margin-top:8px}
+#player .pfoot button{flex:1;padding:7px 0;background:none;border:1px solid var(--line);
+  border-radius:8px;color:var(--mid);font-size:12px;cursor:pointer}
+#player .pfoot button.an{color:var(--me);border-color:var(--me)}
 
 /* ─── WORKOUT ─── */
 #wo{display:none;position:fixed;top:0;right:0;bottom:0;left:0;z-index:150;background:var(--bg);
@@ -378,6 +405,7 @@ main{flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-b
 #wo.on{display:flex}
 .wgrip{flex:0 0 auto;display:flex;justify-content:center;padding:8px 0 2px;touch-action:none;cursor:grab}
 .wgrip span{width:40px;height:4px;border-radius:2px;background:var(--line2)}
+.wtime{margin-left:auto;font-size:13px;color:var(--mid);font-variant-numeric:tabular-nums}
 .wt{flex:0 0 auto;display:flex;align-items:center;gap:12px;padding:13px 17px;border-bottom:1px solid var(--line)}
 .wt .wp{flex:1;font-size:12px;color:var(--mid)}
 .wx{background:none;border:none;color:var(--mid);font-size:23px;cursor:pointer;line-height:1;padding:0 4px}
@@ -570,10 +598,22 @@ main{flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-b
       <div class="pti"><div class="pt1" id="pt1">Lädt</div><div class="pt2" id="pt2"></div></div>
       <button class="pclose" id="pclose">×</button>
     </div>
+    <div class="pseek" id="pseek">
+      <div class="pbar"><i id="pfill"></i><b id="pknob"></b></div>
+      <div class="ptimes"><span id="pnow">0:00</span><span id="plen">0:00</span></div>
+    </div>
     <div class="pctl">
+      <button data-pc="back15" title="15 s zurück">−15</button>
       <button data-pc="prev">⏮</button>
       <button class="pp" data-pc="play">⏯</button>
       <button data-pc="next">⏭</button>
+      <button data-pc="fwd15" title="15 s vor">+15</button>
+    </div>
+    <div class="pfoot">
+      <button id="pshuffle" title="Zufall">⤨</button>
+      <button id="pvoldn">🔈</button>
+      <button id="pvolup">🔊</button>
+      <button id="pbig" title="Größe">⇕</button>
     </div>
   </div>
 </div>
@@ -597,6 +637,7 @@ main{flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-b
 <div id="wo">
   <div class="wgrip" id="wgrip"><span></span></div>
   <div class="wt"><span class="wp" id="wp">1 / 7</span>
+    <span class="wtime num" id="wtime"></span>
     <button class="wx" id="wsh" title="Ergebnisse teilen" style="margin-right:4px;font-size:17px">⤴</button>
     <button class="wx" id="wx">&times;</button></div>
   <div class="wb" id="wb"></div>
@@ -1426,7 +1467,7 @@ const ANAME={yuan:"Yuan",yara:"Yara"};
 /* ══════════ SPEICHER ══════════ */
 /* Versionsstand – steht unter Mehr ganz unten. Damit lässt sich prüfen,
    ob auf einem Gerät wirklich die aktuelle Datei läuft. */
-const BUILD={datum:"02.11.2026",nr:102};
+const BUILD={datum:"02.11.2026",nr:106};
 const DEF={
  me:"yuan", start:"2026-10-18", gyms:null, gym:"citygate",
  log:{}, archive:[], checkins:{yuan:{},yara:{}}, protein:{yuan:{},yara:{}},
@@ -3185,7 +3226,7 @@ function bindHeute(ses,ath,lg,items){
 }
 
 /* ══════════ WORKOUT-MODUS ══════════ */
-let woL=[],woI=0,woSes=null,woAth=null;
+let woL=[],woI=0,woSes=null,woAth=null,woUhr=null;
 /* Einstieg dort, wo zuletzt aufgehört wurde. Gemerkt wird je Tag und Person;
    fehlt der Merker, springt die App zur ersten noch offenen Übung. */
 function woResume(date,ath){
@@ -3212,6 +3253,12 @@ function openWO(ses,ath,items){
   if(!woL.length){toast("Keine Übungen zum Loggen");return;}
   woSes=ses;woAth=ath;
   woI=woResume(selDate,ath);
+  tStart(selDate,ath);
+  clearInterval(woUhr);
+  woUhr=setInterval(()=>{
+    const el=document.getElementById("wtime");
+    if(el)el.textContent=dauerTxt(tDauer(selDate,woAth));
+  },1000);
   document.getElementById("wo").classList.add("on");renderWO();
   woResumeShow();
   if(woI>0)toast("Weiter bei Übung "+(woI+1)+" von "+woL.length);
@@ -4698,13 +4745,49 @@ function rGyms(){
       h+=`</div>`;
     }
   });
-  h+=`<div style="height:16px"></div>
+  // ── Scheiben und Stangen dieses Studios ──
+  const vorh=(g.plates&&g.plates.length?g.plates:PLATTEN_STD);
+  h+=`<div class="sec">Scheiben und Stangen</div>
+    <div class="card">
+      <div style="font-size:12.5px;color:var(--mid);line-height:1.65;margin-bottom:11px">
+      Darauf beruhen die Aufwärmsätze und die Angabe, welche Scheiben je Seite aufzulegen sind.
+      Tipp an, was hier <b>nicht</b> vorhanden ist.</div>
+      <div class="lbl">Scheiben je Seite</div>
+      <div class="opts" style="margin-bottom:12px">
+        ${PLATTEN_STD.map(p=>`<button class="opt${vorh.includes(p)?" sel":""}" data-plate="${p}">${p.toLocaleString("de-DE")}</button>`).join("")}
+      </div>
+      <div class="lbl">Stangengewicht</div>
+      ${[["langhantel","Langhantel"],["sz","SZ-Stange"],["trapbar","Trap-Bar"],["multipresse","Multipresse"]]
+        .filter(([t])=>g.eq.includes(t))
+        .map(([t,n])=>`<div class="erow"><span class="elbl" style="width:112px">${n}</span>
+          <input class="inp num" type="number" inputmode="decimal" data-bar="${t}"
+            value="${stangeVon(t,g)}" style="flex:1">
+          <span class="u">kg</span></div>`).join("")||
+        `<div style="font-size:12.5px;color:var(--dim)">In diesem Studio ist keine Stange eingetragen.</div>`}
+      <div style="font-size:11.5px;color:var(--dim);line-height:1.55;margin-top:9px">
+      Üblich sind 20 kg für die Langhantel, 10 für die SZ-Stange, 25 für die Trap-Bar.
+      Kurze Heimstangen wiegen oft 15 kg, manche Studiostangen 15 oder 25.</div>
+    </div>
+    <div style="height:16px"></div>
     <button class="btn" id="gcopy">Geräteliste als Text kopieren</button>
     <button class="btn" id="gwa">Geräteliste an WhatsApp</button>
     <button class="btn" id="gall">Alle auswählen</button>
     <button class="btn" id="gnone">Alle abwählen</button>`;
   document.getElementById("p-mehr").innerHTML=h;
   document.querySelectorAll("[data-g]").forEach(b=>b.onclick=()=>{DB.gym=b.dataset.g;save();rGyms();scrollTop();});
+  document.querySelectorAll("[data-plate]").forEach(b=>b.onclick=()=>{
+    const p=parseFloat(b.dataset.plate);
+    const akt=(g.plates&&g.plates.length?g.plates.slice():PLATTEN_STD.slice());
+    const i=akt.indexOf(p);
+    if(i>=0)akt.splice(i,1); else akt.push(p);
+    if(!akt.length){toast("Mindestens eine Scheibengröße");return;}
+    g.plates=akt.sort((x,y)=>y-x);
+    save();rGyms();});
+  document.querySelectorAll("[data-bar]").forEach(el=>el.oninput=()=>{
+    const v=parseFloat(el.value);
+    g.bars=g.bars||{};
+    if(v>0)g.bars[el.dataset.bar]=v; else delete g.bars[el.dataset.bar];
+    save();});
   document.querySelectorAll("[data-eqgrp]").forEach(b=>b.onclick=()=>{
     const el=document.getElementById("eqg-"+b.dataset.eqgrp);
     if(el)el.style.display=el.style.display==="none"?"block":"none";});
@@ -6448,8 +6531,14 @@ function rUpdate(){
     msg.innerHTML=`<span style="color:var(--mid)">Wird eingespielt …</span>`;
     try{
       const r=await dateiEinspielen(f,!!DB.ghTok);
-      msg.innerHTML=`<span style="color:var(--ok)">Fassung ${r.nr} aktiv${r.hoch==="hochgeladen"?", auch ins Repository geladen":""}. Die App lädt gleich neu.</span>`;
-      setTimeout(()=>location.reload(),1500);
+      const gut=(r.hoch==="hochgeladen"||r.hoch==="übersprungen");
+      msg.innerHTML=`<span style="color:var(--ok)">Fassung ${r.nr} ist auf diesem Gerät aktiv${
+        r.hoch==="hochgeladen"?" und liegt im Repository":""}.</span>`
+        +(gut?`<br><span style="color:var(--mid)">Die App lädt gleich neu.</span>`
+          :`<br><span style="color:var(--warn)">${esc(r.hoch)}</span>
+            <br><span style="color:var(--dim)">Das zweite Gerät bekommt die Fassung erst, wenn das geklärt ist.</span>
+            <button class="btn" style="margin:10px 0 0" onclick="location.reload()">Trotzdem neu laden</button>`);
+      if(gut)setTimeout(()=>location.reload(),1600);
     }catch(err){
       msg.innerHTML=`<span style="color:var(--warn)">${esc(err.message||"Fehlgeschlagen")}</span>`;
     }
@@ -6593,17 +6682,127 @@ function rSplit(){
     shareText(txt);};
 }
 
+/* ══════════ TRAININGSDAUER ══════════
+   Läuft über Zeitstempel, damit er auch bei gesperrtem Bildschirm stimmt.
+   Startet beim ersten Satz, endet beim Abschließen der Einheit. */
+function tStart(date,ath){
+  const lg=L(date,ath);
+  if(!lg._start){lg._start=Date.now();saveDay(lg);}
+  return lg._start;
+}
+function tDauer(date,ath){
+  const lg=LR(date,ath);
+  if(!lg._start)return null;
+  const ende=lg._ende||Date.now();
+  return Math.max(0,Math.round((ende-lg._start)/1000));
+}
+function tEnde(date,ath){
+  const lg=L(date,ath);
+  if(lg._start&&!lg._ende){lg._ende=Date.now();saveDay(lg);}
+  return tDauer(date,ath);
+}
+const dauerTxt=s=>s==null?"":(s>=3600?Math.floor(s/3600)+":"+String(Math.floor(s%3600/60)).padStart(2,"0")
+  :Math.floor(s/60))+(s>=3600?":"+String(s%60).padStart(2,"0"):" Min");
+
+/* ══════════ AUSWERTUNG EINER EINHEIT ══════════ */
+function bilanz(date,ath){
+  const ses=sessionFor(date,ath);
+  if(ses.k==="rest")return null;
+  const items=buildSession(ses,ath,true).filter(x=>x.type==="lift"||x.type==="circuit");
+  const lg=LR(date,ath);
+  let saetze=0,geplant=0,ton=0,wdh=0,ausgelassen=0,notizen=0;
+  const proUebung=[];
+  items.forEach(it=>{
+    geplant+=(it.sets||0);
+    let sGemacht=0,sTon=0,best=0,minR=99,maxR=0;
+    for(let s=1;s<=(it.sets||0)+2;s++){
+      if(lg[`${it.key}-x${s}`]){ausgelassen++;continue;}
+      const roh=parseFloat(lg[`${it.key}-w${s}`]), r=parseInt(lg[`${it.key}-r${s}`],10);
+      const t=lg[`${it.key}-t${s}`];
+      if(isNaN(r)&&!t)continue;
+      sGemacht++;
+      if(!isNaN(r)){wdh+=r;if(r<minR)minR=r;if(r>maxR)maxR=r;}
+      const w=istBW(it.ex)?(isNaN(roh)?(DB.bw[ath]||70):roh+(DB.bw[ath]||70)):roh;
+      if(!isNaN(w)&&!isNaN(r)){sTon+=w*r;const e=e1rm(w,r);if(e>best)best=e;}
+    }
+    if(lg[it.key+"-note"])notizen++;
+    saetze+=sGemacht;ton+=sTon;
+    if(sGemacht)proUebung.push({name:it.name,ex:it.ex,sets:sGemacht,soll:it.sets||0,
+      ton:Math.round(sTon),best:Math.round(best*10)/10,minR:minR===99?0:minR,maxR,
+      sch:it.sch,ziel:it.target||0});
+  });
+  const dauer=tDauer(date,ath);
+  // Vergleich mit den letzten drei gleichen Einheiten
+  const frueher=[];
+  Object.keys(DB.log||{}).sort().reverse().forEach(d=>{
+    if(d>=date||frueher.length>=3)return;
+    if(sessionFor(d,ath).n!==ses.n)return;
+    const b=schnellTon(d,ath);
+    if(b.ton>0)frueher.push(b);
+  });
+  const schnitt=frueher.length?frueher.reduce((a,x)=>a+x.ton,0)/frueher.length:0;
+  return {ses,dauer,saetze,geplant,ton:Math.round(ton),wdh,ausgelassen,notizen,
+    proUebung,frueher,schnitt:Math.round(schnitt),
+    delta:schnitt?Math.round((ton/schnitt-1)*100):null};
+}
+function schnellTon(date,ath){
+  const ses=sessionFor(date,ath);
+  const lg=LR(date,ath);
+  let ton=0,saetze=0;
+  buildSession(ses,ath,true).forEach(it=>{
+    for(let s=1;s<=(it.sets||0)+2;s++){
+      if(lg[`${it.key}-x${s}`])continue;
+      const roh=parseFloat(lg[`${it.key}-w${s}`]), r=parseInt(lg[`${it.key}-r${s}`],10);
+      if(isNaN(r))continue;
+      saetze++;
+      const w=istBW(it.ex)?(isNaN(roh)?(DB.bw[ath]||70):roh+(DB.bw[ath]||70)):roh;
+      if(!isNaN(w))ton+=w*r;
+    }
+  });
+  return {date,ton:Math.round(ton),saetze,dauer:tDauer(date,ath)};
+}
+/* Rückmeldung in Worten – konkret, nicht lobend */
+function bilanzText(b,ath){
+  const t=[];
+  if(b.delta!==null){
+    if(b.delta>=8)t.push({ok:1,s:`${b.delta} Prozent mehr bewegt als bei den letzten Malen. Das ist der Fortschritt, den die Welle erzeugen soll.`});
+    else if(b.delta<=-12)t.push({ok:0,s:`${Math.abs(b.delta)} Prozent weniger als zuletzt. Einmal ist das normal, zweimal hintereinander schau in den Check-in.`});
+    else t.push({ok:1,s:`Auf dem Niveau der letzten Einheiten, ${b.delta>=0?"+":""}${b.delta} Prozent.`});
+  }
+  const fehlend=b.geplant-b.saetze;
+  if(fehlend>=3)t.push({ok:0,s:`${fehlend} Sätze weniger als geplant. Falls es an der Zeit lag, lieber Nebenübungen streichen als überall kürzen.`});
+  // Satzabfall im Hauptlift
+  const haupt=b.proUebung.find(x=>x.sch);
+  if(haupt&&haupt.maxR&&haupt.minR&&haupt.maxR-haupt.minR>=3)
+    t.push({ok:0,s:`Beim ${haupt.name} fiel es von ${haupt.maxR} auf ${haupt.minR} Wiederholungen. Nächstes Mal etwas leichter einsteigen und alle Sätze gleich halten.`});
+  else if(haupt&&haupt.maxR&&haupt.maxR===haupt.minR)
+    t.push({ok:1,s:`Beim ${haupt.name} alle Sätze mit derselben Wiederholungszahl – genau so soll es aussehen.`});
+  if(b.dauer&&b.dauer>5400)t.push({ok:0,s:`${dauerTxt(b.dauer)} sind lang. Über neunzig Minuten fällt die Qualität meist ab – kürzere Pausen bei den Nebenübungen helfen.`});
+  if(b.dauer&&b.dauer<1500&&b.saetze>12)t.push({ok:0,s:`${dauerTxt(b.dauer)} für ${b.saetze} Sätze ist zügig. Prüf, ob die Pausen beim Hauptlift wirklich eingehalten waren.`});
+  if(b.ausgelassen)t.push({ok:0,s:`${b.ausgelassen} Sätze ausgelassen.`});
+  if(!b.notizen&&b.saetze>8)t.push({ok:1,s:`Keine Notiz hinterlegt. Ein Satz dazu, wie es sich angefühlt hat, hilft beim nächsten Vergleich mehr als jede Zahl.`});
+  return t;
+}
+
 /* ══════════ AUFWÄRMSÄTZE ══════════
    Rampe zum Arbeitsgewicht: steigende Last, sinkende Wiederholungen. Bahnt
    die Bewegung, ohne Ermüdung anzusammeln. Die Zahl der Stufen richtet sich
    nach der Höhe des Arbeitsgewichts – 100 kg brauchen mehr Zwischenschritte
    als 60. */
-const STANGE={langhantel:20,sz:10,trapbar:25,safetybar:25,loghantel:25,multipresse:15};
+const STANGE_DEF={langhantel:20,sz:10,trapbar:25,safetybar:25,loghantel:25,multipresse:15};
+/* Stangengewicht und Scheibensatz können je Studio abweichen – im Homegym
+   wiegt die Stange oft 15 statt 20 kg, und nicht überall liegen 15er. */
+function stangeVon(eq,g){
+  const gym=g||curGym();
+  const eig=(gym&&gym.bars||{})[eq];
+  return eig!==undefined?eig:STANGE_DEF[eq];
+}
+const PLATTEN_STD=[25,20,15,10,5,2.5,1.25];
 /* Welche Scheiben liegen im gewählten Studio? */
 function scheibenVon(g){
-  const std=[25,20,15,10,5,2.5,1.25];
-  const eigene=(g&&g.plates)||null;
-  return (eigene&&eigene.length?eigene:std).slice().sort((a,b)=>b-a);
+  const gym=g||curGym();
+  const eigene=(gym&&gym.plates)||null;
+  return (eigene&&eigene.length?eigene:PLATTEN_STD).slice().sort((a,b)=>b-a);
 }
 /* Belegung je Seite als Text */
 function belegung(gesamt,stange,g){
@@ -6628,7 +6827,7 @@ function machbar(ziel,stange,g){
 }
 function aufwaermen(arbeit,exId,eq,ath){
   if(!arbeit||arbeit<=0)return null;
-  const stange=STANGE[eq];
+  const stange=stangeVon(eq);
   if(!stange)return null;                   // nur für Stangenübungen sinnvoll
   if(arbeit<=stange+5)return null;
   const g=curGym();
@@ -7121,6 +7320,45 @@ function rBelastung(){
   document.getElementById("p-mehr").innerHTML=h;
 }
 
+/* Auswertung nach der Einheit */
+function zeigeBilanz(date,ath){
+  const b=bilanz(date,ath);
+  if(!b){showModal(`<h3>Fertig</h3><button class="btn" onclick="closeModal()">Schließen</button>`);return;}
+  const t=bilanzText(b,ath);
+  const prs=prs().filter(p=>p.ath===ath&&p.date===date);
+  showModal(`<h3>${esc(b.ses.n)}</h3>
+    <div style="font-size:12.5px;color:var(--dim);margin:-6px 0 14px">
+      ${new Date(date+"T12:00:00").toLocaleDateString("de-DE",{weekday:"long",day:"numeric",month:"long"})}</div>
+    <div class="bgrid">
+      <div><div class="bv num">${b.dauer?dauerTxt(b.dauer):"–"}</div><div class="bl">Dauer</div></div>
+      <div><div class="bv num">${b.saetze}<span style="font-size:13px;color:var(--dim)">/${b.geplant}</span></div><div class="bl">Sätze</div></div>
+      <div><div class="bv num">${(b.ton/1000).toFixed(1)}<span style="font-size:13px;color:var(--dim)"> t</span></div><div class="bl">bewegt</div></div>
+      <div><div class="bv num">${b.wdh}</div><div class="bl">Wdh</div></div>
+    </div>
+    ${b.delta!==null?`<div class="bdelta" style="color:${b.delta>=0?"var(--ok)":"var(--warn)"}">
+      ${b.delta>=0?"+":""}${b.delta} % gegenüber den letzten ${b.frueher.length} Malen</div>`:""}
+    ${prs.length?`<div class="card" style="border-color:var(--me);margin:14px 0 0">
+      <div style="font-size:14px;font-weight:600;color:var(--me)">🔥 ${prs.length===1?"Eine neue Bestleistung":prs.length+" neue Bestleistungen"}</div>
+      <div style="font-size:12.5px;color:var(--mid);line-height:1.6;margin-top:5px">
+      ${prs.map(p=>esc(p.name)+" "+p.kg+" kg × "+p.reps).join("<br>")}</div></div>`:""}
+    <div class="sec" style="margin:16px 0 8px">Rückmeldung</div>
+    ${t.map(x=>`<div class="bfeed">
+      <span style="color:${x.ok?"var(--ok)":"var(--warn)"};flex-shrink:0">${x.ok?"✓":"!"}</span>
+      <span>${esc(x.s)}</span></div>`).join("")||`<div class="bfeed"><span>–</span></div>`}
+    <div class="sec" style="margin:16px 0 8px">Je Übung</div>
+    <table class="awtab">
+      ${b.proUebung.map(u=>`<tr>
+        <td style="font-size:12.5px">${esc(u.name)}${u.sch?' <span style="color:var(--me)">·</span>':""}</td>
+        <td class="awr" style="text-align:right">${u.sets}/${u.soll}</td>
+        <td class="awp">${u.ton?Math.round(u.ton).toLocaleString("de-DE")+" kg":"–"}</td>
+      </tr>`).join("")}
+    </table>
+    <div style="height:14px"></div>
+    <button class="btn btn-go" onclick="closeModal();shareDay('${date}')">Ergebnisse teilen</button>
+    <button class="btn" onclick="closeModal();go('mehr','checkin')">Check-in eintragen</button>
+    <button class="btn" onclick="closeModal()">Schließen</button>`);
+}
+
 /* ─── Anpassungen ─── */
 function rAuto(){
   const a=me();
@@ -7211,9 +7449,16 @@ async function dateiEinspielen(file,auchHoch){
       body:JSON.stringify({message:"Fassung "+nr,content:b64,branch:g.branch,...(sha?{sha}:{})})});
     if(!r2.ok){
       const t=await r2.text();
-      throw new Error("GitHub: "+r2.status+" "+t.slice(0,120));
-    }
-    hoch="hochgeladen";
+      // Der lokale Teil ist bereits erledigt – der Upload wird nur gemeldet,
+      // nicht als Gesamtfehler behandelt.
+      hoch=r2.status===403
+        ? "Der Token darf nicht schreiben. Auf github.com beim Token unter Repository permissions Contents auf Read and write stellen und bei Repository access das Repository auswählen."
+        : r2.status===404
+        ? "Repository oder Datei nicht gefunden. Prüf Benutzername, Repository und Dateiname oben."
+        : r2.status===401
+        ? "Token abgelaufen oder ungültig. Neu anlegen und hier eintragen."
+        : "Hochladen fehlgeschlagen ("+r2.status+")";
+    } else hoch="hochgeladen";
   }
   DB.ghLast={at:Date.now(),nr,datum:m?m[1]:""};save(true);
   return {nr,hoch};
@@ -8637,21 +8882,67 @@ function woResumeInit(){
 /* ══════════ SCHWEBENDER PLAYER ══════════ */
 const PL=()=>document.getElementById("player");
 let plOpen=false, plTimer=null;
+/* Der Player rastet immer an einem Rand ein – frei schwebend verdeckt er
+   sonst mitten auf dem Bildschirm die Eingabefelder. Gespeichert wird die
+   Kante und die Lage daran, damit die Position auch bei Drehung stimmt. */
+function plMasse(){
+  const p=PL();
+  const w=p?p.offsetWidth:48, hgt=p?p.offsetHeight:48;
+  return {w:w||48,h:hgt||48};
+}
+function plDock(x,y){
+  const {w,h}=plMasse();
+  const W=window.innerWidth, H=window.innerHeight;
+  const links=x, rechts=W-(x+w), oben=y-60, unten=H-(y+h)-70;
+  const min=Math.min(links,rechts,oben,unten);
+  if(min===links) return {kante:"l",p:(y-60)/Math.max(1,H-130-h)};
+  if(min===rechts)return {kante:"r",p:(y-60)/Math.max(1,H-130-h)};
+  if(min===oben)  return {kante:"o",p:x/Math.max(1,W-w)};
+  return {kante:"u",p:x/Math.max(1,W-w)};
+}
 function plPos(){
   const p=PL(); if(!p)return;
-  const d=DB.fabPos||{};
-  const w=plOpen?252:48, hgt=plOpen?124:48;
-  const maxX=Math.max(8,window.innerWidth-w-8);
-  const maxY=Math.max(60,window.innerHeight-hgt-8);
-  const x=Math.min(maxX,Math.max(8,d.x!==undefined?d.x:maxX));
-  const y=Math.min(maxY,Math.max(60,d.y!==undefined?d.y:window.innerHeight-170));
-  p.style.left=x+"px"; p.style.top=y+"px";
+  const d=DB.fabPos||{kante:"r",p:.72};
+  const {w,h}=plMasse();
+  const W=window.innerWidth, H=window.innerHeight;
+  const rand=10;
+  let x,y;
+  const anteil=Math.min(1,Math.max(0,d.p!==undefined?d.p:.72));
+  if(d.kante==="l"){x=rand;y=60+anteil*Math.max(0,H-130-h);}
+  else if(d.kante==="o"){y=62;x=anteil*Math.max(0,W-w);}
+  else if(d.kante==="u"){y=Math.max(60,H-h-76);x=anteil*Math.max(0,W-w);}
+  else {x=Math.max(rand,W-w-rand);y=60+anteil*Math.max(0,H-130-h);}
+  p.style.left=Math.round(Math.min(Math.max(rand,x),Math.max(rand,W-w-rand)))+"px";
+  p.style.top=Math.round(Math.min(Math.max(60,y),Math.max(60,H-h-70)))+"px";
+}
+let plLen=0, plAt=0, plTick=null, plPlaying=false;
+const msTxt=ms=>{const s=Math.max(0,Math.round(ms/1000));
+  return Math.floor(s/60)+":"+String(s%60).padStart(2,"0");};
+function plSeekLokal(ms){plAt=ms;plMalen();}
+function plMalen(){
+  if(!plLen)return;
+  const a=Math.min(1,plAt/plLen);
+  const f=document.getElementById("pfill"), k=document.getElementById("pknob"),
+        n=document.getElementById("pnow"), l=document.getElementById("plen");
+  if(f)f.style.width=(a*100)+"%";
+  if(k)k.style.left=(a*100)+"%";
+  if(n)n.textContent=msTxt(plAt);
+  if(l)l.textContent=msTxt(plLen);
+}
+function plUhr(){
+  clearInterval(plTick);
+  plTick=setInterval(()=>{
+    if(!plPlaying||!plLen)return;
+    plAt=Math.min(plLen,plAt+250);
+    plMalen();
+  },250);
 }
 function plShow(){
   const p=PL(); if(!p)return;
   const vis=(spOK()||!!SPd().ref)&&DB.fabOff!==true;
   p.classList.toggle("on",vis);
-  if(vis)plPos();
+  p.classList.toggle("gross",!!DB.fabBig);
+  if(vis){plPos();plUhr();}
   if(vis&&plOpen)plNow();
 }
 function plToggle(open){
@@ -8668,10 +8959,17 @@ async function plNow(){
   const d=await spCall("/me/player");
   const t1=document.getElementById("pt1"), t2=document.getElementById("pt2"), im=document.getElementById("part");
   if(!t1)return;
-  if(!d||!d.item){t1.textContent="Nichts aktiv";t2.textContent="In Spotify starten";if(im)im.src="";return;}
+  if(!d||!d.item){t1.textContent="Nichts aktiv";t2.textContent="In Spotify starten";if(im)im.src="";
+    plLen=0;plPlaying=false;return;}
   t1.textContent=d.item.name;
   t2.textContent=d.item.artists.map(x=>x.name).join(", ");
-  if(im)im.src=d.item.album?.images?.[2]?.url||"";
+  if(im)im.src=d.item.album?.images?.[DB.fabBig?1:2]?.url||d.item.album?.images?.[0]?.url||"";
+  plLen=d.item.duration_ms||0;
+  plAt=d.progress_ms||0;
+  plPlaying=!!d.is_playing;
+  plMalen();
+  const sh=document.getElementById("pshuffle");
+  if(sh)sh.classList.toggle("an",!!d.shuffle_state);
 }
 function plInit(){
   const p=PL(); if(!p)return;
@@ -8687,14 +8985,23 @@ function plInit(){
     const t=e.touches?e.touches[0]:e;
     const dx=t.clientX-sx, dy=t.clientY-sy;
     if(Math.abs(dx)>4||Math.abs(dy)>4)moved=true;
-    DB.fabPos={x:ox+dx,y:oy+dy};
-    plPos();
+    // Während des Ziehens frei folgen, erst beim Loslassen andocken
+    const {w,hgt2}=plMasse();
+    p.style.left=Math.round(ox+dx)+"px";
+    p.style.top=Math.round(oy+dy)+"px";
     e.preventDefault();
   };
   const end=()=>{
     if(!drag)return;
     drag=false;
-    if(moved)save(true); else plToggle(!plOpen);
+    if(moved){
+      const r=p.getBoundingClientRect();
+      DB.fabPos=plDock(r.left,r.top);
+      p.style.transition="left .16s ease, top .16s ease";
+      plPos();
+      setTimeout(()=>{p.style.transition="";},200);
+      save(true);
+    } else plToggle(!plOpen);
   };
   ["mousedown","touchstart"].forEach(ev=>{
     document.getElementById("pmini")?.addEventListener(ev,start,{passive:false});
@@ -8708,10 +9015,75 @@ function plInit(){
     const a=b.dataset.pc;
     if(a==="next")await spCall("/me/player/next","POST");
     else if(a==="prev")await spCall("/me/player/previous","POST");
+    else if(a==="fwd15"||a==="back15"){
+      const d=await spCall("/me/player");
+      if(d&&d.progress_ms!=null){
+        const ziel=Math.max(0,d.progress_ms+(a==="fwd15"?15000:-15000));
+        await spCall("/me/player/seek?position_ms="+Math.round(ziel),"PUT");
+        plSeekLokal(ziel);
+      }
+    }
     else{const d=await spCall("/me/player");await spCall("/me/player/"+(d&&d.is_playing?"pause":"play"),"PUT");}
     setTimeout(plNow,400);
   });
+
+  /* Spulen durch Ziehen auf der Leiste */
+  const seek=document.getElementById("pseek");
+  if(seek){
+    let sdrag=false;
+    const anteil=ev=>{
+      const t=ev.touches?ev.touches[0]:ev;
+      const r=seek.querySelector(".pbar").getBoundingClientRect();
+      return Math.min(1,Math.max(0,(t.clientX-r.left)/Math.max(1,r.width)));
+    };
+    const zeige=a=>{
+      if(!plLen)return;
+      const ms=a*plLen;
+      document.getElementById("pfill").style.width=(a*100)+"%";
+      document.getElementById("pknob").style.left=(a*100)+"%";
+      document.getElementById("pnow").textContent=msTxt(ms);
+    };
+    const sStart=ev=>{ev.stopPropagation();if(!plLen)return;sdrag=true;zeige(anteil(ev));ev.preventDefault();};
+    const sMove=ev=>{if(!sdrag)return;zeige(anteil(ev));ev.preventDefault();};
+    const sEnd=async ev=>{
+      if(!sdrag)return;
+      sdrag=false;
+      const a=anteil(ev.changedTouches?{touches:[ev.changedTouches[0]]}:ev);
+      const ms=Math.round(a*plLen);
+      plSeekLokal(ms);
+      await spCall("/me/player/seek?position_ms="+ms,"PUT");
+      setTimeout(plNow,500);
+    };
+    ["mousedown","touchstart"].forEach(e2=>seek.addEventListener(e2,sStart,{passive:false}));
+    ["mousemove","touchmove"].forEach(e2=>document.addEventListener(e2,sMove,{passive:false}));
+    ["mouseup","touchend"].forEach(e2=>document.addEventListener(e2,sEnd));
+  }
+
+  /* Lautstärke, Zufallswiedergabe, Größe */
+  const vol=async d=>{
+    const st=await spCall("/me/player");
+    const v=Math.min(100,Math.max(0,((st&&st.device&&st.device.volume_percent)||50)+d));
+    await spCall("/me/player/volume?volume_percent="+v,"PUT");
+    toast("Lautstärke "+v+" %");
+  };
+  document.getElementById("pvolup")?.addEventListener("click",e=>{e.stopPropagation();vol(10);});
+  document.getElementById("pvoldn")?.addEventListener("click",e=>{e.stopPropagation();vol(-10);});
+  document.getElementById("pshuffle")?.addEventListener("click",async e=>{
+    e.stopPropagation();
+    const st=await spCall("/me/player");
+    const neu=!(st&&st.shuffle_state);
+    await spCall("/me/player/shuffle?state="+neu,"PUT");
+    e.currentTarget.classList.toggle("an",neu);
+    toast(neu?"Zufallswiedergabe an":"Zufallswiedergabe aus");
+  });
+  document.getElementById("pbig")?.addEventListener("click",e=>{
+    e.stopPropagation();
+    DB.fabBig=!DB.fabBig;save(true);
+    PL().classList.toggle("gross",!!DB.fabBig);
+    setTimeout(plPos,200);
+  });
   window.addEventListener("resize",()=>setTimeout(plPos,60));
+  window.addEventListener("orientationchange",()=>setTimeout(plPos,250));
 }
 
 /* ══════════ NAVIGATION & START ══════════ */
@@ -8742,7 +9114,8 @@ plInit();
 woResumeInit();
 document.getElementById("tp").onclick=pauseTimer;
 document.getElementById("tx").onclick=stopTimer;
-document.getElementById("wx").onclick=()=>{wrEnd();document.getElementById("wo").classList.remove("on");render();woResumeShow();};
+document.getElementById("wx").onclick=()=>{wrEnd();clearInterval(woUhr);
+  document.getElementById("wo").classList.remove("on");render();woResumeShow();};
 document.getElementById("wprev").onclick=()=>{if(woI>0){woI--;renderWO();}};
 document.getElementById("wnext").onclick=()=>{
   const it=woL[woI];const o=L(selDate,woAth);o[it.key+"-done"]=true;saveDay(o);
@@ -8753,11 +9126,9 @@ document.getElementById("wnext").onclick=()=>{
     save(true);
     document.getElementById("wo").classList.remove("on");render();
     const d=selDate;
-    showModal(`<h3>Einheit abgeschlossen</h3>
-      <p style="font-size:13.5px;color:var(--mid);line-height:1.7;margin-bottom:14px">
-      Alles eingetragen. Willst du die Ergebnisse gleich teilen?</p>
-      <button class="btn btn-go" onclick="closeModal();shareDay('${d}')">Ergebnisse teilen</button>
-      <button class="btn" onclick="closeModal()">Später</button>`);
+    clearInterval(woUhr);
+    tEnde(d,woAth);
+    zeigeBilanz(d,woAth);
   }};
 document.getElementById("wsh").onclick=()=>shareDay(selDate);
 document.getElementById("wrs").onclick=wrEnd;
