@@ -1473,7 +1473,7 @@ const ANAME={yuan:"Yuan",yara:"Yara"};
 /* ══════════ SPEICHER ══════════ */
 /* Versionsstand – steht unter Mehr ganz unten. Damit lässt sich prüfen,
    ob auf einem Gerät wirklich die aktuelle Datei läuft. */
-const BUILD={datum:"02.11.2026",nr:128};
+const BUILD={datum:"02.11.2026",nr:131};
 const DEF={
  me:"yuan", start:"2026-10-18", gyms:null, gym:"citygate",
  log:{}, archive:[], checkins:{yuan:{},yara:{}}, protein:{yuan:{},yara:{}},
@@ -3926,6 +3926,39 @@ function reportDay(date,ath){
     if(it.cardio){
       const CF={dist:["Distanz","km"],pace:["Pace","/km"],time:["Dauer",""],hr:["Puls","bpm"]};
       it.cardio.forEach(f=>{const v=lg[`${it.key}-c-${f}`];if(v)parts.push(`${CF[f][0]} ${v} ${CF[f][1]}`);});
+      // Alles, was von Garmin kam – für eine Auswertung außerhalb der App
+      let g=null;
+      try{ g=JSON.parse(lg[it.key+"-garmin"]||"null"); }catch(e){}
+      if(g){
+        const extra=[];
+        if(g.frequenz)extra.push(`Schrittfrequenz ${Math.round(g.frequenz)} spm`);
+        if(g.wirkungAerob!=null)extra.push(`Trainingswirkung aerob ${g.wirkungAerob}`);
+        if(g.wirkungAnaerob!=null)extra.push(`anaerob ${g.wirkungAnaerob}`);
+        if(g.hoehe)extra.push(`${g.hoehe} Höhenmeter`);
+        if(extra.length)parts.push("· "+extra.join(", "));
+        if(g.runden&&g.runden.length>1){
+          const pz=s=>Math.floor(s/60)+":"+String(Math.round(s%60)).padStart(2,"0");
+          parts.push("\n    Runden: "+g.runden.map(r=>
+            `${r.nr}. ${pz(r.sek/Math.max(.1,r.km))}${r.hr?" @"+r.hr:""}`).join(" · "));
+        }
+        if(g.messpunkte&&g.messpunkte.length>3){
+          parts.push("\n    Alle Messpunkte (Sekunde, km, Puls, Tempo m/s, Höhe, Frequenz):\n    "+
+            g.messpunkte.map(p=>[p.sek,p.km,p.hr,p.tempo,p.hoehe,p.frequenz]
+              .map(v=>v==null?"":v).join(",")).join("\n    "));
+        }
+        if(false&&g.messpunkte&&g.messpunkte.length>3){
+          // Zusammenfassung der Messreihe statt hunderter Einzelwerte
+          const z=(feld)=>{const w=g.messpunkte.map(p=>p[feld]).filter(x=>typeof x==="number");
+            return w.length?{min:Math.min(...w),max:Math.max(...w),
+              schnitt:w.reduce((a,b)=>a+b,0)/w.length,n:w.length}:null;};
+          const hrz=z("hr"), fz=z("frequenz"), hz=z("hoehe");
+          const st=[];
+          if(hrz)st.push(`Puls ${Math.round(hrz.min)}–${Math.round(hrz.max)}, Schnitt ${Math.round(hrz.schnitt)}`);
+          if(fz)st.push(`Frequenz ${Math.round(fz.min)}–${Math.round(fz.max)}`);
+          if(hz)st.push(`Höhe ${Math.round(hz.min)}–${Math.round(hz.max)} m`);
+          if(st.length)parts.push("\n    Verlauf (" + g.messpunkte.length + " Messpunkte): "+st.join(" · "));
+        }
+      }
     }
     const exn=lg[it.key+"-note"];
     if(exn)parts.push("\u201e"+exn+"\u201c");
@@ -3961,6 +3994,20 @@ function dayText(date,who){
   if(!parts.length)return "";
   return "Training "+head+"\n\n"+parts.join("\n\n");
 }
+/* Vollständige Messreihe als kompakte Zahlenliste */
+function garminRoh(date){
+  const ath=me(), lg=LR(date,ath);
+  let g=null;
+  for(const k of Object.keys(lg)){
+    if(!k.endsWith("-garmin"))continue;
+    try{ g=JSON.parse(lg[k]); }catch(e){}
+    if(g)break;
+  }
+  if(!g||!g.messpunkte||!g.messpunkte.length)return "";
+  return g.messpunkte.map(p=>
+    [p.sek,p.km,p.hr,p.tempo,p.hoehe,p.frequenz].map(v=>v==null?"":v).join(",")
+  ).join("\n");
+}
 function shareDay(date){
   date=date||selDate;
   const mine=dayText(date,"me"), his=dayText(date,"other"), both=dayText(date,"both");
@@ -3974,12 +4021,22 @@ function shareDay(date){
       <button data-sw="both" aria-pressed="false">Beide</button>
     </div>
     <textarea class="ta" id="shta" style="min-height:190px;font-size:12.5px">${esc(mine||"Noch nichts eingetragen.")}</textarea>
+    ${garminRoh(date)?`<button class="btn" id="shraw" style="margin-top:10px">Alle Garmin-Messpunkte anhängen</button>
+      <div style="font-size:11.5px;color:var(--dim);line-height:1.55;margin-top:7px">
+      Hängt die vollständige Messreihe als Zahlen an – lang, aber damit lässt sich der
+      Lauf außerhalb der App im Detail auswerten.</div>`:""}
     <div style="height:10px"></div>
     <button class="btn btn-go" onclick="shCopy()">In Zwischenablage kopieren</button>
     <button class="btn" onclick="waSend(document.getElementById('shta').value)">An WhatsApp</button>
     <button class="btn" onclick="shareText(document.getElementById('shta').value)">Anders teilen</button>
     <button class="btn" onclick="closeModal()">Schließen</button>`;
   showModal(m);
+  document.getElementById("shraw")?.addEventListener("click",()=>{
+    const ta=document.getElementById("shta");
+    if(ta.value.includes("MESSPUNKTE"))return;
+    ta.value+="\n\nMESSPUNKTE (Sekunde, km, Puls, Tempo m/s, Höhe, Frequenz)\n"+garminRoh(date);
+    toast("Angehängt");
+  });
   const txts={me:mine,other:his,both:both};
   document.querySelectorAll("[data-sw]").forEach(b=>b.onclick=()=>{
     document.querySelectorAll("[data-sw]").forEach(x=>x.setAttribute("aria-pressed","false"));
@@ -7158,6 +7215,33 @@ function garminEintragen(lg,k,a,msg){
   setTimeout(renderHeute,1400);
 }
 
+/* Findet die Spitzenwerte der Belastungsblöcke einer Intervalleinheit.
+   Gesucht werden Gipfel in der Pulskurve, getrennt durch Täler – das ist
+   verlässlicher als eine feste Schwelle. */
+function intervallSpitzen(b){
+  const p=b.gmn&&b.gmn.messpunkte;
+  if(!p||p.length<20)return [];
+  const hr=p.map(x=>x.hr).filter(x=>typeof x==="number");
+  if(hr.length<20)return [];
+  const max=Math.max(...hr), min=Math.min(...hr);
+  if(max-min<20)return [];
+  /* Schwelle hoch genug, dass Aufwärmen und Trabpausen darunter bleiben,
+     und ein Block muss lang genug sein – sonst zählt jede Zacke als Block. */
+  const schwelle=min+(max-min)*0.82;
+  const mindestLaenge=Math.max(3,Math.round(hr.length/40));
+  const spitzen=[];
+  let laenge=0, gipfel=0;
+  hr.forEach(v=>{
+    if(v>=schwelle){laenge++;if(v>gipfel)gipfel=v;}
+    else{
+      if(laenge>=mindestLaenge&&gipfel)spitzen.push(gipfel);
+      laenge=0;gipfel=0;
+    }
+  });
+  if(laenge>=mindestLaenge&&gipfel)spitzen.push(gipfel);
+  return spitzen;
+}
+
 /* Zeichnet eine Kurve als SVG – ohne Bibliothek, damit es zum Rest passt */
 function kurve(werte, farbe, hoehe, einheit, umkehren){
   const gueltig=werte.filter(v=>typeof v==="number"&&!isNaN(v));
@@ -7225,15 +7309,36 @@ function laufBilanz(date,ath){
   });
   let gmn=null;
   try{ gmn=JSON.parse(lg["run0-garmin"]||lg["run1-garmin"]||"null"); }catch(e){}
-  return {ses,km,hr,paceS,dauer,anteil,frueher,gmn,
+  const hrMaxLauf=(gmn&&gmn.messpunkte)
+    ? Math.max(0,...gmn.messpunkte.map(x=>x.hr).filter(x=>typeof x==="number"))
+    : 0;
+  return {ses,km,hr,paceS,dauer,anteil,frueher,gmn,hrMax:hrMaxLauf,
     ziel:ses.run&&ses.run.hr?ses.run.hr:null,
     zone:ses.run&&ses.run.zone};
 }
 function laufText(b,ath){
   const t=[], m=hrMax(ath);
   const pz=s=>Math.floor(s/60)+":"+String(Math.round(s%60)).padStart(2,"0");
-  // Lag der Puls im vorgesehenen Bereich?
-  if(b.ziel&&m&&b.hr){
+  const istIntervall=(b.zone==="int"||/Intervall/i.test(b.ses.n||""));
+  if(istIntervall&&m){
+    /* Bei Intervallen sagt der Durchschnitt nichts aus: Er mischt die Blöcke
+       mit den Trabpausen. Bewertet wird, was in den Blöcken erreicht wurde. */
+    const von=Math.round(m*(b.ziel?b.ziel[0]:.90)), bis=Math.round(m*(b.ziel?b.ziel[1]:.95));
+    const spitzen=intervallSpitzen(b);
+    if(spitzen.length){
+      const schnitt=Math.round(spitzen.reduce((a,x)=>a+x,0)/spitzen.length);
+      const drin=spitzen.filter(x=>x>=von-5).length;
+      t.push({ok:drin>=spitzen.length-1,
+        s:`${spitzen.length} Blöcke mit Spitzenwerten ${spitzen.map(x=>Math.round(x)).join(", ")}, Schnitt ${schnitt}. Zielbereich der Blöcke ${von} bis ${bis}.${
+          drin<spitzen.length?` ${spitzen.length-drin} davon blieben darunter.`:" Alle erreicht."}`});
+    } else if(b.hrMax){
+      t.push({ok:b.hrMax>=von-5,
+        s:`Spitzenpuls ${Math.round(b.hrMax)}, Zielbereich der Blöcke ${von} bis ${bis}.`});
+    }
+    if(b.hr)t.push({ok:1,s:`Der Durchschnitt von ${Math.round(b.hr)} Schlägen über die ganze Einheit ist hier ohne Aussage – er enthält Aufwärmen und Trabpausen.`});
+  }
+  // Nur bei gleichmäßigen Läufen zählt der Durchschnittspuls
+  else if(b.ziel&&m&&b.hr){
     const von=Math.round(m*b.ziel[0]), bis=Math.round(m*b.ziel[1]);
     if(b.hr>bis+4)t.push({ok:0,s:`${Math.round(b.hr)} Schläge im Schnitt, vorgesehen waren ${von} bis ${bis}. Zu schnell gelaufen – das kostet Erholung für die harte Einheit, ohne den Grundlagenreiz zu verbessern.`});
     else if(b.hr<von-6)t.push({ok:0,s:`${Math.round(b.hr)} Schläge, vorgesehen waren ${von} bis ${bis}. Du kannst etwas zulegen, ohne dass es anstrengend wird.`});
@@ -7800,7 +7905,7 @@ function zeigeLaufBilanz(b,date,ath){
       <div><div class="bv num">${b.km.toLocaleString("de-DE")}<span style="font-size:13px;color:var(--dim)"> km</span></div><div class="bl">Distanz</div></div>
       <div><div class="bv num">${b.dauer?dauerTxt(b.dauer):"–"}</div><div class="bl">Dauer</div></div>
       <div><div class="bv num">${b.paceS?pz(b.paceS):"–"}</div><div class="bl">pro km</div></div>
-      <div><div class="bv num">${b.hr?Math.round(b.hr):"–"}</div><div class="bl">Puls</div></div>
+      <div><div class="bv num">${b.hr?Math.round(b.hr):"–"}${b.hrMax?`<span style="font-size:12px;color:var(--dim)">/${Math.round(b.hrMax)}</span>`:""}</div><div class="bl">Puls${b.hrMax?" Ø/max":""}</div></div>
     </div>
     ${(b.anteil&&m)?`<div class="bdelta" style="color:${
       b.ziel?((b.anteil>=b.ziel[0]-.03&&b.anteil<=b.ziel[1]+.02)?"var(--ok)":"var(--warn)"):"var(--mid)"}">
