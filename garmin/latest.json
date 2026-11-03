@@ -1,26 +1,26 @@
 {
-  "geholt": "2026-11-03T20:39:21Z",
+  "geholt": "2026-11-03T21:02:03Z",
   "quelle": "https://personal.connectapi.garmin.com/activitylist-service/activities/search/activities",
-  "id": 24931582620,
-  "name": "Wien Laufen",
-  "datum": "2026-11-01",
-  "km": 15.0,
-  "sek": 5875,
-  "paceSek": 392,
-  "hr": 141,
-  "hrMax": 154,
-  "kcal": 1081,
-  "schritte": 17378,
-  "hoehe": 81,
+  "id": 24956739536,
+  "name": "Laufbandtraining",
+  "datum": "2026-11-03",
+  "km": 6.5,
+  "sek": 2221,
+  "paceSek": 340,
+  "hr": 164,
+  "hrMax": 192,
+  "kcal": 507,
+  "schritte": 6400,
+  "hoehe": 0,
   "roh": {
-    "activityId": 24931582620,
-    "activityName": "Wien Laufen",
-    "startTimeLocal": "2026-11-01 16:16:22",
-    "startTimeGMT": "2026-11-01 15:16:22",
+    "activityId": 24956739536,
+    "activityName": "Laufbandtraining",
+    "startTimeLocal": "2026-11-03 21:23:36",
+    "startTimeGMT": "2026-11-03 20:23:36",
     "activityType": {
-      "typeId": 1,
-      "typeKey": "running",
-      "parentTypeId": 17
+      "typeId": 18,
+      "typeKey": "treadmill_running",
+      "parentTypeId": 1
     },
     "eventType": {
       "typeId": 9,
@@ -30,16 +30,12 @@
     "isPR": false,
     "isAutoCalcCalories": false,
     "isParent": false,
-    "distance": 15007.3095703125,
-    "duration": 5875.42919921875,
-    "elapsedDuration": 6471.73193359375,
-    "movingDuration": 5837.447998046875,
-    "elevationGain": 81.0,
-    "elevationLoss": 49.0,
-    "averageSpeed": 2.5539999008178706,
-    "maxSpeed": 3.507999897003174,
-    "startLatitude": 48.23052244260907,
-    "startLongitude": 16.413513952866197,
+    "distance": 6530.0,
+    "duration": 2221.906982421875,
+    "elapsedDuration": 2221.906982421875,
+    "movingDuration": 2219.8160400390625,
+    "averageSpeed": 2.938999891281128,
+    "maxSpeed": 3.86299991607666,
     "hasImages": false,
     "ownerId": 124045500,
     "ownerDisplayName": "08fd8a38-50b2-4315-b9e6-e171d5ebdbe7",
@@ -47,178 +43,138 @@
     "ownerProfileImageUrlSmall": "https://s3.amazonaws.com/garmin-connect-prod/profile_images/e789bbe1-0012-4ab6-8102-04bf7041b08b-prth.png",
     "ownerProfileImageUrlMedium": "https://s3.amazonaws.com/garmin-connect-prod/profile_images/e789bbe1-0012-4ab6-8102-04bf7041b08b-prfr.png",
     "ownerProfileImageUrlLarge": "https://s3.amazonaws.com/garmin-connect-prod/profile_images/e789bbe1-0012-4ab6-8102-04bf7041b08b-prof.png",
-    "calories": 1081.0,
-    "bmrCalories": 142.0,
-    "averageHR": 141.0,
-    "maxHR": 154.0,
-    "averageRunningCadenceInStepsPerMinute": 179.046875,
-    "maxRunningCadenceInStepsPerMinute": 188.0,
-    "steps": 17378,
+    "calories": 507.0,
+    "bmrCalories": 54.0,
+    "averageHR": 164.0,
+    "maxHR": 192.0,
+    "averageRunningCadenceInStepsPerMinute": 174.609375,
+    "maxRunningCadenceInStepsPerMinute": 186.0,
+    "steps": 6400,
     "privacy": {
       "typeId": 4,
       "typeKey": "groups"
     },
     "hasVideo": false,
-    "beginTimestamp": 1793546182000,
+    "beginTimestamp": 1793737416000,
     "sportTypeId": 1,
-    "avgPower": 277.0,
-    "maxPower": 407.0,
-    "aerobicTrainingEffect": 3.4000000953674316,
-    "anaerobicTrainingEffect": 0.0,
-    "normPower": 278.0,
-    "avgVerticalOscillation": 7.15,
-    "avgGroundContactTime": 273.70001220703125,
-    "avgStrideLength": 84.22999877929688,
-    "avgVerticalRatio": 8.329999923706055,
-    "avgGroundContactBalance": 48.97999954223633,
-    "minElevation": 156.1999969482422,
-    "maxElevation": 173.8000030517578,
-    "avgElevation": 164.1999969482422,
-    "maxDoubleCadence": 188.0,
+    "avgPower": 302.0,
+    "maxPower": 431.0,
+    "aerobicTrainingEffect": 3.9000000953674316,
+    "anaerobicTrainingEffect": 2.299999952316284,
+    "normPower": 321.0,
+    "avgVerticalOscillation": 7.6000000000000005,
+    "avgGroundContactTime": 272.5,
+    "avgStrideLength": 100.60999755859376,
+    "avgVerticalRatio": 7.46999979019165,
+    "avgGroundContactBalance": 48.869998931884766,
+    "minTemperature": 24.0,
+    "maxTemperature": 30.0,
+    "avgElevation": -500.0,
+    "maxDoubleCadence": 186.0,
     "isElevationCorrected": false,
     "isDecoDive": false,
     "summarizedDiveInfo": {
       "summarizedDiveGases": []
     },
-    "maxVerticalSpeed": 0.4000091552734375,
     "manufacturer": "GARMIN",
-    "locationName": "Wien",
-    "lapCount": 16,
-    "endLatitude": 48.229959765449166,
-    "endLongitude": 16.413040040060878,
-    "waterEstimated": 1334.0,
-    "minRespirationRate": 19.219999313354492,
-    "maxRespirationRate": 49.849998474121094,
-    "avgRespirationRate": 34.54999923706055,
-    "trainingEffectLabel": "AEROBIC_BASE",
-    "activityTrainingLoad": 110.93377685546875,
-    "minActivityLapDuration": 1.9079999923706055,
-    "aerobicTrainingEffectMessage": "IMPROVING_AEROBIC_BASE_8",
-    "anaerobicTrainingEffectMessage": "NO_ANAEROBIC_BENEFIT_0",
+    "lapCount": 7,
+    "waterEstimated": 615.0,
+    "minRespirationRate": 13.779999732971191,
+    "maxRespirationRate": 43.2599983215332,
+    "avgRespirationRate": 33.689998626708984,
+    "trainingEffectLabel": "VO2MAX",
+    "activityTrainingLoad": 197.64772033691406,
+    "minActivityLapDuration": 167.26100158691406,
+    "aerobicTrainingEffectMessage": "IMPROVING_VO2_MAX_15",
+    "anaerobicTrainingEffectMessage": "MAINTAINING_ANAEROBIC_BASE_1",
     "splitSummaries": [
       {
-        "noOfSplits": 16,
-        "totalAscent": 0.0,
-        "duration": 13.163999557495117,
-        "splitType": "RWD_STAND",
-        "maxElevationGain": 0.0,
-        "averageElevationGain": 0.0,
-        "maxDistance": 1,
-        "maxDistanceWithPrecision": 1.5099999904632568,
-        "distance": 4.309999942779541,
-        "averageSpeed": 0.3269999921321869,
-        "maxSpeed": 0.0,
-        "elevationLoss": 0.0,
-        "avgStepFrequency": 0.0,
-        "avgStepLength": 0.73,
-        "verticalRatio": 4.139999866485596,
-        "verticalOscillation": 6.680000305175781,
-        "avgGroundContactTime": 230.0
+        "noOfSplits": 1,
+        "duration": 2221.906982421875,
+        "splitType": "INTERVAL_ACTIVE",
+        "maxDistance": 6539,
+        "maxDistanceWithPrecision": 6539.830078125,
+        "distance": 6539.830078125,
+        "averageSpeed": 2.943000078201294,
+        "maxSpeed": 3.86299991607666,
+        "avgStepFrequency": 174.59375,
+        "avgStepLength": 1.0060999755859377,
+        "verticalRatio": 7.46999979019165,
+        "verticalOscillation": 7.6000000000000005,
+        "avgGroundContactBalanceLeft": 48.869998931884766,
+        "avgGroundContactTime": 272.5
       },
       {
         "noOfSplits": 1,
-        "totalAscent": 81.0,
-        "duration": 5875.42919921875,
-        "splitType": "INTERVAL_ACTIVE",
-        "maxElevationGain": 81.0,
-        "averageElevationGain": 81.0,
-        "maxDistance": 15007,
-        "maxDistanceWithPrecision": 15007.2900390625,
-        "distance": 15007.2900390625,
-        "averageSpeed": 2.553999900817871,
-        "maxSpeed": 3.507999897003174,
-        "elevationLoss": 49.0,
-        "avgStepFrequency": 179.03125,
-        "avgStepLength": 0.8422999877929688,
-        "verticalRatio": 8.329999923706055,
-        "verticalOscillation": 7.15,
-        "avgGroundContactBalanceLeft": 48.97999954223633,
-        "avgGroundContactTime": 273.70001220703125
-      },
-      {
-        "noOfSplits": 20,
-        "totalAscent": 76.0,
-        "duration": 5769.337890625,
-        "splitType": "RWD_RUN",
-        "maxElevationGain": 18.0,
-        "averageElevationGain": 5.0,
-        "maxDistance": 3511,
-        "maxDistanceWithPrecision": 3511.260009765625,
-        "distance": 14872.8798828125,
-        "averageSpeed": 2.578000068664551,
-        "maxSpeed": 3.507999897003174,
-        "elevationLoss": 49.0,
-        "avgStepFrequency": 180.296875,
-        "avgStepLength": 0.8445999755859376,
-        "verticalRatio": 8.279999732971191,
-        "verticalOscillation": 7.140000152587891,
-        "avgGroundContactBalanceLeft": 48.97999954223633,
-        "avgGroundContactTime": 271.0
-      },
-      {
-        "noOfSplits": 23,
-        "totalAscent": 5.0,
-        "duration": 92.85800170898438,
+        "duration": 19.0,
         "splitType": "RWD_WALK",
-        "maxElevationGain": 4.0,
-        "averageElevationGain": 1.0,
-        "maxDistance": 66,
-        "maxDistanceWithPrecision": 66.27999877929688,
-        "distance": 130.1199951171875,
-        "averageSpeed": 1.4010000228881836,
-        "maxSpeed": 1.8289999961853027,
-        "elevationLoss": 0.0,
-        "avgStepFrequency": 124.0,
-        "avgStepLength": 0.6982000122070313,
-        "verticalRatio": 11.569999694824219,
-        "verticalOscillation": 8.09000015258789,
-        "avgGroundContactBalanceLeft": 49.029998779296875,
-        "avgGroundContactTime": 456.6000061035156
+        "maxDistance": 28,
+        "maxDistanceWithPrecision": 28.200000762939453,
+        "distance": 28.200000762939453,
+        "averageSpeed": 1.4839999675750732,
+        "maxSpeed": 1.5770000219345093,
+        "avgStepFrequency": 114.046875,
+        "avgStepLength": 0.7945999755859375,
+        "verticalRatio": 5.639999866485596,
+        "verticalOscillation": 4.6099998474121096,
+        "avgGroundContactBalanceLeft": 48.84000015258789,
+        "avgGroundContactTime": 492.0
+      },
+      {
+        "noOfSplits": 2,
+        "duration": 2202.864013671875,
+        "splitType": "RWD_RUN",
+        "maxDistance": 4638,
+        "maxDistanceWithPrecision": 4638.66015625,
+        "distance": 6511.6298828125,
+        "averageSpeed": 2.9560000896453857,
+        "maxSpeed": 3.86299991607666,
+        "avgStepFrequency": 175.125,
+        "avgStepLength": 1.0079000244140626,
+        "verticalRatio": 7.489999771118164,
+        "verticalOscillation": 7.630000305175781,
+        "avgGroundContactBalanceLeft": 48.869998931884766,
+        "avgGroundContactTime": 272.3999938964844
       }
     ],
     "isManualActivity": false,
-    "moderateIntensityMinutes": 6,
-    "vigorousIntensityMinutes": 101,
-    "avgGradeAdjustedSpeed": 2.526000022888183,
-    "differenceBodyBattery": -16,
-    "fastestSplit_1000": 366.43499755859375,
-    "fastestSplit_1609": 595.8980102539062,
-    "fastestSplit_5000": 1919.281005859375,
-    "fastestSplit_10000": 4159.30322265625,
-    "hrTimeInZone_1": 105.89,
-    "hrTimeInZone_2": 1558.968,
-    "hrTimeInZone_3": 4185.81,
-    "hrTimeInZone_4": 0.0,
-    "hrTimeInZone_5": 0.0,
-    "powerTimeInZone_1": 2721.047,
-    "powerTimeInZone_2": 2438.474,
-    "powerTimeInZone_3": 459.033,
-    "powerTimeInZone_4": 76.984,
-    "powerTimeInZone_5": 1.999,
-    "endTimeGMT": "2026-11-01 17:04:13",
+    "moderateIntensityMinutes": 1,
+    "vigorousIntensityMinutes": 35,
+    "differenceBodyBattery": -9,
+    "hrTimeInZone_1": 19.001,
+    "hrTimeInZone_2": 258.993,
+    "hrTimeInZone_3": 550.959,
+    "hrTimeInZone_4": 573.979,
+    "hrTimeInZone_5": 805.734,
+    "powerTimeInZone_1": 148.012,
+    "powerTimeInZone_2": 495.976,
+    "powerTimeInZone_3": 182.0,
+    "powerTimeInZone_4": 820.884,
+    "powerTimeInZone_5": 14.002,
+    "endTimeGMT": "2026-11-03 21:00:37",
     "qualifyingDive": false,
-    "activityUUID": "f75a989e-18d6-4394-8977-bbb59ef9161b",
+    "activityUUID": "ed91b9e3-6459-4e5d-9d18-33462ada71ee",
     "packWeightCalories": 0,
     "decoDive": false,
+    "manualActivity": false,
     "pr": false,
     "autoCalcCalories": false,
     "elevationCorrected": false,
-    "manualActivity": false,
-    "parent": false,
-    "favorite": false
+    "favorite": false,
+    "parent": false
   },
   "detail": {
-    "activityId": 24931582620,
+    "activityId": 24956739536,
     "activityUUID": {
-      "uuid": "f75a989e-18d6-4394-8977-bbb59ef9161b"
+      "uuid": "ed91b9e3-6459-4e5d-9d18-33462ada71ee"
     },
-    "activityName": "Wien Laufen",
+    "activityName": "Laufbandtraining",
     "userProfileId": 124045500,
     "isMultiSportParent": false,
     "activityTypeDTO": {
-      "typeId": 1,
-      "typeKey": "running",
-      "parentTypeId": 17
+      "typeId": 18,
+      "typeKey": "treadmill_running",
+      "parentTypeId": 1
     },
     "eventTypeDTO": {
       "typeId": 9,
@@ -237,8 +193,8 @@
         "formatId": 7,
         "formatKey": "fit"
       },
-      "lastUpdateDate": "2026-11-01T17:06:39.0",
-      "uploadedDate": "2026-11-01T17:06:38.0",
+      "lastUpdateDate": "2026-11-03T21:01:23.0",
+      "uploadedDate": "2026-11-03T21:01:23.0",
       "videoUrl": null,
       "userInfoDto": {
         "userProfilePk": 124045500,
@@ -280,1835 +236,1581 @@
       ],
       "activityImages": [],
       "manufacturer": "GARMIN",
-      "lapCount": 16,
-      "hasRunPowerWindData": true,
+      "lapCount": 7,
+      "hasRunPowerWindData": false,
       "calendarEventInfo": null,
       "hasMultiDayActivities": false,
-      "personalRecord": false,
-      "gcj02": false,
-      "runPowerWindDataEnabled": true,
+      "manualActivity": false,
+      "trimmed": false,
+      "elevationCorrected": false,
+      "runPowerWindDataEnabled": false,
       "autoCalcCalories": false,
       "favorite": false,
-      "manualActivity": false,
-      "elevationCorrected": false,
-      "trimmed": false
+      "personalRecord": false,
+      "gcj02": false
     },
     "summaryDTO": {
-      "startTimeLocal": "2026-11-01T16:16:22.0",
-      "startTimeGMT": "2026-11-01T15:16:22.0",
-      "startLatitude": 48.23052244260907,
-      "startLongitude": 16.413513952866197,
-      "distance": 15007.31,
-      "duration": 5875.429,
-      "movingDuration": 5837.448,
-      "elapsedDuration": 6471.732,
-      "elevationGain": 81.0,
-      "elevationLoss": 49.0,
-      "maxElevation": 173.8,
-      "minElevation": 156.2,
-      "avgElevation": 164.2,
-      "averageSpeed": 2.5539999008178706,
-      "averageMovingSpeed": 2.570868224493602,
-      "maxSpeed": 3.507999897003174,
-      "calories": 1081.0,
-      "bmrCalories": 142.0,
-      "averageHR": 141.0,
-      "maxHR": 154.0,
+      "startTimeLocal": "2026-11-03T21:23:36.0",
+      "startTimeGMT": "2026-11-03T20:23:36.0",
+      "distance": 6530.0,
+      "duration": 2221.907,
+      "movingDuration": 2219.816,
+      "elapsedDuration": 2221.907,
+      "avgElevation": -500.0,
+      "averageSpeed": 2.938999891281128,
+      "averageMovingSpeed": 2.941685203736563,
+      "maxSpeed": 3.86299991607666,
+      "calories": 507.0,
+      "bmrCalories": 54.0,
+      "averageHR": 164.0,
+      "maxHR": 192.0,
       "minHR": 77.0,
-      "averageRunCadence": 179.046875,
-      "maxRunCadence": 188.0,
-      "averagePower": 277.0,
-      "maxPower": 407.0,
+      "averageRunCadence": 174.609375,
+      "maxRunCadence": 186.0,
+      "averageTemperature": 25.75259945409021,
+      "maxTemperature": 30.0,
+      "minTemperature": 24.0,
+      "averagePower": 302.0,
+      "maxPower": 431.0,
       "minPower": 0.0,
-      "normalizedPower": 278.0,
-      "totalWork": 389.73560985389094,
-      "groundContactTime": 273.70001220703125,
-      "groundContactBalanceLeft": 48.97999954223633,
-      "strideLength": 84.22999877929688,
-      "verticalOscillation": 7.15,
-      "trainingEffect": 3.4000000953674316,
-      "anaerobicTrainingEffect": 0.0,
-      "aerobicTrainingEffectMessage": "IMPROVING_AEROBIC_BASE_8",
-      "anaerobicTrainingEffectMessage": "NO_ANAEROBIC_BENEFIT_0",
-      "verticalRatio": 8.329999923706055,
-      "endLatitude": 48.229959765449166,
-      "endLongitude": 16.413040040060878,
-      "maxVerticalSpeed": 0.4000091552734375,
-      "waterEstimated": 1334.0,
-      "minRespirationRate": 19.219999313354492,
-      "maxRespirationRate": 49.849998474121094,
-      "avgRespirationRate": 34.54999923706055,
-      "trainingEffectLabel": "AEROBIC_BASE",
-      "activityTrainingLoad": 110.93377685546875,
-      "minActivityLapDuration": 1.908,
-      "moderateIntensityMinutes": 6,
-      "vigorousIntensityMinutes": 101,
-      "steps": 17378,
+      "normalizedPower": 321.0,
+      "totalWork": 159.90377134238025,
+      "groundContactTime": 272.5,
+      "groundContactBalanceLeft": 48.869998931884766,
+      "strideLength": 100.60999755859376,
+      "verticalOscillation": 7.6000000000000005,
+      "trainingEffect": 3.9000000953674316,
+      "anaerobicTrainingEffect": 2.299999952316284,
+      "aerobicTrainingEffectMessage": "IMPROVING_VO2_MAX_15",
+      "anaerobicTrainingEffectMessage": "MAINTAINING_ANAEROBIC_BASE_1",
+      "verticalRatio": 7.46999979019165,
+      "waterEstimated": 615.0,
+      "minRespirationRate": 13.779999732971191,
+      "maxRespirationRate": 43.2599983215332,
+      "avgRespirationRate": 33.689998626708984,
+      "trainingEffectLabel": "VO2MAX",
+      "activityTrainingLoad": 197.64772033691406,
+      "minActivityLapDuration": 167.261,
+      "moderateIntensityMinutes": 1,
+      "vigorousIntensityMinutes": 35,
+      "steps": 6400,
       "beginPotentialStamina": 100.0,
-      "endPotentialStamina": 72.0,
-      "minAvailableStamina": 72.0,
-      "avgGradeAdjustedSpeed": 2.526000022888183,
-      "differenceBodyBattery": -16,
-      "impactLoad": 14820.0,
+      "endPotentialStamina": 74.0,
+      "minAvailableStamina": 64.0,
+      "differenceBodyBattery": -9,
       "packWeightCalories": 0
     },
-    "locationName": "Wien",
     "splitSummaries": [
       {
-        "distance": 4.31,
-        "duration": 13.164,
-        "movingDuration": 0.0,
-        "elevationGain": 0.0,
-        "elevationLoss": 0.0,
-        "averageSpeed": 0.3269999921321869,
-        "maxSpeed": 0.0,
-        "calories": 1.0,
-        "bmrCalories": 0.0,
-        "averageHR": 121.0,
-        "maxHR": 138.0,
-        "averageRunCadence": 0.0,
-        "maxRunCadence": 0.0,
-        "averagePower": 0.0,
-        "maxPower": 0.0,
-        "normalizedPower": 131.0,
-        "groundContactTime": 230.0,
-        "strideLength": 73.0,
-        "verticalOscillation": 6.680000305175781,
-        "verticalRatio": 4.139999866485596,
+        "distance": 6539.83,
+        "duration": 2221.907,
+        "movingDuration": 2220.0,
+        "averageSpeed": 2.9430000782012935,
+        "averageMovingSpeed": 2.9458694045608107,
+        "maxSpeed": 3.86299991607666,
+        "calories": 507.0,
+        "bmrCalories": 54.0,
+        "averageHR": 164.0,
+        "maxHR": 192.0,
+        "averageRunCadence": 174.59375,
+        "maxRunCadence": 186.0,
+        "averageTemperature": 26.0,
+        "maxTemperature": 30.0,
+        "minTemperature": 24.0,
+        "averagePower": 302.0,
+        "maxPower": 431.0,
+        "normalizedPower": 321.0,
+        "groundContactTime": 272.5,
+        "groundContactBalanceLeft": 48.869998931884766,
+        "strideLength": 100.60999755859376,
+        "verticalOscillation": 7.6000000000000005,
+        "verticalRatio": 7.46999979019165,
         "totalExerciseReps": 0,
-        "avgVerticalSpeed": 0.0,
-        "avgGradeAdjustedSpeed": 0.0,
-        "avgForce": 0.0,
-        "maxForce": 0.0,
-        "normalizedForce": 0.0,
-        "splitType": "RWD_STAND",
-        "noOfSplits": 16,
-        "maxElevationGain": 0.0,
-        "averageElevationGain": 0.0,
-        "maxDistance": 1,
-        "maxDistanceWithPrecision": 1.51,
-        "avgStepFrequency": 0.0,
-        "avgStepLength": 0.73
-      },
-      {
-        "distance": 15007.29,
-        "duration": 5875.429,
-        "movingDuration": 5837.0,
-        "elevationGain": 81.0,
-        "elevationLoss": 49.0,
-        "averageSpeed": 2.5539999008178706,
-        "averageMovingSpeed": 2.57106219617312,
-        "maxSpeed": 3.507999897003174,
-        "calories": 1081.0,
-        "bmrCalories": 142.0,
-        "averageHR": 141.0,
-        "maxHR": 154.0,
-        "averageRunCadence": 179.03125,
-        "maxRunCadence": 188.0,
-        "averagePower": 277.0,
-        "maxPower": 407.0,
-        "normalizedPower": 278.0,
-        "groundContactTime": 273.70001220703125,
-        "groundContactBalanceLeft": 48.97999954223633,
-        "strideLength": 84.22999877929688,
-        "verticalOscillation": 7.15,
-        "verticalRatio": 8.329999923706055,
-        "totalExerciseReps": 0,
-        "avgVerticalSpeed": 0.004999999888241291,
-        "avgGradeAdjustedSpeed": 2.526000022888183,
         "avgForce": 0.0,
         "maxForce": 0.0,
         "normalizedForce": 0.0,
         "splitType": "INTERVAL_ACTIVE",
         "noOfSplits": 1,
-        "maxElevationGain": 81.0,
-        "averageElevationGain": 81.0,
-        "maxDistance": 15007,
-        "maxDistanceWithPrecision": 15007.29,
-        "avgStepFrequency": 179.03125,
-        "avgStepLength": 0.8422999877929688
+        "maxDistance": 6539,
+        "maxDistanceWithPrecision": 6539.83,
+        "avgStepFrequency": 174.59375,
+        "avgStepLength": 1.0060999755859377
       },
       {
-        "distance": 14872.88,
-        "duration": 5769.338,
-        "movingDuration": 5740.0,
-        "elevationGain": 76.0,
-        "elevationLoss": 49.0,
-        "averageSpeed": 2.578000068664551,
-        "averageMovingSpeed": 2.5913414514391166,
-        "maxSpeed": 3.507999897003174,
-        "calories": 1068.0,
-        "bmrCalories": 140.0,
-        "averageHR": 141.0,
-        "maxHR": 154.0,
-        "averageRunCadence": 180.296875,
-        "maxRunCadence": 188.0,
-        "averagePower": 279.0,
-        "maxPower": 407.0,
-        "normalizedPower": 278.0,
-        "groundContactTime": 271.0,
-        "groundContactBalanceLeft": 48.97999954223633,
-        "strideLength": 84.45999755859376,
-        "verticalOscillation": 7.140000152587891,
-        "verticalRatio": 8.279999732971191,
+        "distance": 28.2,
+        "duration": 19.0,
+        "movingDuration": 18.0,
+        "averageSpeed": 1.4839999675750732,
+        "averageMovingSpeed": 1.5666667090521917,
+        "maxSpeed": 1.5770000219345093,
+        "calories": 4.0,
+        "bmrCalories": 0.0,
+        "averageHR": 157.0,
+        "maxHR": 162.0,
+        "averageRunCadence": 114.046875,
+        "maxRunCadence": 119.0,
+        "averageTemperature": 25.0,
+        "maxTemperature": 25.0,
+        "minTemperature": 25.0,
+        "averagePower": 97.0,
+        "maxPower": 145.0,
+        "normalizedPower": 204.0,
+        "groundContactTime": 492.0,
+        "groundContactBalanceLeft": 48.84000015258789,
+        "strideLength": 79.45999755859376,
+        "verticalOscillation": 4.6099998474121096,
+        "verticalRatio": 5.639999866485596,
         "totalExerciseReps": 0,
-        "avgVerticalSpeed": 0.004999999888241291,
-        "avgGradeAdjustedSpeed": 2.54800009727478,
-        "avgForce": 0.0,
-        "maxForce": 0.0,
-        "normalizedForce": 0.0,
-        "splitType": "RWD_RUN",
-        "noOfSplits": 20,
-        "maxElevationGain": 18.0,
-        "averageElevationGain": 5.0,
-        "maxDistance": 3511,
-        "maxDistanceWithPrecision": 3511.26,
-        "avgStepFrequency": 180.296875,
-        "avgStepLength": 0.8445999755859376
-      },
-      {
-        "distance": 130.12,
-        "duration": 92.858,
-        "movingDuration": 79.0,
-        "elevationGain": 5.0,
-        "elevationLoss": 0.0,
-        "averageSpeed": 1.4010000228881836,
-        "averageMovingSpeed": 1.2791506600666096,
-        "maxSpeed": 1.8289999961853027,
-        "calories": 12.0,
-        "bmrCalories": 2.0,
-        "averageHR": 141.0,
-        "maxHR": 148.0,
-        "averageRunCadence": 124.0,
-        "maxRunCadence": 179.0,
-        "averagePower": 212.0,
-        "maxPower": 302.0,
-        "normalizedPower": 250.0,
-        "groundContactTime": 456.6000061035156,
-        "groundContactBalanceLeft": 49.029998779296875,
-        "strideLength": 69.82000122070313,
-        "verticalOscillation": 8.09000015258789,
-        "verticalRatio": 11.569999694824219,
-        "totalExerciseReps": 0,
-        "avgVerticalSpeed": 0.052000001072883606,
-        "avgGradeAdjustedSpeed": 1.4459999799728391,
         "avgForce": 0.0,
         "maxForce": 0.0,
         "normalizedForce": 0.0,
         "splitType": "RWD_WALK",
-        "noOfSplits": 23,
-        "maxElevationGain": 4.0,
-        "averageElevationGain": 1.0,
-        "maxDistance": 66,
-        "maxDistanceWithPrecision": 66.28,
-        "avgStepFrequency": 124.0,
-        "avgStepLength": 0.6982000122070313
+        "noOfSplits": 1,
+        "maxDistance": 28,
+        "maxDistanceWithPrecision": 28.2,
+        "avgStepFrequency": 114.046875,
+        "avgStepLength": 0.7945999755859375
+      },
+      {
+        "distance": 6511.63,
+        "duration": 2202.864,
+        "movingDuration": 2199.863,
+        "averageSpeed": 2.9560000896453857,
+        "averageMovingSpeed": 2.9597195163006282,
+        "maxSpeed": 3.86299991607666,
+        "calories": 502.0,
+        "bmrCalories": 53.0,
+        "averageHR": 164.0,
+        "maxHR": 192.0,
+        "averageRunCadence": 175.125,
+        "maxRunCadence": 186.0,
+        "averageTemperature": 26.0,
+        "maxTemperature": 30.0,
+        "minTemperature": 24.0,
+        "averagePower": 303.0,
+        "maxPower": 431.0,
+        "normalizedPower": 321.0,
+        "groundContactTime": 272.3999938964844,
+        "groundContactBalanceLeft": 48.869998931884766,
+        "strideLength": 100.79000244140626,
+        "verticalOscillation": 7.630000305175781,
+        "verticalRatio": 7.489999771118164,
+        "totalExerciseReps": 0,
+        "avgForce": 0.0,
+        "maxForce": 0.0,
+        "normalizedForce": 0.0,
+        "splitType": "RWD_RUN",
+        "noOfSplits": 2,
+        "maxDistance": 4638,
+        "maxDistanceWithPrecision": 4638.66,
+        "avgStepFrequency": 175.125,
+        "avgStepLength": 1.0079000244140626
       }
     ]
   },
-  "wirkungAnaerob": 0.0,
-  "leistungMax": 407.0,
-  "kuerzesteRunde": 1.908,
+  "wirkungAnaerob": 2.299999952316284,
+  "leistungMax": 431.0,
+  "kuerzesteRunde": 167.261,
   "messpunkte": [
     {
       "sek": 0.0,
       "km": 0.0,
       "hr": 77.0,
-      "tempo": 1.66,
-      "hoehe": 157.0,
-      "frequenz": 42.0
+      "tempo": 0.0,
+      "frequenz": 0.0
+    },
+    {
+      "sek": 3.0,
+      "km": 3.73,
+      "hr": 82.0,
+      "tempo": 1.63,
+      "frequenz": 77.0
+    },
+    {
+      "sek": 12.0,
+      "km": 23.0,
+      "hr": 99.0,
+      "tempo": 2.39,
+      "frequenz": 83.0
     },
     {
       "sek": 24.0,
-      "km": 51.75,
-      "hr": 108.0,
-      "tempo": 2.38,
-      "hoehe": 157.6,
-      "frequenz": 90.0
-    },
-    {
-      "sek": 68.0,
-      "km": 115.13,
-      "hr": 113.0,
-      "tempo": 2.63,
-      "hoehe": 159.6,
-      "frequenz": 91.0
-    },
-    {
-      "sek": 98.0,
-      "km": 203.85,
-      "hr": 129.0,
-      "tempo": 2.73,
-      "hoehe": 160.0,
-      "frequenz": 92.0
-    },
-    {
-      "sek": 128.0,
-      "km": 287.03,
-      "hr": 134.0,
-      "tempo": 2.73,
-      "hoehe": 161.2,
-      "frequenz": 89.0
-    },
-    {
-      "sek": 158.0,
-      "km": 368.12,
-      "hr": 133.0,
-      "tempo": 2.72,
-      "hoehe": 162.6,
-      "frequenz": 89.0
-    },
-    {
-      "sek": 188.0,
-      "km": 449.2,
-      "hr": 142.0,
-      "tempo": 2.71,
-      "hoehe": 163.8,
-      "frequenz": 88.0
-    },
-    {
-      "sek": 218.0,
-      "km": 529.6,
-      "hr": 141.0,
-      "tempo": 2.66,
-      "hoehe": 164.6,
-      "frequenz": 89.0
-    },
-    {
-      "sek": 248.0,
-      "km": 610.13,
-      "hr": 139.0,
-      "tempo": 2.7,
-      "hoehe": 165.8,
-      "frequenz": 88.0
-    },
-    {
-      "sek": 278.0,
-      "km": 691.12,
-      "hr": 143.0,
-      "tempo": 2.7,
-      "hoehe": 166.8,
-      "frequenz": 90.0
-    },
-    {
-      "sek": 308.0,
-      "km": 773.21,
-      "hr": 142.0,
-      "tempo": 2.71,
-      "hoehe": 167.4,
-      "frequenz": 90.0
-    },
-    {
-      "sek": 338.0,
-      "km": 854.71,
-      "hr": 141.0,
-      "tempo": 2.7,
-      "hoehe": 167.8,
-      "frequenz": 89.0
-    },
-    {
-      "sek": 368.0,
-      "km": 935.73,
-      "hr": 145.0,
-      "tempo": 2.71,
-      "hoehe": 168.8,
-      "frequenz": 89.0
-    },
-    {
-      "sek": 392.0,
-      "km": 1004.35,
-      "hr": 146.0,
-      "tempo": 2.79,
-      "hoehe": 169.0,
-      "frequenz": 90.0
-    },
-    {
-      "sek": 422.0,
-      "km": 1082.87,
-      "hr": 144.0,
-      "tempo": 2.71,
-      "hoehe": 171.2,
-      "frequenz": 90.0
-    },
-    {
-      "sek": 452.0,
-      "km": 1157.4,
-      "hr": 148.0,
-      "tempo": 2.56,
-      "hoehe": 172.6,
-      "frequenz": 88.0
-    },
-    {
-      "sek": 482.0,
-      "km": 1235.41,
-      "hr": 147.0,
-      "tempo": 2.59,
-      "hoehe": 171.8,
-      "frequenz": 91.0
-    },
-    {
-      "sek": 506.0,
-      "km": 1302.71,
-      "hr": 146.0,
-      "tempo": 2.71,
-      "hoehe": 170.2,
-      "frequenz": 90.0
-    },
-    {
-      "sek": 536.0,
-      "km": 1382.95,
-      "hr": 139.0,
-      "tempo": 2.7,
-      "hoehe": 167.2,
-      "frequenz": 91.0
-    },
-    {
-      "sek": 566.0,
-      "km": 1462.52,
-      "hr": 140.0,
-      "tempo": 2.64,
-      "hoehe": 164.8,
-      "frequenz": 90.0
-    },
-    {
-      "sek": 596.0,
-      "km": 1542.06,
-      "hr": 138.0,
-      "tempo": 2.62,
-      "hoehe": 164.6,
-      "frequenz": 90.0
-    },
-    {
-      "sek": 626.0,
-      "km": 1623.01,
-      "hr": 138.0,
-      "tempo": 2.62,
-      "hoehe": 165.0,
-      "frequenz": 90.0
-    },
-    {
-      "sek": 656.0,
-      "km": 1702.26,
-      "hr": 142.0,
-      "tempo": 2.62,
-      "hoehe": 164.8,
-      "frequenz": 89.0
-    },
-    {
-      "sek": 686.0,
-      "km": 1782.08,
-      "hr": 142.0,
-      "tempo": 2.62,
-      "hoehe": 164.8,
-      "frequenz": 91.0
-    },
-    {
-      "sek": 716.0,
-      "km": 1861.92,
-      "hr": 141.0,
-      "tempo": 2.66,
-      "hoehe": 164.6,
-      "frequenz": 90.0
-    },
-    {
-      "sek": 746.0,
-      "km": 1941.81,
-      "hr": 144.0,
-      "tempo": 2.69,
-      "hoehe": 164.2,
-      "frequenz": 90.0
-    },
-    {
-      "sek": 776.0,
-      "km": 2022.53,
-      "hr": 148.0,
-      "tempo": 2.71,
-      "hoehe": 166.2,
-      "frequenz": 89.0
-    },
-    {
-      "sek": 806.0,
-      "km": 2103.05,
-      "hr": 147.0,
-      "tempo": 2.67,
-      "hoehe": 165.8,
-      "frequenz": 89.0
-    },
-    {
-      "sek": 836.0,
-      "km": 2182.42,
-      "hr": 146.0,
-      "tempo": 2.66,
-      "hoehe": 166.4,
-      "frequenz": 89.0
-    },
-    {
-      "sek": 866.0,
-      "km": 2261.05,
-      "hr": 145.0,
-      "tempo": 2.64,
-      "hoehe": 166.0,
-      "frequenz": 90.0
-    },
-    {
-      "sek": 896.0,
-      "km": 2340.33,
-      "hr": 149.0,
-      "tempo": 2.62,
-      "hoehe": 165.4,
-      "frequenz": 90.0
-    },
-    {
-      "sek": 926.0,
-      "km": 2418.71,
-      "hr": 145.0,
-      "tempo": 2.59,
-      "hoehe": 165.2,
-      "frequenz": 90.0
-    },
-    {
-      "sek": 956.0,
-      "km": 2495.99,
-      "hr": 146.0,
-      "tempo": 2.59,
-      "hoehe": 165.0,
-      "frequenz": 90.0
-    },
-    {
-      "sek": 986.0,
-      "km": 2574.68,
-      "hr": 142.0,
-      "tempo": 2.59,
-      "hoehe": 164.6,
-      "frequenz": 90.0
-    },
-    {
-      "sek": 1022.0,
-      "km": 2669.78,
-      "hr": 150.0,
-      "tempo": 2.58,
-      "hoehe": 164.6,
-      "frequenz": 91.0
-    },
-    {
-      "sek": 1052.0,
-      "km": 2749.88,
-      "hr": 142.0,
+      "km": 54.02,
+      "hr": 116.0,
       "tempo": 2.61,
-      "hoehe": 164.2,
-      "frequenz": 89.0
-    },
-    {
-      "sek": 1082.0,
-      "km": 2829.5,
-      "hr": 149.0,
-      "tempo": 2.66,
-      "hoehe": 164.0,
-      "frequenz": 90.0
-    },
-    {
-      "sek": 1112.0,
-      "km": 2909.57,
-      "hr": 146.0,
-      "tempo": 2.71,
-      "hoehe": 164.2,
-      "frequenz": 90.0
-    },
-    {
-      "sek": 1142.0,
-      "km": 2988.59,
-      "hr": 147.0,
-      "tempo": 2.69,
-      "hoehe": 164.4,
-      "frequenz": 90.0
-    },
-    {
-      "sek": 1172.0,
-      "km": 3069.12,
-      "hr": 148.0,
-      "tempo": 2.71,
-      "hoehe": 164.4,
-      "frequenz": 90.0
-    },
-    {
-      "sek": 1202.0,
-      "km": 3148.1,
-      "hr": 150.0,
-      "tempo": 2.66,
-      "hoehe": 164.8,
-      "frequenz": 90.0
-    },
-    {
-      "sek": 1232.0,
-      "km": 3226.33,
-      "hr": 147.0,
-      "tempo": 2.61,
-      "hoehe": 164.6,
-      "frequenz": 90.0
-    },
-    {
-      "sek": 1262.0,
-      "km": 3308.19,
-      "hr": 147.0,
-      "tempo": 2.67,
-      "hoehe": 164.2,
-      "frequenz": 91.0
-    },
-    {
-      "sek": 1292.0,
-      "km": 3388.84,
-      "hr": 151.0,
-      "tempo": 2.67,
-      "hoehe": 164.0,
-      "frequenz": 89.0
-    },
-    {
-      "sek": 1322.0,
-      "km": 3470.37,
-      "hr": 148.0,
-      "tempo": 2.7,
-      "hoehe": 164.8,
-      "frequenz": 89.0
-    },
-    {
-      "sek": 1343.0,
-      "km": 3522.98,
-      "hr": 149.0,
-      "tempo": 2.46,
-      "hoehe": 166.8,
-      "frequenz": 79.0
-    },
-    {
-      "sek": 1370.0,
-      "km": 3556.84,
-      "hr": 144.0,
-      "tempo": 1.31,
-      "hoehe": 168.8,
-      "frequenz": 64.0
-    },
-    {
-      "sek": 1394.0,
-      "km": 3589.62,
-      "hr": 146.0,
-      "tempo": 1.39,
-      "hoehe": 171.2,
-      "frequenz": 63.0
-    },
-    {
-      "sek": 1424.0,
-      "km": 3662.14,
-      "hr": 151.0,
-      "tempo": 2.62,
-      "hoehe": 172.2,
-      "frequenz": 91.0
-    },
-    {
-      "sek": 1454.0,
-      "km": 3744.96,
-      "hr": 152.0,
-      "tempo": 2.4,
-      "hoehe": 172.2,
-      "frequenz": 92.0
-    },
-    {
-      "sek": 1484.0,
-      "km": 3827.61,
-      "hr": 151.0,
-      "tempo": 2.57,
-      "hoehe": 171.6,
-      "frequenz": 92.0
-    },
-    {
-      "sek": 1514.0,
-      "km": 3900.66,
-      "hr": 144.0,
-      "tempo": 2.35,
-      "hoehe": 171.6,
-      "frequenz": 91.0
-    },
-    {
-      "sek": 1544.0,
-      "km": 3967.15,
-      "hr": 147.0,
-      "tempo": 2.28,
-      "hoehe": 170.6,
-      "frequenz": 91.0
-    },
-    {
-      "sek": 1574.0,
-      "km": 4065.56,
-      "hr": 144.0,
-      "tempo": 2.9,
-      "hoehe": 168.8,
-      "frequenz": 91.0
-    },
-    {
-      "sek": 1604.0,
-      "km": 4146.48,
-      "hr": 143.0,
-      "tempo": 2.74,
-      "hoehe": 167.2,
-      "frequenz": 92.0
-    },
-    {
-      "sek": 1634.0,
-      "km": 4234.2,
-      "hr": 146.0,
-      "tempo": 3.0,
-      "hoehe": 163.4,
-      "frequenz": 91.0
-    },
-    {
-      "sek": 1664.0,
-      "km": 4310.49,
-      "hr": 142.0,
-      "tempo": 2.64,
-      "hoehe": 162.4,
-      "frequenz": 91.0
-    },
-    {
-      "sek": 1694.0,
-      "km": 4390.37,
-      "hr": 148.0,
-      "tempo": 2.6,
-      "hoehe": 162.8,
-      "frequenz": 90.0
-    },
-    {
-      "sek": 1724.0,
-      "km": 4462.73,
-      "hr": 149.0,
-      "tempo": 2.47,
-      "hoehe": 162.2,
-      "frequenz": 91.0
-    },
-    {
-      "sek": 1758.0,
-      "km": 4543.21,
-      "hr": 150.0,
-      "tempo": 2.59,
-      "hoehe": 162.0,
-      "frequenz": 91.0
-    },
-    {
-      "sek": 1788.0,
-      "km": 4616.05,
-      "hr": 151.0,
-      "tempo": 2.42,
-      "hoehe": 162.4,
-      "frequenz": 91.0
-    },
-    {
-      "sek": 1818.0,
-      "km": 4707.43,
-      "hr": 148.0,
-      "tempo": 2.79,
-      "hoehe": 159.2,
-      "frequenz": 90.0
-    },
-    {
-      "sek": 1855.0,
-      "km": 4779.24,
-      "hr": 139.0,
-      "tempo": 2.16,
-      "hoehe": 157.0,
-      "frequenz": 91.0
-    },
-    {
-      "sek": 1885.0,
-      "km": 4851.52,
-      "hr": 142.0,
-      "tempo": 2.43,
-      "hoehe": 157.0,
-      "frequenz": 90.0
-    },
-    {
-      "sek": 1915.0,
-      "km": 4930.48,
-      "hr": 144.0,
-      "tempo": 2.54,
-      "hoehe": 157.6,
-      "frequenz": 91.0
-    },
-    {
-      "sek": 1945.0,
-      "km": 5003.87,
-      "hr": 148.0,
-      "tempo": 2.49,
-      "hoehe": 157.2,
-      "frequenz": 92.0
-    },
-    {
-      "sek": 1975.0,
-      "km": 5083.09,
-      "hr": 149.0,
-      "tempo": 2.58,
-      "hoehe": 159.0,
-      "frequenz": 91.0
-    },
-    {
-      "sek": 2011.0,
-      "km": 5173.25,
-      "hr": 151.0,
-      "tempo": 2.55,
-      "hoehe": 160.2,
-      "frequenz": 92.0
-    },
-    {
-      "sek": 2041.0,
-      "km": 5251.59,
-      "hr": 152.0,
-      "tempo": 2.57,
-      "hoehe": 160.6,
-      "frequenz": 91.0
-    },
-    {
-      "sek": 2071.0,
-      "km": 5323.27,
-      "hr": 147.0,
-      "tempo": 2.53,
-      "hoehe": 161.2,
-      "frequenz": 91.0
-    },
-    {
-      "sek": 2101.0,
-      "km": 5400.71,
-      "hr": 148.0,
-      "tempo": 2.64,
-      "hoehe": 161.8,
-      "frequenz": 91.0
-    },
-    {
-      "sek": 2131.0,
-      "km": 5476.28,
-      "hr": 148.0,
-      "tempo": 2.56,
-      "hoehe": 161.8,
-      "frequenz": 91.0
-    },
-    {
-      "sek": 2161.0,
-      "km": 5551.59,
-      "hr": 148.0,
-      "tempo": 2.53,
-      "hoehe": 161.2,
-      "frequenz": 91.0
-    },
-    {
-      "sek": 2191.0,
-      "km": 5627.31,
-      "hr": 148.0,
-      "tempo": 2.52,
-      "hoehe": 161.2,
-      "frequenz": 89.0
-    },
-    {
-      "sek": 2221.0,
-      "km": 5704.18,
-      "hr": 148.0,
-      "tempo": 2.52,
-      "hoehe": 161.0,
-      "frequenz": 90.0
-    },
-    {
-      "sek": 2251.0,
-      "km": 5778.76,
-      "hr": 145.0,
-      "tempo": 2.49,
-      "hoehe": 162.0,
-      "frequenz": 90.0
-    },
-    {
-      "sek": 2281.0,
-      "km": 5850.73,
-      "hr": 146.0,
-      "tempo": 2.45,
-      "hoehe": 161.8,
-      "frequenz": 91.0
-    },
-    {
-      "sek": 2311.0,
-      "km": 5925.61,
-      "hr": 149.0,
-      "tempo": 2.44,
-      "hoehe": 161.4,
-      "frequenz": 90.0
-    },
-    {
-      "sek": 2341.0,
-      "km": 6003.24,
-      "hr": 145.0,
-      "tempo": 2.49,
-      "hoehe": 161.0,
       "frequenz": 87.0
     },
     {
-      "sek": 2371.0,
-      "km": 6078.82,
-      "hr": 148.0,
-      "tempo": 2.49,
-      "hoehe": 161.0,
+      "sek": 36.0,
+      "km": 86.78,
+      "hr": 121.0,
+      "tempo": 2.73,
+      "frequenz": 87.0
+    },
+    {
+      "sek": 45.0,
+      "km": 111.14,
+      "hr": 124.0,
+      "tempo": 2.76,
+      "frequenz": 87.0
+    },
+    {
+      "sek": 57.0,
+      "km": 144.21,
+      "hr": 127.0,
+      "tempo": 2.75,
+      "frequenz": 88.0
+    },
+    {
+      "sek": 69.0,
+      "km": 177.53,
+      "hr": 125.0,
+      "tempo": 2.79,
+      "frequenz": 87.0
+    },
+    {
+      "sek": 81.0,
+      "km": 210.5,
+      "hr": 130.0,
+      "tempo": 2.69,
       "frequenz": 86.0
     },
     {
-      "sek": 2401.0,
-      "km": 6155.52,
-      "hr": 151.0,
-      "tempo": 2.58,
-      "hoehe": 160.8,
-      "frequenz": 88.0
-    },
-    {
-      "sek": 2431.0,
-      "km": 6232.12,
-      "hr": 149.0,
-      "tempo": 2.59,
-      "hoehe": 160.4,
-      "frequenz": 88.0
-    },
-    {
-      "sek": 2461.0,
-      "km": 6306.46,
-      "hr": 151.0,
-      "tempo": 2.54,
-      "hoehe": 161.2,
-      "frequenz": 88.0
-    },
-    {
-      "sek": 2491.0,
-      "km": 6383.36,
-      "hr": 147.0,
-      "tempo": 2.57,
-      "hoehe": 161.6,
-      "frequenz": 88.0
-    },
-    {
-      "sek": 2521.0,
-      "km": 6458.81,
-      "hr": 147.0,
-      "tempo": 2.55,
-      "hoehe": 161.2,
-      "frequenz": 88.0
-    },
-    {
-      "sek": 2551.0,
-      "km": 6536.55,
-      "hr": 147.0,
-      "tempo": 2.57,
-      "hoehe": 161.2,
-      "frequenz": 91.0
-    },
-    {
-      "sek": 2581.0,
-      "km": 6611.75,
-      "hr": 145.0,
-      "tempo": 2.53,
-      "hoehe": 161.0,
-      "frequenz": 88.0
-    },
-    {
-      "sek": 2611.0,
-      "km": 6692.44,
-      "hr": 147.0,
-      "tempo": 2.6,
-      "hoehe": 161.0,
-      "frequenz": 90.0
-    },
-    {
-      "sek": 2641.0,
-      "km": 6770.36,
-      "hr": 149.0,
-      "tempo": 2.56,
-      "hoehe": 161.8,
-      "frequenz": 89.0
-    },
-    {
-      "sek": 2671.0,
-      "km": 6845.29,
-      "hr": 148.0,
-      "tempo": 2.57,
-      "hoehe": 162.2,
-      "frequenz": 89.0
-    },
-    {
-      "sek": 2701.0,
-      "km": 6919.58,
-      "hr": 146.0,
-      "tempo": 2.51,
-      "hoehe": 162.2,
-      "frequenz": 89.0
-    },
-    {
-      "sek": 2731.0,
-      "km": 6996.43,
-      "hr": 146.0,
-      "tempo": 2.56,
-      "hoehe": 162.2,
-      "frequenz": 90.0
-    },
-    {
-      "sek": 2761.0,
-      "km": 7067.77,
-      "hr": 150.0,
-      "tempo": 2.45,
-      "hoehe": 163.6,
-      "frequenz": 87.0
-    },
-    {
-      "sek": 2966.0,
-      "km": 7120.27,
-      "hr": 114.0,
-      "tempo": 1.83,
-      "hoehe": 157.2,
-      "frequenz": 87.0
-    },
-    {
-      "sek": 2996.0,
-      "km": 7199.11,
-      "hr": 130.0,
-      "tempo": 2.72,
-      "hoehe": 159.0,
-      "frequenz": 93.0
-    },
-    {
-      "sek": 3020.0,
-      "km": 7267.83,
-      "hr": 132.0,
-      "tempo": 2.76,
-      "hoehe": 158.0,
-      "frequenz": 93.0
-    },
-    {
-      "sek": 3050.0,
-      "km": 7346.24,
-      "hr": 134.0,
-      "tempo": 2.69,
-      "hoehe": 158.4,
-      "frequenz": 91.0
-    },
-    {
-      "sek": 3080.0,
-      "km": 7420.01,
+      "sek": 90.0,
+      "km": 235.46,
       "hr": 136.0,
-      "tempo": 2.56,
-      "hoehe": 160.2,
-      "frequenz": 90.0
-    },
-    {
-      "sek": 3146.0,
-      "km": 7482.53,
-      "hr": 119.0,
-      "tempo": 0.0,
-      "hoehe": 161.4,
-      "frequenz": 93.0
-    },
-    {
-      "sek": 3176.0,
-      "km": 7564.67,
-      "hr": 126.0,
-      "tempo": 2.62,
-      "hoehe": 160.2,
-      "frequenz": 91.0
-    },
-    {
-      "sek": 3212.0,
-      "km": 7660.44,
-      "hr": 134.0,
-      "tempo": 2.66,
-      "hoehe": 161.0,
-      "frequenz": 92.0
-    },
-    {
-      "sek": 3242.0,
-      "km": 7737.84,
-      "hr": 141.0,
-      "tempo": 2.62,
-      "hoehe": 161.4,
-      "frequenz": 91.0
-    },
-    {
-      "sek": 3272.0,
-      "km": 7815.51,
-      "hr": 142.0,
-      "tempo": 2.57,
-      "hoehe": 162.2,
-      "frequenz": 90.0
-    },
-    {
-      "sek": 3302.0,
-      "km": 7893.12,
-      "hr": 149.0,
-      "tempo": 2.55,
-      "hoehe": 162.2,
-      "frequenz": 90.0
-    },
-    {
-      "sek": 3332.0,
-      "km": 7971.04,
-      "hr": 147.0,
-      "tempo": 2.55,
-      "hoehe": 162.0,
-      "frequenz": 90.0
-    },
-    {
-      "sek": 3362.0,
-      "km": 8049.61,
-      "hr": 145.0,
-      "tempo": 2.58,
-      "hoehe": 161.6,
-      "frequenz": 91.0
-    },
-    {
-      "sek": 3392.0,
-      "km": 8128.96,
-      "hr": 145.0,
-      "tempo": 2.61,
-      "hoehe": 162.2,
-      "frequenz": 91.0
-    },
-    {
-      "sek": 3422.0,
-      "km": 8211.6,
-      "hr": 147.0,
-      "tempo": 2.68,
-      "hoehe": 161.2,
-      "frequenz": 90.0
-    },
-    {
-      "sek": 3452.0,
-      "km": 8293.61,
-      "hr": 148.0,
-      "tempo": 2.72,
-      "hoehe": 161.2,
-      "frequenz": 92.0
-    },
-    {
-      "sek": 3482.0,
-      "km": 8377.0,
-      "hr": 147.0,
-      "tempo": 2.73,
-      "hoehe": 160.4,
-      "frequenz": 91.0
-    },
-    {
-      "sek": 3512.0,
-      "km": 8456.78,
-      "hr": 149.0,
-      "tempo": 2.71,
-      "hoehe": 160.6,
-      "frequenz": 91.0
-    },
-    {
-      "sek": 3542.0,
-      "km": 8534.48,
-      "hr": 148.0,
-      "tempo": 2.64,
-      "hoehe": 161.0,
-      "frequenz": 90.0
-    },
-    {
-      "sek": 3572.0,
-      "km": 8608.9,
-      "hr": 147.0,
-      "tempo": 2.55,
-      "hoehe": 162.4,
-      "frequenz": 91.0
-    },
-    {
-      "sek": 3602.0,
-      "km": 8685.73,
-      "hr": 146.0,
-      "tempo": 2.57,
-      "hoehe": 161.8,
-      "frequenz": 90.0
-    },
-    {
-      "sek": 3632.0,
-      "km": 8761.88,
-      "hr": 148.0,
-      "tempo": 2.56,
-      "hoehe": 164.8,
-      "frequenz": 89.0
-    },
-    {
-      "sek": 3723.0,
-      "km": 8833.0,
-      "hr": 124.0,
-      "tempo": 2.65,
-      "hoehe": 161.4,
-      "frequenz": 92.0
-    },
-    {
-      "sek": 3753.0,
-      "km": 8917.78,
-      "hr": 127.0,
       "tempo": 2.8,
-      "hoehe": 159.6,
-      "frequenz": 90.0
-    },
-    {
-      "sek": 3783.0,
-      "km": 8996.78,
-      "hr": 135.0,
-      "tempo": 2.67,
-      "hoehe": 158.6,
-      "frequenz": 91.0
-    },
-    {
-      "sek": 3813.0,
-      "km": 9073.3,
-      "hr": 139.0,
-      "tempo": 2.59,
-      "hoehe": 159.0,
-      "frequenz": 91.0
-    },
-    {
-      "sek": 3843.0,
-      "km": 9148.59,
-      "hr": 142.0,
-      "tempo": 2.54,
-      "hoehe": 159.6,
-      "frequenz": 90.0
-    },
-    {
-      "sek": 3873.0,
-      "km": 9226.37,
-      "hr": 143.0,
-      "tempo": 2.56,
-      "hoehe": 159.6,
-      "frequenz": 89.0
-    },
-    {
-      "sek": 3903.0,
-      "km": 9302.43,
-      "hr": 145.0,
-      "tempo": 2.55,
-      "hoehe": 160.4,
-      "frequenz": 89.0
-    },
-    {
-      "sek": 3933.0,
-      "km": 9380.93,
-      "hr": 142.0,
-      "tempo": 2.57,
-      "hoehe": 160.4,
-      "frequenz": 90.0
-    },
-    {
-      "sek": 3963.0,
-      "km": 9455.43,
-      "hr": 141.0,
-      "tempo": 2.54,
-      "hoehe": 160.8,
-      "frequenz": 90.0
-    },
-    {
-      "sek": 3993.0,
-      "km": 9531.21,
-      "hr": 143.0,
-      "tempo": 2.51,
-      "hoehe": 160.4,
-      "frequenz": 91.0
-    },
-    {
-      "sek": 4023.0,
-      "km": 9608.73,
-      "hr": 140.0,
-      "tempo": 2.53,
-      "hoehe": 159.6,
-      "frequenz": 90.0
-    },
-    {
-      "sek": 4053.0,
-      "km": 9681.39,
-      "hr": 139.0,
-      "tempo": 2.45,
-      "hoehe": 159.4,
-      "frequenz": 90.0
-    },
-    {
-      "sek": 4083.0,
-      "km": 9760.29,
-      "hr": 138.0,
-      "tempo": 2.49,
-      "hoehe": 158.8,
-      "frequenz": 89.0
-    },
-    {
-      "sek": 4113.0,
-      "km": 9833.44,
-      "hr": 142.0,
-      "tempo": 2.43,
-      "hoehe": 159.4,
-      "frequenz": 91.0
-    },
-    {
-      "sek": 4143.0,
-      "km": 9905.24,
-      "hr": 141.0,
-      "tempo": 2.41,
-      "hoehe": 159.4,
-      "frequenz": 90.0
-    },
-    {
-      "sek": 4173.0,
-      "km": 9979.14,
-      "hr": 141.0,
-      "tempo": 2.41,
-      "hoehe": 159.4,
-      "frequenz": 90.0
-    },
-    {
-      "sek": 4203.0,
-      "km": 10055.32,
-      "hr": 144.0,
-      "tempo": 2.46,
-      "hoehe": 160.2,
-      "frequenz": 90.0
-    },
-    {
-      "sek": 4233.0,
-      "km": 10125.34,
-      "hr": 138.0,
-      "tempo": 2.38,
-      "hoehe": 159.8,
-      "frequenz": 89.0
-    },
-    {
-      "sek": 4263.0,
-      "km": 10201.92,
-      "hr": 147.0,
-      "tempo": 2.28,
-      "hoehe": 161.2,
       "frequenz": 87.0
     },
     {
-      "sek": 4299.0,
-      "km": 10263.66,
-      "hr": 138.0,
-      "tempo": 1.34,
-      "hoehe": 164.4,
-      "frequenz": 62.0
-    },
-    {
-      "sek": 4339.0,
-      "km": 10304.48,
+      "sek": 102.0,
+      "km": 269.11,
       "hr": 132.0,
-      "tempo": 1.88,
-      "hoehe": 163.8,
+      "tempo": 2.79,
       "frequenz": 88.0
     },
     {
-      "sek": 4369.0,
-      "km": 10375.61,
-      "hr": 132.0,
-      "tempo": 2.43,
-      "hoehe": 164.2,
-      "frequenz": 91.0
-    },
-    {
-      "sek": 4399.0,
-      "km": 10450.58,
-      "hr": 136.0,
-      "tempo": 2.47,
-      "hoehe": 165.6,
-      "frequenz": 90.0
-    },
-    {
-      "sek": 4429.0,
-      "km": 10520.1,
-      "hr": 137.0,
-      "tempo": 2.26,
-      "hoehe": 166.6,
-      "frequenz": 90.0
-    },
-    {
-      "sek": 4459.0,
-      "km": 10594.97,
-      "hr": 140.0,
-      "tempo": 2.5,
-      "hoehe": 166.6,
-      "frequenz": 90.0
-    },
-    {
-      "sek": 4489.0,
-      "km": 10662.57,
-      "hr": 136.0,
-      "tempo": 2.35,
-      "hoehe": 166.8,
-      "frequenz": 90.0
-    },
-    {
-      "sek": 4519.0,
-      "km": 10733.99,
-      "hr": 140.0,
-      "tempo": 2.37,
-      "hoehe": 166.8,
-      "frequenz": 91.0
-    },
-    {
-      "sek": 4549.0,
-      "km": 10811.05,
-      "hr": 140.0,
-      "tempo": 2.46,
-      "hoehe": 167.8,
-      "frequenz": 91.0
-    },
-    {
-      "sek": 4579.0,
-      "km": 10881.46,
-      "hr": 137.0,
-      "tempo": 2.4,
-      "hoehe": 167.6,
-      "frequenz": 89.0
-    },
-    {
-      "sek": 4609.0,
-      "km": 10955.48,
-      "hr": 140.0,
-      "tempo": 2.45,
-      "hoehe": 168.0,
-      "frequenz": 90.0
-    },
-    {
-      "sek": 4698.0,
-      "km": 11009.89,
-      "hr": 105.0,
-      "tempo": 2.14,
-      "hoehe": 165.4,
-      "frequenz": 90.0
-    },
-    {
-      "sek": 4728.0,
-      "km": 11085.16,
-      "hr": 127.0,
-      "tempo": 2.44,
-      "hoehe": 165.8,
-      "frequenz": 91.0
-    },
-    {
-      "sek": 4758.0,
-      "km": 11151.44,
-      "hr": 132.0,
-      "tempo": 2.24,
-      "hoehe": 167.2,
-      "frequenz": 90.0
-    },
-    {
-      "sek": 4788.0,
-      "km": 11217.41,
-      "hr": 140.0,
-      "tempo": 2.13,
-      "hoehe": 169.0,
-      "frequenz": 90.0
-    },
-    {
-      "sek": 4818.0,
-      "km": 11289.33,
-      "hr": 139.0,
-      "tempo": 2.38,
-      "hoehe": 170.0,
-      "frequenz": 91.0
-    },
-    {
-      "sek": 4848.0,
-      "km": 11369.59,
-      "hr": 137.0,
-      "tempo": 2.49,
-      "hoehe": 169.8,
-      "frequenz": 90.0
-    },
-    {
-      "sek": 4878.0,
-      "km": 11451.04,
-      "hr": 142.0,
-      "tempo": 2.7,
-      "hoehe": 170.4,
-      "frequenz": 89.0
-    },
-    {
-      "sek": 4902.0,
-      "km": 11507.69,
-      "hr": 139.0,
-      "tempo": 2.45,
-      "hoehe": 168.0,
-      "frequenz": 89.0
-    },
-    {
-      "sek": 4932.0,
-      "km": 11585.2,
-      "hr": 135.0,
-      "tempo": 2.62,
-      "hoehe": 166.0,
-      "frequenz": 90.0
-    },
-    {
-      "sek": 5030.0,
-      "km": 11647.43,
-      "hr": 123.0,
-      "tempo": 2.74,
-      "hoehe": 164.4,
-      "frequenz": 90.0
-    },
-    {
-      "sek": 5069.0,
-      "km": 11702.65,
-      "hr": 129.0,
-      "tempo": 1.84,
-      "hoehe": 163.8,
-      "frequenz": 90.0
-    },
-    {
-      "sek": 5099.0,
-      "km": 11791.46,
-      "hr": 127.0,
-      "tempo": 3.25,
-      "hoehe": 161.0,
-      "frequenz": 88.0
-    },
-    {
-      "sek": 5117.0,
-      "km": 11842.29,
-      "hr": 130.0,
-      "tempo": 2.38,
-      "hoehe": 162.6,
-      "frequenz": 90.0
-    },
-    {
-      "sek": 5147.0,
-      "km": 11911.58,
+      "sek": 114.0,
+      "km": 303.82,
       "hr": 133.0,
-      "tempo": 2.55,
-      "hoehe": 162.8,
-      "frequenz": 90.0
+      "tempo": 2.96,
+      "frequenz": 88.0
     },
     {
-      "sek": 5177.0,
-      "km": 11991.1,
-      "hr": 134.0,
-      "tempo": 2.63,
-      "hoehe": 163.4,
-      "frequenz": 90.0
+      "sek": 126.0,
+      "km": 338.86,
+      "hr": 135.0,
+      "tempo": 2.91,
+      "frequenz": 87.0
     },
     {
-      "sek": 5207.0,
-      "km": 12067.44,
+      "sek": 135.0,
+      "km": 364.59,
       "hr": 137.0,
-      "tempo": 2.55,
-      "hoehe": 164.2,
-      "frequenz": 90.0
+      "tempo": 2.86,
+      "frequenz": 86.0
     },
     {
-      "sek": 5237.0,
-      "km": 12144.76,
-      "hr": 139.0,
-      "tempo": 2.59,
-      "hoehe": 164.4,
-      "frequenz": 90.0
-    },
-    {
-      "sek": 5267.0,
-      "km": 12222.61,
-      "hr": 139.0,
-      "tempo": 2.56,
-      "hoehe": 164.8,
-      "frequenz": 90.0
-    },
-    {
-      "sek": 5297.0,
-      "km": 12301.91,
-      "hr": 140.0,
-      "tempo": 2.59,
-      "hoehe": 165.0,
-      "frequenz": 91.0
-    },
-    {
-      "sek": 5327.0,
-      "km": 12383.19,
-      "hr": 142.0,
-      "tempo": 2.68,
-      "hoehe": 165.4,
-      "frequenz": 91.0
-    },
-    {
-      "sek": 5357.0,
-      "km": 12460.71,
+      "sek": 147.0,
+      "km": 398.93,
       "hr": 138.0,
-      "tempo": 2.64,
-      "hoehe": 164.4,
-      "frequenz": 92.0
+      "tempo": 2.9,
+      "frequenz": 86.0
     },
     {
-      "sek": 5387.0,
-      "km": 12538.62,
-      "hr": 141.0,
-      "tempo": 2.62,
-      "hoehe": 164.6,
-      "frequenz": 90.0
+      "sek": 159.0,
+      "km": 434.1,
+      "hr": 135.0,
+      "tempo": 3.02,
+      "frequenz": 87.0
     },
     {
-      "sek": 5441.0,
-      "km": 12630.07,
-      "hr": 138.0,
-      "tempo": 0.0,
-      "hoehe": 163.2,
-      "frequenz": 0.0
+      "sek": 171.0,
+      "km": 469.33,
+      "hr": 133.0,
+      "tempo": 2.97,
+      "frequenz": 87.0
     },
     {
-      "sek": 5471.0,
-      "km": 12708.72,
-      "hr": 127.0,
-      "tempo": 2.47,
-      "hoehe": 163.0,
-      "frequenz": 91.0
+      "sek": 183.0,
+      "km": 504.12,
+      "hr": 137.0,
+      "tempo": 2.85,
+      "frequenz": 87.0
     },
     {
-      "sek": 5497.0,
-      "km": 12747.51,
-      "hr": 129.0,
-      "tempo": 2.29,
-      "hoehe": 161.6,
-      "frequenz": 90.0
+      "sek": 192.0,
+      "km": 529.93,
+      "hr": 135.0,
+      "tempo": 2.8,
+      "frequenz": 87.0
     },
     {
-      "sek": 5527.0,
-      "km": 12826.96,
-      "hr": 132.0,
-      "tempo": 2.6,
-      "hoehe": 161.2,
-      "frequenz": 91.0
+      "sek": 204.0,
+      "km": 563.82,
+      "hr": 136.0,
+      "tempo": 2.86,
+      "frequenz": 87.0
     },
     {
-      "sek": 5567.0,
-      "km": 12870.08,
-      "hr": 126.0,
-      "tempo": 1.76,
-      "hoehe": 160.8,
-      "frequenz": 92.0
+      "sek": 216.0,
+      "km": 597.47,
+      "hr": 134.0,
+      "tempo": 2.73,
+      "frequenz": 86.0
     },
     {
-      "sek": 5649.0,
-      "km": 12957.17,
-      "hr": 121.0,
-      "tempo": 0.0,
-      "hoehe": 158.2,
+      "sek": 228.0,
+      "km": 630.55,
+      "hr": 133.0,
+      "tempo": 2.71,
       "frequenz": 89.0
     },
     {
-      "sek": 5674.0,
-      "km": 13019.08,
-      "hr": 118.0,
-      "tempo": 2.45,
-      "hoehe": 159.2,
-      "frequenz": 91.0
+      "sek": 237.0,
+      "km": 655.8,
+      "hr": 134.0,
+      "tempo": 2.79,
+      "frequenz": 86.0
     },
     {
-      "sek": 5704.0,
-      "km": 13098.73,
-      "hr": 127.0,
-      "tempo": 2.59,
-      "hoehe": 161.0,
-      "frequenz": 92.0
-    },
-    {
-      "sek": 5734.0,
-      "km": 13180.16,
-      "hr": 139.0,
-      "tempo": 2.63,
-      "hoehe": 162.0,
-      "frequenz": 91.0
-    },
-    {
-      "sek": 5764.0,
-      "km": 13259.86,
-      "hr": 136.0,
-      "tempo": 2.66,
-      "hoehe": 162.8,
-      "frequenz": 90.0
-    },
-    {
-      "sek": 5794.0,
-      "km": 13337.35,
+      "sek": 249.0,
+      "km": 689.83,
       "hr": 137.0,
-      "tempo": 2.59,
-      "hoehe": 163.8,
-      "frequenz": 92.0
+      "tempo": 2.84,
+      "frequenz": 87.0
     },
     {
-      "sek": 5824.0,
-      "km": 13414.38,
+      "sek": 261.0,
+      "km": 723.9,
       "hr": 139.0,
-      "tempo": 2.58,
-      "hoehe": 164.0,
-      "frequenz": 90.0
+      "tempo": 2.78,
+      "frequenz": 87.0
     },
     {
-      "sek": 5854.0,
-      "km": 13492.39,
-      "hr": 136.0,
+      "sek": 273.0,
+      "km": 758.14,
+      "hr": 139.0,
+      "tempo": 2.83,
+      "frequenz": 85.0
+    },
+    {
+      "sek": 282.0,
+      "km": 782.77,
+      "hr": 137.0,
+      "tempo": 2.7,
+      "frequenz": 85.0
+    },
+    {
+      "sek": 294.0,
+      "km": 814.64,
+      "hr": 142.0,
       "tempo": 2.6,
-      "hoehe": 164.2,
-      "frequenz": 91.0
+      "frequenz": 86.0
     },
     {
-      "sek": 5884.0,
-      "km": 13567.86,
+      "sek": 306.0,
+      "km": 846.65,
       "hr": 140.0,
-      "tempo": 2.58,
-      "hoehe": 164.6,
-      "frequenz": 92.0
+      "tempo": 2.7,
+      "frequenz": 86.0
     },
     {
-      "sek": 5914.0,
-      "km": 13645.42,
+      "sek": 318.0,
+      "km": 879.62,
+      "hr": 142.0,
+      "tempo": 2.76,
+      "frequenz": 86.0
+    },
+    {
+      "sek": 327.0,
+      "km": 904.15,
+      "hr": 146.0,
+      "tempo": 2.74,
+      "frequenz": 86.0
+    },
+    {
+      "sek": 339.0,
+      "km": 937.56,
+      "hr": 143.0,
+      "tempo": 2.87,
+      "frequenz": 86.0
+    },
+    {
+      "sek": 351.0,
+      "km": 970.88,
+      "hr": 139.0,
+      "tempo": 2.76,
+      "frequenz": 86.0
+    },
+    {
+      "sek": 363.0,
+      "km": 1004.13,
+      "hr": 140.0,
+      "tempo": 2.85,
+      "frequenz": 86.0
+    },
+    {
+      "sek": 375.0,
+      "km": 1037.0,
+      "hr": 139.0,
+      "tempo": 2.7,
+      "frequenz": 85.0
+    },
+    {
+      "sek": 384.0,
+      "km": 1061.66,
       "hr": 138.0,
-      "tempo": 2.58,
-      "hoehe": 164.4,
-      "frequenz": 91.0
+      "tempo": 2.79,
+      "frequenz": 86.0
     },
     {
-      "sek": 5944.0,
-      "km": 13719.18,
+      "sek": 396.0,
+      "km": 1094.39,
+      "hr": 140.0,
+      "tempo": 2.7,
+      "frequenz": 85.0
+    },
+    {
+      "sek": 408.0,
+      "km": 1126.95,
+      "hr": 143.0,
+      "tempo": 2.75,
+      "frequenz": 84.0
+    },
+    {
+      "sek": 420.0,
+      "km": 1159.17,
+      "hr": 143.0,
+      "tempo": 2.67,
+      "frequenz": 86.0
+    },
+    {
+      "sek": 429.0,
+      "km": 1183.04,
+      "hr": 142.0,
+      "tempo": 2.65,
+      "frequenz": 84.0
+    },
+    {
+      "sek": 441.0,
+      "km": 1213.89,
+      "hr": 143.0,
+      "tempo": 2.58,
+      "frequenz": 85.0
+    },
+    {
+      "sek": 453.0,
+      "km": 1245.2,
+      "hr": 143.0,
+      "tempo": 2.65,
+      "frequenz": 84.0
+    },
+    {
+      "sek": 465.0,
+      "km": 1276.17,
+      "hr": 137.0,
+      "tempo": 2.57,
+      "frequenz": 85.0
+    },
+    {
+      "sek": 474.0,
+      "km": 1299.15,
       "hr": 137.0,
       "tempo": 2.51,
-      "hoehe": 164.0,
-      "frequenz": 88.0
+      "frequenz": 84.0
     },
     {
-      "sek": 5974.0,
-      "km": 13796.3,
-      "hr": 138.0,
-      "tempo": 2.58,
-      "hoehe": 165.0,
-      "frequenz": 89.0
-    },
-    {
-      "sek": 5998.0,
-      "km": 13856.48,
-      "hr": 137.0,
-      "tempo": 2.55,
-      "hoehe": 164.4,
-      "frequenz": 89.0
-    },
-    {
-      "sek": 6036.0,
-      "km": 13931.37,
-      "hr": 136.0,
-      "tempo": 0.0,
-      "hoehe": 164.4,
-      "frequenz": 0.0
-    },
-    {
-      "sek": 6066.0,
-      "km": 14013.0,
-      "hr": 136.0,
-      "tempo": 2.67,
-      "hoehe": 164.6,
-      "frequenz": 91.0
-    },
-    {
-      "sek": 6096.0,
-      "km": 14092.69,
-      "hr": 139.0,
-      "tempo": 2.61,
-      "hoehe": 164.4,
-      "frequenz": 91.0
-    },
-    {
-      "sek": 6126.0,
-      "km": 14165.36,
+      "sek": 486.0,
+      "km": 1329.23,
       "hr": 144.0,
       "tempo": 2.46,
-      "hoehe": 166.6,
-      "frequenz": 88.0
+      "frequenz": 85.0
     },
     {
-      "sek": 6156.0,
-      "km": 14232.28,
+      "sek": 498.0,
+      "km": 1358.55,
       "hr": 142.0,
-      "tempo": 2.32,
-      "hoehe": 168.6,
-      "frequenz": 89.0
+      "tempo": 2.4,
+      "frequenz": 84.0
     },
     {
-      "sek": 6186.0,
-      "km": 14300.44,
-      "hr": 142.0,
-      "tempo": 2.26,
-      "hoehe": 169.8,
-      "frequenz": 88.0
+      "sek": 510.0,
+      "km": 1388.4,
+      "hr": 143.0,
+      "tempo": 2.48,
+      "frequenz": 84.0
     },
     {
-      "sek": 6216.0,
-      "km": 14371.03,
-      "hr": 140.0,
-      "tempo": 2.28,
-      "hoehe": 170.8,
-      "frequenz": 89.0
-    },
-    {
-      "sek": 6246.0,
-      "km": 14444.49,
+      "sek": 519.0,
+      "km": 1411.28,
       "hr": 141.0,
-      "tempo": 2.36,
-      "hoehe": 171.4,
+      "tempo": 2.56,
+      "frequenz": 85.0
+    },
+    {
+      "sek": 531.0,
+      "km": 1443.53,
+      "hr": 143.0,
+      "tempo": 2.83,
+      "frequenz": 86.0
+    },
+    {
+      "sek": 543.0,
+      "km": 1475.94,
+      "hr": 146.0,
+      "tempo": 2.73,
+      "frequenz": 86.0
+    },
+    {
+      "sek": 555.0,
+      "km": 1508.5,
+      "hr": 144.0,
+      "tempo": 2.65,
+      "frequenz": 85.0
+    },
+    {
+      "sek": 567.0,
+      "km": 1540.54,
+      "hr": 145.0,
+      "tempo": 2.73,
+      "frequenz": 86.0
+    },
+    {
+      "sek": 576.0,
+      "km": 1564.74,
+      "hr": 144.0,
+      "tempo": 2.59,
+      "frequenz": 84.0
+    },
+    {
+      "sek": 588.0,
+      "km": 1596.13,
+      "hr": 144.0,
+      "tempo": 2.59,
+      "frequenz": 85.0
+    },
+    {
+      "sek": 600.0,
+      "km": 1627.58,
+      "hr": 145.0,
+      "tempo": 2.6,
+      "frequenz": 85.0
+    },
+    {
+      "sek": 609.0,
+      "km": 1655.24,
+      "hr": 149.0,
+      "tempo": 3.5,
+      "frequenz": 87.0
+    },
+    {
+      "sek": 615.0,
+      "km": 1677.29,
+      "hr": 156.0,
+      "tempo": 3.59,
+      "frequenz": 89.0
+    },
+    {
+      "sek": 627.0,
+      "km": 1713.44,
+      "hr": 157.0,
+      "tempo": 3.02,
+      "frequenz": 86.0
+    },
+    {
+      "sek": 639.0,
+      "km": 1753.9,
+      "hr": 162.0,
+      "tempo": 3.07,
+      "frequenz": 86.0
+    },
+    {
+      "sek": 651.0,
+      "km": 1786.75,
+      "hr": 161.0,
+      "tempo": 3.18,
+      "frequenz": 87.0
+    },
+    {
+      "sek": 660.0,
+      "km": 1814.32,
+      "hr": 163.0,
+      "tempo": 2.5,
+      "frequenz": 85.0
+    },
+    {
+      "sek": 672.0,
+      "km": 1845.42,
+      "hr": 160.0,
+      "tempo": 3.09,
+      "frequenz": 85.0
+    },
+    {
+      "sek": 684.0,
+      "km": 1872.97,
+      "hr": 161.0,
+      "tempo": 1.55,
+      "frequenz": 57.0
+    },
+    {
+      "sek": 696.0,
+      "km": 1890.84,
+      "hr": 156.0,
+      "tempo": 1.47,
+      "frequenz": 56.0
+    },
+    {
+      "sek": 703.0,
+      "km": 1901.17,
+      "hr": 152.0,
+      "tempo": 1.58,
+      "frequenz": 59.0
+    },
+    {
+      "sek": 714.0,
+      "km": 1932.08,
+      "hr": 149.0,
+      "tempo": 3.43,
+      "frequenz": 88.0
+    },
+    {
+      "sek": 726.0,
+      "km": 1974.29,
+      "hr": 154.0,
+      "tempo": 3.56,
       "frequenz": 90.0
     },
     {
-      "sek": 6276.0,
-      "km": 14515.05,
-      "hr": 138.0,
-      "tempo": 2.36,
-      "hoehe": 171.8,
+      "sek": 738.0,
+      "km": 2017.53,
+      "hr": 162.0,
+      "tempo": 3.55,
       "frequenz": 90.0
     },
     {
-      "sek": 6306.0,
-      "km": 14585.02,
-      "hr": 134.0,
-      "tempo": 2.32,
-      "hoehe": 170.8,
+      "sek": 750.0,
+      "km": 2059.99,
+      "hr": 166.0,
+      "tempo": 3.51,
+      "frequenz": 89.0
+    },
+    {
+      "sek": 759.0,
+      "km": 2091.68,
+      "hr": 169.0,
+      "tempo": 3.61,
+      "frequenz": 90.0
+    },
+    {
+      "sek": 771.0,
+      "km": 2134.72,
+      "hr": 171.0,
+      "tempo": 3.57,
+      "frequenz": 90.0
+    },
+    {
+      "sek": 783.0,
+      "km": 2177.69,
+      "hr": 172.0,
+      "tempo": 3.62,
+      "frequenz": 90.0
+    },
+    {
+      "sek": 795.0,
+      "km": 2220.6,
+      "hr": 174.0,
+      "tempo": 3.55,
+      "frequenz": 90.0
+    },
+    {
+      "sek": 804.0,
+      "km": 2252.92,
+      "hr": 176.0,
+      "tempo": 3.56,
+      "frequenz": 90.0
+    },
+    {
+      "sek": 816.0,
+      "km": 2295.17,
+      "hr": 175.0,
+      "tempo": 3.52,
+      "frequenz": 89.0
+    },
+    {
+      "sek": 828.0,
+      "km": 2337.96,
+      "hr": 180.0,
+      "tempo": 3.6,
+      "frequenz": 90.0
+    },
+    {
+      "sek": 840.0,
+      "km": 2380.95,
+      "hr": 180.0,
+      "tempo": 3.59,
+      "frequenz": 90.0
+    },
+    {
+      "sek": 849.0,
+      "km": 2413.41,
+      "hr": 179.0,
+      "tempo": 3.62,
+      "frequenz": 90.0
+    },
+    {
+      "sek": 861.0,
+      "km": 2456.81,
+      "hr": 181.0,
+      "tempo": 3.63,
+      "frequenz": 90.0
+    },
+    {
+      "sek": 873.0,
+      "km": 2500.51,
+      "hr": 182.0,
+      "tempo": 3.64,
       "frequenz": 91.0
     },
     {
-      "sek": 6336.0,
-      "km": 14657.34,
-      "hr": 135.0,
-      "tempo": 2.37,
-      "hoehe": 170.2,
+      "sek": 885.0,
+      "km": 2544.77,
+      "hr": 183.0,
+      "tempo": 3.68,
+      "frequenz": 91.0
+    },
+    {
+      "sek": 894.0,
+      "km": 2577.88,
+      "hr": 183.0,
+      "tempo": 3.66,
+      "frequenz": 91.0
+    },
+    {
+      "sek": 906.0,
+      "km": 2621.72,
+      "hr": 182.0,
+      "tempo": 3.67,
+      "frequenz": 91.0
+    },
+    {
+      "sek": 918.0,
+      "km": 2665.62,
+      "hr": 182.0,
+      "tempo": 3.67,
       "frequenz": 92.0
     },
     {
-      "sek": 6366.0,
-      "km": 14729.32,
-      "hr": 133.0,
-      "tempo": 2.35,
-      "hoehe": 169.6,
+      "sek": 927.0,
+      "km": 2698.83,
+      "hr": 184.0,
+      "tempo": 3.69,
+      "frequenz": 92.0
+    },
+    {
+      "sek": 936.0,
+      "km": 2732.17,
+      "hr": 183.0,
+      "tempo": 3.72,
+      "frequenz": 93.0
+    },
+    {
+      "sek": 945.0,
+      "km": 2764.69,
+      "hr": 185.0,
+      "tempo": 3.27,
       "frequenz": 90.0
     },
     {
-      "sek": 6391.0,
-      "km": 14793.1,
-      "hr": 132.0,
-      "tempo": 2.31,
-      "hoehe": 169.2,
+      "sek": 957.0,
+      "km": 2793.99,
+      "hr": 176.0,
+      "tempo": 2.25,
+      "frequenz": 86.0
+    },
+    {
+      "sek": 969.0,
+      "km": 2820.64,
+      "hr": 172.0,
+      "tempo": 2.2,
+      "frequenz": 85.0
+    },
+    {
+      "sek": 981.0,
+      "km": 2847.21,
+      "hr": 168.0,
+      "tempo": 2.21,
+      "frequenz": 85.0
+    },
+    {
+      "sek": 990.0,
+      "km": 2867.07,
+      "hr": 167.0,
+      "tempo": 2.21,
+      "frequenz": 85.0
+    },
+    {
+      "sek": 1002.0,
+      "km": 2893.52,
+      "hr": 164.0,
+      "tempo": 2.2,
+      "frequenz": 85.0
+    },
+    {
+      "sek": 1014.0,
+      "km": 2919.79,
+      "hr": 161.0,
+      "tempo": 2.17,
+      "frequenz": 84.0
+    },
+    {
+      "sek": 1026.0,
+      "km": 2946.05,
+      "hr": 157.0,
+      "tempo": 2.19,
+      "frequenz": 84.0
+    },
+    {
+      "sek": 1035.0,
+      "km": 2965.67,
+      "hr": 156.0,
+      "tempo": 2.16,
+      "frequenz": 83.0
+    },
+    {
+      "sek": 1047.0,
+      "km": 2991.77,
+      "hr": 155.0,
+      "tempo": 2.19,
+      "frequenz": 84.0
+    },
+    {
+      "sek": 1059.0,
+      "km": 3018.0,
+      "hr": 152.0,
+      "tempo": 2.17,
+      "frequenz": 84.0
+    },
+    {
+      "sek": 1071.0,
+      "km": 3043.96,
+      "hr": 148.0,
+      "tempo": 2.16,
+      "frequenz": 83.0
+    },
+    {
+      "sek": 1080.0,
+      "km": 3063.5,
+      "hr": 148.0,
+      "tempo": 2.18,
+      "frequenz": 84.0
+    },
+    {
+      "sek": 1092.0,
+      "km": 3089.55,
+      "hr": 149.0,
+      "tempo": 2.16,
+      "frequenz": 83.0
+    },
+    {
+      "sek": 1104.0,
+      "km": 3115.48,
+      "hr": 150.0,
+      "tempo": 2.16,
+      "frequenz": 83.0
+    },
+    {
+      "sek": 1116.0,
+      "km": 3141.44,
+      "hr": 150.0,
+      "tempo": 2.15,
+      "frequenz": 83.0
+    },
+    {
+      "sek": 1128.0,
+      "km": 3169.68,
+      "hr": 151.0,
+      "tempo": 3.09,
+      "frequenz": 86.0
+    },
+    {
+      "sek": 1137.0,
+      "km": 3200.63,
+      "hr": 161.0,
+      "tempo": 3.51,
+      "frequenz": 89.0
+    },
+    {
+      "sek": 1149.0,
+      "km": 3243.51,
+      "hr": 173.0,
+      "tempo": 3.61,
       "frequenz": 90.0
     },
     {
-      "sek": 6420.0,
-      "km": 14869.75,
-      "hr": 133.0,
-      "tempo": 2.55,
-      "hoehe": 168.2,
+      "sek": 1161.0,
+      "km": 3287.19,
+      "hr": 174.0,
+      "tempo": 3.62,
       "frequenz": 90.0
     },
     {
-      "sek": 6450.0,
-      "km": 14948.11,
-      "hr": 136.0,
-      "tempo": 2.59,
-      "hoehe": 167.0,
+      "sek": 1173.0,
+      "km": 3331.08,
+      "hr": 177.0,
+      "tempo": 3.64,
       "frequenz": 90.0
+    },
+    {
+      "sek": 1182.0,
+      "km": 3363.48,
+      "hr": 181.0,
+      "tempo": 3.63,
+      "frequenz": 90.0
+    },
+    {
+      "sek": 1194.0,
+      "km": 3406.92,
+      "hr": 182.0,
+      "tempo": 3.63,
+      "frequenz": 90.0
+    },
+    {
+      "sek": 1206.0,
+      "km": 3450.64,
+      "hr": 182.0,
+      "tempo": 3.69,
+      "frequenz": 91.0
+    },
+    {
+      "sek": 1218.0,
+      "km": 3494.79,
+      "hr": 184.0,
+      "tempo": 3.69,
+      "frequenz": 92.0
+    },
+    {
+      "sek": 1227.0,
+      "km": 3528.21,
+      "hr": 187.0,
+      "tempo": 3.74,
+      "frequenz": 92.0
+    },
+    {
+      "sek": 1239.0,
+      "km": 3571.83,
+      "hr": 185.0,
+      "tempo": 3.61,
+      "frequenz": 90.0
+    },
+    {
+      "sek": 1251.0,
+      "km": 3615.26,
+      "hr": 186.0,
+      "tempo": 3.61,
+      "frequenz": 91.0
+    },
+    {
+      "sek": 1263.0,
+      "km": 3659.44,
+      "hr": 189.0,
+      "tempo": 3.65,
+      "frequenz": 91.0
+    },
+    {
+      "sek": 1272.0,
+      "km": 3692.45,
+      "hr": 190.0,
+      "tempo": 3.68,
+      "frequenz": 92.0
+    },
+    {
+      "sek": 1284.0,
+      "km": 3736.51,
+      "hr": 190.0,
+      "tempo": 3.69,
+      "frequenz": 91.0
+    },
+    {
+      "sek": 1296.0,
+      "km": 3781.29,
+      "hr": 189.0,
+      "tempo": 3.75,
+      "frequenz": 92.0
+    },
+    {
+      "sek": 1308.0,
+      "km": 3825.28,
+      "hr": 189.0,
+      "tempo": 3.64,
+      "frequenz": 92.0
+    },
+    {
+      "sek": 1320.0,
+      "km": 3869.15,
+      "hr": 187.0,
+      "tempo": 3.59,
+      "frequenz": 91.0
+    },
+    {
+      "sek": 1329.0,
+      "km": 3901.39,
+      "hr": 189.0,
+      "tempo": 3.56,
+      "frequenz": 91.0
+    },
+    {
+      "sek": 1341.0,
+      "km": 3944.56,
+      "hr": 187.0,
+      "tempo": 3.54,
+      "frequenz": 91.0
+    },
+    {
+      "sek": 1353.0,
+      "km": 3987.71,
+      "hr": 189.0,
+      "tempo": 3.66,
+      "frequenz": 92.0
+    },
+    {
+      "sek": 1365.0,
+      "km": 4029.25,
+      "hr": 191.0,
+      "tempo": 3.32,
+      "frequenz": 90.0
+    },
+    {
+      "sek": 1374.0,
+      "km": 4050.47,
+      "hr": 185.0,
+      "tempo": 2.16,
+      "frequenz": 83.0
+    },
+    {
+      "sek": 1386.0,
+      "km": 4076.64,
+      "hr": 182.0,
+      "tempo": 2.18,
+      "frequenz": 84.0
+    },
+    {
+      "sek": 1398.0,
+      "km": 4102.92,
+      "hr": 179.0,
+      "tempo": 2.18,
+      "frequenz": 84.0
+    },
+    {
+      "sek": 1410.0,
+      "km": 4128.98,
+      "hr": 174.0,
+      "tempo": 2.17,
+      "frequenz": 84.0
+    },
+    {
+      "sek": 1419.0,
+      "km": 4148.6,
+      "hr": 170.0,
+      "tempo": 2.18,
+      "frequenz": 84.0
+    },
+    {
+      "sek": 1431.0,
+      "km": 4174.7,
+      "hr": 166.0,
+      "tempo": 2.16,
+      "frequenz": 83.0
+    },
+    {
+      "sek": 1443.0,
+      "km": 4200.76,
+      "hr": 164.0,
+      "tempo": 2.17,
+      "frequenz": 84.0
+    },
+    {
+      "sek": 1455.0,
+      "km": 4226.81,
+      "hr": 162.0,
+      "tempo": 2.16,
+      "frequenz": 83.0
+    },
+    {
+      "sek": 1464.0,
+      "km": 4246.26,
+      "hr": 161.0,
+      "tempo": 2.17,
+      "frequenz": 84.0
+    },
+    {
+      "sek": 1476.0,
+      "km": 4272.3,
+      "hr": 161.0,
+      "tempo": 2.17,
+      "frequenz": 84.0
+    },
+    {
+      "sek": 1488.0,
+      "km": 4298.27,
+      "hr": 159.0,
+      "tempo": 2.09,
+      "frequenz": 80.0
+    },
+    {
+      "sek": 1500.0,
+      "km": 4324.08,
+      "hr": 157.0,
+      "tempo": 2.17,
+      "frequenz": 83.0
+    },
+    {
+      "sek": 1512.0,
+      "km": 4349.9,
+      "hr": 155.0,
+      "tempo": 2.13,
+      "frequenz": 82.0
+    },
+    {
+      "sek": 1521.0,
+      "km": 4369.04,
+      "hr": 157.0,
+      "tempo": 2.15,
+      "frequenz": 83.0
+    },
+    {
+      "sek": 1533.0,
+      "km": 4394.89,
+      "hr": 157.0,
+      "tempo": 2.16,
+      "frequenz": 83.0
+    },
+    {
+      "sek": 1545.0,
+      "km": 4421.27,
+      "hr": 161.0,
+      "tempo": 2.51,
+      "frequenz": 85.0
+    },
+    {
+      "sek": 1557.0,
+      "km": 4462.13,
+      "hr": 168.0,
+      "tempo": 3.77,
+      "frequenz": 92.0
+    },
+    {
+      "sek": 1566.0,
+      "km": 4496.37,
+      "hr": 171.0,
+      "tempo": 3.81,
+      "frequenz": 93.0
+    },
+    {
+      "sek": 1578.0,
+      "km": 4541.78,
+      "hr": 176.0,
+      "tempo": 3.72,
+      "frequenz": 92.0
+    },
+    {
+      "sek": 1590.0,
+      "km": 4586.37,
+      "hr": 181.0,
+      "tempo": 3.72,
+      "frequenz": 92.0
+    },
+    {
+      "sek": 1602.0,
+      "km": 4631.46,
+      "hr": 182.0,
+      "tempo": 3.79,
+      "frequenz": 92.0
+    },
+    {
+      "sek": 1611.0,
+      "km": 4665.34,
+      "hr": 184.0,
+      "tempo": 3.74,
+      "frequenz": 92.0
+    },
+    {
+      "sek": 1623.0,
+      "km": 4710.25,
+      "hr": 187.0,
+      "tempo": 3.77,
+      "frequenz": 92.0
+    },
+    {
+      "sek": 1635.0,
+      "km": 4755.07,
+      "hr": 186.0,
+      "tempo": 3.69,
+      "frequenz": 91.0
+    },
+    {
+      "sek": 1647.0,
+      "km": 4799.4,
+      "hr": 188.0,
+      "tempo": 3.74,
+      "frequenz": 92.0
+    },
+    {
+      "sek": 1656.0,
+      "km": 4832.66,
+      "hr": 190.0,
+      "tempo": 3.64,
+      "frequenz": 92.0
+    },
+    {
+      "sek": 1668.0,
+      "km": 4876.85,
+      "hr": 188.0,
+      "tempo": 3.75,
+      "frequenz": 92.0
+    },
+    {
+      "sek": 1680.0,
+      "km": 4920.62,
+      "hr": 191.0,
+      "tempo": 3.58,
+      "frequenz": 91.0
+    },
+    {
+      "sek": 1692.0,
+      "km": 4963.23,
+      "hr": 189.0,
+      "tempo": 3.53,
+      "frequenz": 91.0
+    },
+    {
+      "sek": 1704.0,
+      "km": 5005.59,
+      "hr": 190.0,
+      "tempo": 3.47,
+      "frequenz": 90.0
+    },
+    {
+      "sek": 1713.0,
+      "km": 5036.42,
+      "hr": 191.0,
+      "tempo": 3.41,
+      "frequenz": 90.0
+    },
+    {
+      "sek": 1725.0,
+      "km": 5077.45,
+      "hr": 191.0,
+      "tempo": 3.41,
+      "frequenz": 90.0
+    },
+    {
+      "sek": 1737.0,
+      "km": 5118.16,
+      "hr": 190.0,
+      "tempo": 3.37,
+      "frequenz": 90.0
+    },
+    {
+      "sek": 1749.0,
+      "km": 5157.99,
+      "hr": 189.0,
+      "tempo": 3.33,
+      "frequenz": 90.0
+    },
+    {
+      "sek": 1758.0,
+      "km": 5187.67,
+      "hr": 187.0,
+      "tempo": 3.27,
+      "frequenz": 89.0
+    },
+    {
+      "sek": 1770.0,
+      "km": 5226.58,
+      "hr": 189.0,
+      "tempo": 3.23,
+      "frequenz": 89.0
+    },
+    {
+      "sek": 1782.0,
+      "km": 5265.5,
+      "hr": 188.0,
+      "tempo": 3.15,
+      "frequenz": 89.0
+    },
+    {
+      "sek": 1794.0,
+      "km": 5293.43,
+      "hr": 182.0,
+      "tempo": 2.16,
+      "frequenz": 83.0
+    },
+    {
+      "sek": 1803.0,
+      "km": 5313.1,
+      "hr": 181.0,
+      "tempo": 2.19,
+      "frequenz": 85.0
+    },
+    {
+      "sek": 1815.0,
+      "km": 5338.8,
+      "hr": 177.0,
+      "tempo": 2.15,
+      "frequenz": 83.0
+    },
+    {
+      "sek": 1827.0,
+      "km": 5365.02,
+      "hr": 173.0,
+      "tempo": 2.19,
+      "frequenz": 84.0
+    },
+    {
+      "sek": 1839.0,
+      "km": 5390.92,
+      "hr": 171.0,
+      "tempo": 2.15,
+      "frequenz": 84.0
+    },
+    {
+      "sek": 1848.0,
+      "km": 5410.54,
+      "hr": 171.0,
+      "tempo": 2.19,
+      "frequenz": 84.0
+    },
+    {
+      "sek": 1860.0,
+      "km": 5436.88,
+      "hr": 167.0,
+      "tempo": 2.2,
+      "frequenz": 85.0
+    },
+    {
+      "sek": 1872.0,
+      "km": 5463.26,
+      "hr": 164.0,
+      "tempo": 2.19,
+      "frequenz": 84.0
+    },
+    {
+      "sek": 1884.0,
+      "km": 5489.59,
+      "hr": 164.0,
+      "tempo": 2.2,
+      "frequenz": 85.0
+    },
+    {
+      "sek": 1896.0,
+      "km": 5515.93,
+      "hr": 165.0,
+      "tempo": 2.19,
+      "frequenz": 85.0
+    },
+    {
+      "sek": 1905.0,
+      "km": 5535.69,
+      "hr": 163.0,
+      "tempo": 2.19,
+      "frequenz": 84.0
+    },
+    {
+      "sek": 1917.0,
+      "km": 5562.09,
+      "hr": 160.0,
+      "tempo": 2.2,
+      "frequenz": 85.0
+    },
+    {
+      "sek": 1929.0,
+      "km": 5588.5,
+      "hr": 161.0,
+      "tempo": 2.23,
+      "frequenz": 86.0
+    },
+    {
+      "sek": 1941.0,
+      "km": 5615.03,
+      "hr": 159.0,
+      "tempo": 2.19,
+      "frequenz": 84.0
+    },
+    {
+      "sek": 1950.0,
+      "km": 5634.82,
+      "hr": 159.0,
+      "tempo": 2.2,
+      "frequenz": 85.0
+    },
+    {
+      "sek": 1962.0,
+      "km": 5661.16,
+      "hr": 160.0,
+      "tempo": 2.2,
+      "frequenz": 85.0
+    },
+    {
+      "sek": 1974.0,
+      "km": 5700.15,
+      "hr": 169.0,
+      "tempo": 3.74,
+      "frequenz": 91.0
+    },
+    {
+      "sek": 1986.0,
+      "km": 5745.48,
+      "hr": 179.0,
+      "tempo": 3.78,
+      "frequenz": 92.0
+    },
+    {
+      "sek": 1995.0,
+      "km": 5779.38,
+      "hr": 180.0,
+      "tempo": 3.71,
+      "frequenz": 91.0
+    },
+    {
+      "sek": 2007.0,
+      "km": 5824.03,
+      "hr": 183.0,
+      "tempo": 3.73,
+      "frequenz": 92.0
+    },
+    {
+      "sek": 2019.0,
+      "km": 5869.73,
+      "hr": 186.0,
+      "tempo": 3.82,
+      "frequenz": 92.0
+    },
+    {
+      "sek": 2031.0,
+      "km": 5915.1,
+      "hr": 186.0,
+      "tempo": 3.78,
+      "frequenz": 92.0
+    },
+    {
+      "sek": 2040.0,
+      "km": 5949.18,
+      "hr": 188.0,
+      "tempo": 3.8,
+      "frequenz": 92.0
+    },
+    {
+      "sek": 2052.0,
+      "km": 5994.27,
+      "hr": 189.0,
+      "tempo": 3.68,
+      "frequenz": 91.0
+    },
+    {
+      "sek": 2064.0,
+      "km": 6038.18,
+      "hr": 191.0,
+      "tempo": 3.66,
+      "frequenz": 91.0
+    },
+    {
+      "sek": 2073.0,
+      "km": 6070.8,
+      "hr": 190.0,
+      "tempo": 3.55,
+      "frequenz": 91.0
+    },
+    {
+      "sek": 2085.0,
+      "km": 6113.57,
+      "hr": 192.0,
+      "tempo": 3.52,
+      "frequenz": 90.0
+    },
+    {
+      "sek": 2094.0,
+      "km": 6144.62,
+      "hr": 190.0,
+      "tempo": 3.38,
+      "frequenz": 90.0
+    },
+    {
+      "sek": 2104.0,
+      "km": 6178.38,
+      "hr": 191.0,
+      "tempo": 3.35,
+      "frequenz": 90.0
+    },
+    {
+      "sek": 2115.0,
+      "km": 6215.6,
+      "hr": 190.0,
+      "tempo": 3.42,
+      "frequenz": 90.0
+    },
+    {
+      "sek": 2127.0,
+      "km": 6255.76,
+      "hr": 190.0,
+      "tempo": 3.28,
+      "frequenz": 89.0
+    },
+    {
+      "sek": 2136.0,
+      "km": 6284.95,
+      "hr": 187.0,
+      "tempo": 3.28,
+      "frequenz": 89.0
+    },
+    {
+      "sek": 2148.0,
+      "km": 6323.45,
+      "hr": 187.0,
+      "tempo": 3.2,
+      "frequenz": 89.0
+    },
+    {
+      "sek": 2160.0,
+      "km": 6362.06,
+      "hr": 188.0,
+      "tempo": 3.2,
+      "frequenz": 89.0
+    },
+    {
+      "sek": 2172.0,
+      "km": 6400.26,
+      "hr": 187.0,
+      "tempo": 3.2,
+      "frequenz": 88.0
+    },
+    {
+      "sek": 2181.0,
+      "km": 6428.84,
+      "hr": 185.0,
+      "tempo": 3.11,
+      "frequenz": 89.0
+    },
+    {
+      "sek": 2193.0,
+      "km": 6468.85,
+      "hr": 185.0,
+      "tempo": 3.25,
+      "frequenz": 88.0
+    },
+    {
+      "sek": 2205.0,
+      "km": 6504.75,
+      "hr": 181.0,
+      "tempo": 2.41,
+      "frequenz": 88.0
+    },
+    {
+      "sek": 2214.0,
+      "km": 6524.42,
+      "hr": 179.0,
+      "tempo": 2.18,
+      "frequenz": 84.0
     }
   ]
 }
