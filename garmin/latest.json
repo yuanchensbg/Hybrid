@@ -1,5 +1,5 @@
 {
-  "geholt": "2026-11-09T00:47:36Z",
+  "geholt": "2026-11-09T01:59:45Z",
   "quelle": "https://personal.connectapi.garmin.com/activitylist-service/activities/search/activities",
   "id": 24956739536,
   "name": "Laufbandtraining",
@@ -240,12 +240,12 @@
       "hasRunPowerWindData": false,
       "calendarEventInfo": null,
       "hasMultiDayActivities": false,
-      "manualActivity": false,
-      "trimmed": false,
-      "elevationCorrected": false,
-      "runPowerWindDataEnabled": false,
       "autoCalcCalories": false,
       "favorite": false,
+      "trimmed": false,
+      "elevationCorrected": false,
+      "manualActivity": false,
+      "runPowerWindDataEnabled": false,
       "personalRecord": false,
       "gcj02": false
     },
