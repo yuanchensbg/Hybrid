@@ -1496,7 +1496,7 @@ const ANAME={yuan:"Yuan",yara:"Yara"};
 /* ══════════ SPEICHER ══════════ */
 /* Versionsstand – steht unter Mehr ganz unten. Damit lässt sich prüfen,
    ob auf einem Gerät wirklich die aktuelle Datei läuft. */
-const BUILD={datum:"02.11.2026",nr:140};
+const BUILD={datum:"02.11.2026",nr:144};
 const DEF={
  me:"yuan", start:"2026-10-18", gyms:null, gym:"citygate",
  log:{}, archive:[], checkins:{yuan:{},yara:{}}, protein:{yuan:{},yara:{}},
@@ -2456,7 +2456,9 @@ function closeModal(){document.getElementById("modal").classList.remove("open");
 
 /* Gewichtsvorschlag aus der letzten Ausführung derselben Übung */
 /* Letzte Ausführung derselben Übung: Datum, alle Sätze, Kennzahlen */
-function lastPerf(ath,exId,beforeDate){
+/* nurEq: Nur Ausführungen an diesem Gerät berücksichtigen. Ein Gewicht von
+   der Chest Press sagt nichts über die Langhantel – und umgekehrt. */
+function lastPerf(ath,exId,beforeDate,nurEq){
   const dates=Object.keys(DB.log).filter(d=>d<beforeDate).sort().reverse();
   for(const d of dates){
     const ses=sessionFor(d,ath);
@@ -2465,6 +2467,12 @@ function lastPerf(ath,exId,beforeDate){
     for(const it of items){
       if(it.ex!==exId||(it.type!=="lift"&&it.type!=="circuit"))continue;
       const lg=LR(d,ath);
+      if(nurEq){
+        const damals=lg[it.key+"-eq"]||null;
+        // Ohne Eintrag galt das Standardgerät der Übung
+        const standard=(EX[exId]&&EX[exId].o&&EX[exId].o[0])||null;
+        if((damals||standard)!==nurEq)continue;
+      }
       let sets=[];
       for(let s=1;s<=(it.sets||3)+2;s++){
         if(lg[`${it.key}-x${s}`]){sets.push({skip:1});continue;}
@@ -2477,7 +2485,10 @@ function lastPerf(ath,exId,beforeDate){
       if(!done.length&&!sets.length)continue;
       const ws=done.map(x=>x.w).filter(x=>x!=null);
       const rs=done.map(x=>x.r);
+      const standard0=(EX[exId]&&EX[exId].o&&EX[exId].o[0])||null;
       return {date:d,sets,unit:it.unit||"",
+        eq:lg[it.key+"-eq"]||standard0,
+        griff:lg[it.key+"-griff"]||null,
         top:ws.length?Math.max(...ws):0,
         minR:rs.length?Math.min(...rs):0,
         maxR:rs.length?Math.max(...rs):0,
@@ -2598,22 +2609,45 @@ function waveHint(it,ath){
 const e1rm=(w,r)=>w*(1+r/30);
 
 /* Bestes geschätztes Maximum: eingetragener Wert oder aus dem Protokoll */
-function bestMax(ath,exId){
-  const ck=ath+"|"+exId;
-  if(_mxCache[ck]!==undefined)return _mxCache[ck];
-  let best=(DB.maxes&&DB.maxes[ath]&&DB.maxes[ath][exId])?+DB.maxes[ath][exId]:0;
-  Object.keys(DB.log).forEach(d=>{
+/* Das Maximum ergibt sich aus den Einträgen, nicht aus einer Zahl im Profil,
+   die irgendwann einmal gestimmt hat. Gerechnet wird aus den letzten vier
+   Monaten – auch aus Mehrfachwiederholungen hochgerechnet, denn wer seit
+   Monaten nur Vierer macht, hat trotzdem ein Maximum.
+   Der Profilwert dient nur als Ausgangspunkt, solange nichts eingetragen ist. */
+const MAX_FENSTER=120;                         // Tage, die zählen
+function maxAusLog(ath,exId,fenster){
+  const grenze=new Date(todayISO()+"T12:00:00");
+  grenze.setDate(grenze.getDate()-(fenster||MAX_FENSTER));
+  const ab=iso(grenze);
+  let best=0, quelle=null;
+  Object.keys(DB.log||{}).forEach(d=>{
+    if(d<ab)return;
     const ses=sessionFor(d,ath); if(ses.k!=="kraft")return;
     const lg=LR(d,ath);
     buildSession(ses,ath,true).forEach(it=>{
       if(it.ex!==exId||it.type!=="lift")return;
+      if(lg[it.key+"-nichtWerten"])return;      // als Ausreißer markiert
       for(let s=1;s<=(it.sets||0)+2;s++){
         if(lg[`${it.key}-x${s}`])continue;
-        const w=parseFloat(lg[`${it.key}-w${s}`]), r=parseInt(lg[`${it.key}-r${s}`],10);
-        if(!isNaN(w)&&!isNaN(r)&&r<=12){const v=e1rm(w,r); if(v>best)best=v;}
+        const roh=parseFloat(lg[`${it.key}-w${s}`]), r=parseInt(lg[`${it.key}-r${s}`],10);
+        const w=istBW(exId)?(isNaN(roh)?(DB.bw[ath]||70):roh+(DB.bw[ath]||70)):roh;
+        if(isNaN(w)||isNaN(r)||r<1||r>12)continue;
+        const v=e1rm(w,r);
+        if(v>best){best=v;quelle={date:d,kg:w,reps:r};}
       }
     });
   });
+  return {best,quelle};
+}
+function bestMax(ath,exId){
+  const ck=ath+"|"+exId;
+  if(_mxCache[ck]!==undefined)return _mxCache[ck];
+  const aus=maxAusLog(ath,exId);
+  let best=aus.best;
+  if(!best){
+    // Noch nichts eingetragen: auf den Profilwert zurückfallen
+    best=(DB.maxes&&DB.maxes[ath]&&DB.maxes[ath][exId])?+DB.maxes[ath][exId]:0;
+  }
   _mxCache[ck]=best;
   return best;
 }
@@ -8269,6 +8303,88 @@ function zeigeBilanzIntern(date,ath){
     <button class="btn" onclick="closeModal()">Schließen</button>`);
 }
 
+/* ─── Rückgang nachfragen ─── */
+/* Ein Rückgang kann vieles heißen. Ohne den Grund rechnet die App falsch
+   weiter: Bei Krankheit soll die Vorgabe mitgehen, bei einem zu leicht
+   gewählten Gewicht nicht. Also wird gefragt, statt geraten. */
+const DROP_GRUENDE=[
+ {id:"krank",   n:"Krank oder angeschlagen", wirkung:"vorgabe",
+  d:"Die Vorgabe geht mit herunter, und der Wiedereinstieg wird angeboten."},
+ {id:"zuleicht",n:"Zu leicht gewählt",       wirkung:"ignorieren",
+  d:"Der Eintrag zählt nicht für das Maximum – du hättest mehr geschafft."},
+ {id:"schwach", n:"War wirklich schwächer",  wirkung:"vorgabe",
+  d:"Die Vorgabe geht mit herunter. Nächste Einheit darauf aufbauen."},
+ {id:"technik", n:"Technik oder Schmerz",    wirkung:"ignorieren",
+  d:"Der Eintrag zählt nicht für das Maximum. Schau, dass die Ursache weggeht."},
+ {id:"muede",   n:"Nur ein schlechter Tag",  wirkung:"ignorieren",
+  d:"Einmal ist keinmal – der Eintrag bleibt stehen, zählt aber nicht als neues Maximum."},
+];
+/* Fällt die beste Hochrechnung dieser Einheit deutlich unter den Stand? */
+function dropPruefen(date,ath){
+  const lg=LR(date,ath);
+  if(lg._dropGefragt)return null;
+  const ses=sessionFor(date,ath);
+  if(ses.k!=="kraft")return null;
+  if(wiederInfo(ath,date))return null;          // in der Phase ist das erwartet
+  let fund=null;
+  buildSession(ses,ath,true).forEach(it=>{
+    if(!it.sch||it.type!=="lift"||fund)return;
+    let heute=0;
+    for(let s=1;s<=(it.sets||0)+2;s++){
+      if(lg[`${it.key}-x${s}`])continue;
+      const roh=parseFloat(lg[`${it.key}-w${s}`]), r=parseInt(lg[`${it.key}-r${s}`],10);
+      const w=istBW(it.ex)?(isNaN(roh)?(DB.bw[ath]||70):roh+(DB.bw[ath]||70)):roh;
+      if(isNaN(w)||isNaN(r)||r<1||r>12)continue;
+      const v=e1rm(w,r); if(v>heute)heute=v;
+    }
+    if(!heute)return;
+    // Stand vor dieser Einheit
+    const vorher=maxAusLog(ath,it.ex);
+    const alt=vorher.quelle&&vorher.quelle.date<date?vorher.best:0;
+    if(alt&&heute<alt*.93)
+      fund={ex:it.ex,name:it.name,alt:Math.round(alt*10)/10,
+            neu:Math.round(heute*10)/10,
+            minus:Math.round((1-heute/alt)*100),key:it.key};
+  });
+  return fund;
+}
+function dropFragen(date,ath){
+  const f=dropPruefen(date,ath);
+  if(!f)return false;
+  showModal(`<h3>${esc(f.name)} ${f.minus} Prozent darunter</h3>
+    <div style="font-size:13px;color:var(--mid);line-height:1.7;margin-bottom:6px">
+      Hochgerechnet ${f.neu} kg statt zuletzt ${f.alt} kg. Woran lag es?</div>
+    <div style="font-size:12px;color:var(--dim);line-height:1.6;margin-bottom:14px">
+      Die Antwort entscheidet, ob die Vorgabe mitgeht oder der Eintrag für das
+      Maximum unberücksichtigt bleibt.</div>
+    ${DROP_GRUENDE.map(g=>`<button class="btn" style="text-align:left;margin-bottom:8px"
+      onclick="dropAntwort('${date}','${ath}','${f.ex}','${f.key}','${g.id}')">
+      <b>${esc(g.n)}</b><br><span style="font-size:11.5px;color:var(--dim)">${esc(g.d)}</span></button>`).join("")}
+    <button class="btn" onclick="dropAntwort('${date}','${ath}','${f.ex}','${f.key}','spaeter')">Später</button>`);
+  return true;
+}
+function dropAntwort(date,ath,exId,key,grundId){
+  const lg=L(date,ath);
+  if(grundId!=="spaeter"){
+    lg._dropGefragt=1;
+    lg[key+"-dropGrund"]=grundId;
+    const g=DROP_GRUENDE.find(x=>x.id===grundId);
+    if(g&&g.wirkung==="ignorieren")lg[key+"-nichtWerten"]=1;
+    saveDay(lg);
+    _mxCache={};
+    if(grundId==="krank"&&!wiederInfo(ath,todayISO())){
+      closeModal();
+      showModal(`<h3>Wiedereinstieg starten?</h3>
+        <p style="font-size:13.5px;color:var(--mid);line-height:1.7;margin-bottom:14px">
+        Zwei Wochen mit weniger Sätzen und etwas weniger Last – danach läuft der Plan normal weiter.</p>
+        <button class="btn btn-go" onclick="wiederStarten('${ath}','der Krankheit',todayISO());closeModal();render();toast('Gestartet')">Ja, starten</button>
+        <button class="btn" onclick="closeModal();render()">Nein</button>`);
+      return;
+    }
+  }
+  closeModal();render();
+}
+
 /* ─── Wiedereinstieg ─── */
 function rWieder(){
   const a=me(), w=(DB.wieder||{})[a], wi=wiederInfo(a,todayISO());
@@ -10439,7 +10555,7 @@ document.getElementById("wnext").onclick=()=>{
     const d=selDate;
     clearInterval(woUhr);
     tEnde(d,woAth);
-    zeigeBilanz(d,woAth);
+    if(!dropFragen(d,woAth))zeigeBilanz(d,woAth);
   }};
 document.getElementById("wsh").onclick=()=>shareDay(selDate);
 document.getElementById("wrs").onclick=wrEnd;
