@@ -1503,7 +1503,7 @@ const ANAME={yuan:"Yuan",yara:"Yara"};
 /* ══════════ SPEICHER ══════════ */
 /* Versionsstand – steht unter Mehr ganz unten. Damit lässt sich prüfen,
    ob auf einem Gerät wirklich die aktuelle Datei läuft. */
-const BUILD={datum:"02.11.2026",nr:147};
+const BUILD={datum:"02.11.2026",nr:148};
 const DEF={
  me:"yuan", start:"2026-10-18", gyms:null, gym:"citygate",
  log:{}, archive:[], checkins:{yuan:{},yara:{}}, protein:{yuan:{},yara:{}},
@@ -3700,7 +3700,7 @@ function renderWO(){
   }
   if(wErg)h+=`<div style="font-size:12px;color:var(--dim);line-height:1.5;margin-top:8px">Zeit als Ziffern tippen: 205 wird zu 2:05.</div>`;
   else if(wwm.lang)h+=`<div style="font-size:12px;color:var(--me);line-height:1.5;margin-top:8px">${wwm.lang}</div>`;
-  const ll=lastLine(woAth,it,selDate,wEq);
+  const ll=lastLine(woAth,it,selDate,wEq)+verlaufBlock(woAth,it,selDate,wEq);
   if(ll)h+=`<div style="margin-top:14px">${ll}</div>`;
   const pr=it.sch?null:progression(woAth,it,selDate,wEq);
   const hint=it.sch?waveHint(it,woAth):(pr?pr.txt:"");
