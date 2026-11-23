@@ -73,6 +73,15 @@ input,textarea,select,button{font-family:inherit}
 }
 
 /* ─── HEADER ─── */
+.wband{display:none;padding:5px 14px 6px;background:rgba(214,169,74,.14);
+  border-bottom:1px solid rgba(214,169,74,.35);font-size:11.5px;color:var(--warn);
+  letter-spacing:.02em;text-align:center}
+.wband.on{display:block}
+.wband b{font-weight:700}
+/* Punkt am Namen, wenn dieser Athlet im Wiedereinstieg ist */
+.whoswitch button.wdot::after{content:"";position:absolute;top:5px;right:6px;
+  width:6px;height:6px;border-radius:50%;background:var(--warn)}
+.whoswitch button{position:relative}
 header{flex:0 0 auto;background:var(--bg);border-bottom:1px solid var(--line);
   padding-top:max(0px,calc(max(env(safe-area-inset-top),48px) + var(--pad-top)));
   margin-top:min(0px,calc(max(env(safe-area-inset-top),48px) + var(--pad-top)))}
@@ -581,6 +590,7 @@ main{flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-b
 </div>
 
 <header>
+  <div class="wband" id="wband"></div>
   <div class="hrow">
     <div class="brand">
       <div class="bn cond">Hybrid</div>
@@ -1486,7 +1496,7 @@ const ANAME={yuan:"Yuan",yara:"Yara"};
 /* ══════════ SPEICHER ══════════ */
 /* Versionsstand – steht unter Mehr ganz unten. Damit lässt sich prüfen,
    ob auf einem Gerät wirklich die aktuelle Datei läuft. */
-const BUILD={datum:"02.11.2026",nr:137};
+const BUILD={datum:"02.11.2026",nr:140};
 const DEF={
  me:"yuan", start:"2026-10-18", gyms:null, gym:"citygate",
  log:{}, archive:[], checkins:{yuan:{},yara:{}}, protein:{yuan:{},yara:{}},
@@ -2685,7 +2695,28 @@ function waveFor(dateStr,sch,slotIx,ath){
 let selDate=todayISO();
 let page="heute", mehrView=null;
 
+/* Streifen in der Kopfzeile und Punkt am Namen – unabhängig davon,
+   welche Seite gerade offen ist. */
+function wBandZeichnen(){
+  const band=document.getElementById("wband");
+  if(band){
+    const wI=wiederInfo(me(),selDate);
+    band.classList.toggle("on",!!wI);
+    if(wI){
+      const ende=new Date(wI.start+"T12:00:00");
+      ende.setDate(ende.getDate()+14);
+      band.innerHTML=`<b>${esc(wI.n)}</b> · Tag ${wI.tag} von 14 · `+
+        `${Math.round(wI.saetze*100)} % Sätze, ${Math.round(wI.last*100)} % Last · `+
+        `normal ab ${ende.toLocaleDateString("de-DE",{day:"numeric",month:"short"})}`;
+    } else band.innerHTML="";
+  }
+  ["yuan","yara"].forEach(a=>{
+    const b2=document.querySelector(`.whoswitch [data-w="${a}"]`);
+    if(b2)b2.classList.toggle("wdot",!!wiederInfo(a,selDate));
+  });
+}
 function renderHead(){
+  wBandZeichnen();
   // Fassungsnummer klein in der Kopfzeile – erspart das Suchen unter Mehr
   const vz=document.getElementById("vbadge");
   if(vz)vz.textContent="v"+BUILD.nr;
@@ -2741,6 +2772,7 @@ function renderHead(){
     b.onclick=()=>{selDate=ds;render();};
     rail.appendChild(b);
   }
+  wBandZeichnen();
   const act=rail.querySelector(".sel");
   if(act)rail.scrollLeft=Math.max(0,act.offsetLeft-110);
   // Sprungleiste: zu heute und zu einem beliebigen Datum
@@ -2801,6 +2833,28 @@ function renderHeute(){
         : ses.circuit ? `Gleicher Zirkel, versetzter Start. Fangt an unterschiedlichen Stationen an, dann blockiert ihr euch nicht.`
         : `Gleiche Hauptübungen, im Wechsel am selben Rack. Danach laufen die Zusatzübungen getrennt.`}</div>
     </div>`;
+  }
+  /* Nach einer längeren Lücke von selbst anbieten – sonst merkt man erst
+     beim ersten zu schweren Satz, dass etwas fehlt. */
+  if(!wiederInfo(ath,selDate)&&selDate===todayISO()){
+    let letzter=null;
+    Object.keys(DB.log||{}).sort().reverse().some(d=>{
+      if(d>todayISO())return false;
+      const lg=(DB.log[d]||{})[ath];
+      if(lg&&Object.keys(lg).some(k=>k!=="_t"&&k!=="_start"&&k!=="_ende"&&lg[k])){letzter=d;return true;}
+      return false;
+    });
+    const luecke=letzter
+      ? Math.floor((new Date(todayISO()+"T12:00:00")-new Date(letzter+"T12:00:00"))/86400000)
+      : 0;
+    if(luecke>=8){
+      h+=`<div class="together" style="border-left-color:var(--warn)">
+        <div class="avat" style="background:rgba(214,169,74,.18);color:var(--warn)">↻</div>
+        <div class="tw"><b>${luecke} Tage ohne Eintrag</b><br>
+        <span style="font-size:11.5px">Nach so einer Pause sind die vollen Vorgaben zu viel. Zwei Wochen Wiedereinstieg mit weniger Sätzen und etwas weniger Last.</span>
+        <button class="opt" style="margin-top:7px" onclick="go('mehr','wieder')">Wiedereinstieg starten</button></div>
+      </div>`;
+    }
   }
   const wiHeute=wiederInfo(ath,selDate);
   if(wiHeute){
@@ -7558,12 +7612,16 @@ function kraftVorschlag(ath,exId){
   if(!L.length)return null;
   const tageHer=Math.round((new Date(todayISO()+"T12:00:00")-new Date(L[0].date+"T12:00:00"))/86400000);
 
-  // Längere Pause: Kraft fällt messbar ab, die Vorgabe muss mit
-  if(tageHer>21){
+  /* Längere Pause: Die Vorgabe wird einmal abgesenkt – gerechnet von dem,
+     was zuletzt tatsächlich geleistet wurde, nicht vom aktuellen Wert.
+     Sonst würde jeder Klick erneut reduzieren, solange die Pause besteht. */
+  if(tageHer>21&&!wiederInfo(ath,todayISO())){
     const wochen=Math.floor((tageHer-14)/7);
-    const neu=RUND(Math.max(aktuell*.85,aktuell*Math.pow(.97,wochen)),2.5);
-    if(neu<aktuell)return {typ:"kraft",ex:exId,von:aktuell,auf:neu,
-      grund:`Letzte Ausführung vor ${tageHer} Tagen. Nach zwei Wochen ohne Reiz fällt die Maximalkraft um etwa drei Prozent je weiterer Woche – steig lieber tiefer ein und arbeite dich in zwei Wochen zurück.`};
+    const basis=Math.max(L[0].e1,aktuell);     // Stand vor der Pause
+    const neu=RUND(Math.max(basis*.85,basis*Math.pow(.97,wochen)),2.5);
+    if(neu<aktuell-0.1)return {typ:"kraft",ex:exId,von:aktuell,auf:neu,
+      grund:`Letzte Ausführung vor ${tageHer} Tagen mit ${Math.round(basis)} kg hochgerechnet. Nach zwei Wochen ohne Reiz fällt die Maximalkraft um etwa drei Prozent je weiterer Woche – einmal tiefer einsteigen und in zwei Wochen zurückarbeiten.`};
+    return null;                               // schon abgesenkt, nichts weiter
   }
 
   const beste=Math.max(...L.map(x=>x.e1));
