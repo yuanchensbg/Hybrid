@@ -184,6 +184,10 @@ main{flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-b
 .sec .sx{color:var(--both);text-transform:none;letter-spacing:0;font-weight:500}
 
 /* ─── GYM BAR ─── */
+/* Hintergrundbild des Studios: fest, abgedunkelt, nie im Weg */
+#gymbg{display:none;position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-repeat:no-repeat;background-position:center;background-size:72% auto;
+  filter:grayscale(.15)}
 .gymbar{display:flex;gap:6px;margin-bottom:14px}
 .gymbar button{flex:1;padding:10px 6px;background:var(--surf);border:1px solid var(--line);border-radius:11px;
   color:var(--mid);font-size:12px;cursor:pointer;line-height:1.3}
@@ -741,6 +745,19 @@ const EQ_ORDER=()=>Object.keys(EQ);
 const GYMS_DEFAULT=[
  {id:"citygate",n:"Speedfit Citygate",s:"Studio",eq:["langhantel","rack","powerrack","multipresse","kurzhantel","kettlebell","sz","trapbar","bank","schraeg","negativbank","predigerbank","beinpresse45","beinpresselin","hack","beinbeugerlieg","beinbeugersitz","beinbeugerknie","beinstrecker","abduktor","adduktor","wadenmaschsteh","wadenmaschsitz","chestpress","chestpressplate","schraegpresse","butterfly","kabelcross","schulterpresse","seithebemasch","trizepsmasch","dip","dipmasch","latzug","latzugeng","kabelturm","kabel","rudermaschsitz","rudermaschbrust","tbar","tbarplate","bizepsmasch","reversebutterfly","klimmzug","assist","hyper","bauchmasch","kapitaen","box","band","medball","slamball","schlingentrainer","battlerope","concept2","assaultbike","stairmaster","laufband","ergometer","liegerad","spinning","crosstrainer","foamroll","matten"]},
  {id:"bernoulli",n:"Speedfit Bernoulli",s:"Studio",eq:["langhantel","rack","multipresse","kurzhantel","kettlebell","sz","bank","schraeg","predigerbank","beinpresse45","hack","beinbeugerlieg","beinstrecker","abduktor","adduktor","wadenmaschsteh","chestpress","butterfly","schulterpresse","trizepsmasch","dip","latzug","kabel","rudermaschsitz","bizepsmasch","klimmzug","assist","hyper","bauchmasch","box","band","concept2","stairmaster","laufband","ergometer","spinning","crosstrainer","foamroll","matten"]},
+ {id:"mygymx",n:"MyGymX",s:"HYROX-Studio",hyrox:1,
+  eq:["langhantel","rack","powerrack","multipresse","kurzhantel","kettlebell","sz","trapbar",
+      "bank","schraeg","negativbank","predigerbank",
+      "beinpresse45","beinpresselin","hack","pendelsquat",
+      "beinbeugerlieg","beinbeugersitz","beinbeugerknie","beinstrecker","abduktor","adduktor",
+      "wadenmaschsteh","wadenmaschsitz",
+      "chestpress","chestpressplate","schraegpresse","butterfly","kabelcross","schulterpresse",
+      "seithebemasch","trizepsmasch","dip","dipmasch",
+      "latzug","latzugeng","kabelturm","kabel","rudermaschsitz","rudermaschbrust","tbar","tbarplate",
+      "bizepsmasch","reversebutterfly","klimmzug","assist","hyper","bauchmasch","kapitaen",
+      "skierg","schlitten","sled","wallball","sandbag","medball","slamball","farmer",
+      "box","band","schlingentrainer","battlerope","concept2","assaultbike","stairmaster",
+      "laufband","ergometer","crosstrainer","foamroll","matten"]},
  {id:"home",n:"Homegym",s:"Zuhause",eq:["langhantel","rack","kurzhantel","kettlebell","bank","schraeg","klimmzug","band","box","medball","matten","foamroll"]}
 ];
 
@@ -1503,7 +1520,7 @@ const ANAME={yuan:"Yuan",yara:"Yara"};
 /* ══════════ SPEICHER ══════════ */
 /* Versionsstand – steht unter Mehr ganz unten. Damit lässt sich prüfen,
    ob auf einem Gerät wirklich die aktuelle Datei läuft. */
-const BUILD={datum:"02.11.2026",nr:148};
+const BUILD={datum:"02.11.2026",nr:157};
 const DEF={
  me:"yuan", start:"2026-10-18", gyms:null, gym:"citygate",
  log:{}, archive:[], checkins:{yuan:{},yara:{}}, protein:{yuan:{},yara:{}},
@@ -1534,6 +1551,19 @@ let DB=Object.assign({},DEF);
   }
 })();
 if(!DB.gyms)DB.gyms=JSON.parse(JSON.stringify(GYMS_DEFAULT));
+/* Neue Studios aus der Vorgabe nachtragen. Die gespeicherte Liste wird
+   sonst nie erweitert, und ein später ergänztes Studio bliebe unsichtbar.
+   Eigene Änderungen an bestehenden Studios bleiben unangetastet. */
+GYMS_DEFAULT.forEach(vorgabe=>{
+  const da=DB.gyms.find(g=>g.id===vorgabe.id);
+  if(!da){
+    DB.gyms.push(JSON.parse(JSON.stringify(vorgabe)));
+    return;
+  }
+  // Kennzeichen nachziehen, falls es erst später dazukam
+  if(vorgabe.hyrox&&!da.hyrox)da.hyrox=1;
+  if(vorgabe.s&&!da.s)da.s=vorgabe.s;
+});
 if(!DB.zones)DB.zones=JSON.parse(JSON.stringify(ZONES));
 if(!DB.checkins)DB.checkins={yuan:{},yara:{}};
 let _mxCache={};
@@ -2007,7 +2037,10 @@ function paceTxt(ath,zone){
 }
 
 /* ══════════ GYM / AUSRÜSTUNG ══════════ */
-const curGym=()=>DB.gyms.find(g=>g.id===DB.gym)||DB.gyms[0];
+/* Ausgeblendete Studios bleiben in den Daten, verschwinden aber aus der
+   Auswahl – alte Einträge sollen ihr Gerät behalten. */
+const gymsSichtbar=()=>DB.gyms.filter(g=>!g.aus);
+const curGym=()=>DB.gyms.find(g=>g.id===DB.gym)||gymsSichtbar()[0]||DB.gyms[0];
 const eqLabel=t=>EQ[t]||(DB.customEq&&DB.customEq[t])||t;
 const hasEq=(t,g)=>!t||(g||curGym()).eq.includes(t);
 /* Griffvarianten: bei Zug- und Druckübungen entscheidet der Griff mit,
@@ -2128,7 +2161,7 @@ function gymScore(ses,ath,g){
 }
 function bestGym(ses,ath){
   // Bei Gleichstand gewinnt das aktuell gewählte Gym, danach das mit mehr Auswahl
-  return DB.gyms.map(g=>({g,...gymScore(ses,ath,g)}))
+  return gymsSichtbar().map(g=>({g,...gymScore(ses,ath,g)}))
     .sort((a,b)=>b.pts-a.pts
       ||(b.g.id===DB.gym)-(a.g.id===DB.gym)
       ||b.g.eq.length-a.g.eq.length);
@@ -2597,14 +2630,17 @@ function wannText(von,bis){
     :dt.toLocaleDateString("de-DE",{day:"numeric",month:"short"});
 }
 /* Block mit Verlaufskurve für das gewählte Gerät */
-function verlaufBlock(ath,it,date,eq){
+function verlaufBlock(ath,it,date,eq,griff){
   if(it.unit||!eq)return "";
-  const v=verlaufAn(ath,it.ex,date,eq,10);
+  const hatGriff=(griffeOf(it.ex)||[]).length>0;
+  const g=hatGriff?(griff||(griffeOf(it.ex)||[])[0]):null;
+  const bez=eqLabel(eq)+(g?" · "+(GRIFFE[g]||g):"");
+  const v=verlaufAn(ath,it.ex,date,eq,10,g);
   if(v.length>=2){
     const erst=v[0], letzt=v[v.length-1];
     const d=letzt.kg-erst.kg;
     return `<div class="vwrap">
-      <div class="vhead"><span>Verlauf an ${esc(eqLabel(eq))}</span>
+      <div class="vhead"><span>Verlauf · ${esc(bez)}</span>
         <span class="vd" style="color:${d>0?"var(--ok)":d<0?"var(--warn)":"var(--dim)"}">${
           d>0?"+":""}${d.toLocaleString("de-DE")} kg über ${v.length} Einheiten</span></div>
       ${verlaufBild(v,"var(--me)")}
@@ -2613,22 +2649,23 @@ function verlaufBlock(ath,it,date,eq){
     </div>`;
   }
   if(v.length===1){
-    return `<div class="vwrap"><div class="vhead"><span>An ${esc(eqLabel(eq))}</span>
+    return `<div class="vwrap"><div class="vhead"><span>${esc(bez)}</span>
       <span class="vd">erst einmal eingetragen</span></div>
       <div class="vleer">${v[0].kg.toLocaleString("de-DE")} kg × ${v[0].reps} am ${
         new Date(v[0].date+"T12:00:00").toLocaleDateString("de-DE")} – ab der zweiten Einheit zeigt die App den Verlauf.</div></div>`;
   }
-  const e=erwartetAn(ath,it.ex,date,eq);
-  return `<div class="vwrap"><div class="vhead"><span>An ${esc(eqLabel(eq))}</span>
+  const e=erwartetAn(ath,it.ex,date,eq,g);
+  return `<div class="vwrap"><div class="vhead"><span>${esc(bez)}</span>
     <span class="vd">noch nichts eingetragen</span></div>
     <div class="vleer">${e
-      ? `Zu erwarten wären etwa <b style="color:var(--me)">${e.kg.toLocaleString("de-DE")} kg</b>, abgeleitet aus ${e.aus.kg.toLocaleString("de-DE")} kg an ${esc(eqLabel(e.aus.eq))}.${
+      ? `Zu erwarten wären etwa <b style="color:var(--me)">${e.kg.toLocaleString("de-DE")} kg</b>, abgeleitet aus ${e.aus.kg.toLocaleString("de-DE")} kg an ${esc(eqLabel(e.aus.eq))}${
+          e.aus.griff?" ("+esc(GRIFFE[e.aus.griff]||e.aus.griff)+")":""}.${
           e.grob?" Die Umrechnung ist grob – nimm sie nur als Startpunkt.":" Tastend anfangen und nach dem ersten Satz nachjustieren."}`
       : "Noch keine Daten zu dieser Übung. Such ein Gewicht, bei dem die Zielwiederholungen gerade noch sauber gehen."}</div></div>`;
 }
 
 /* Alle Ausführungen einer Übung an einem bestimmten Gerät, älteste zuerst */
-function verlaufAn(ath,exId,bisDatum,eq,anzahl){
+function verlaufAn(ath,exId,bisDatum,eq,anzahl,griff){
   const out=[];
   Object.keys(DB.log||{}).sort().forEach(d=>{
     if(d>=bisDatum)return;
@@ -2639,6 +2676,14 @@ function verlaufAn(ath,exId,bisDatum,eq,anzahl){
       const standard=(EX[exId]&&EX[exId].o&&EX[exId].o[0])||null;
       const damals=lg[it.key+"-eq"]||standard;
       if(eq&&damals!==eq)return;
+      /* Der Griff verändert die Last erheblich – breit und eng beim
+         Bankdrücken liegen leicht zehn Prozent auseinander. Also eigener
+         Strang je Griff, sonst springt die Kurve ohne Grund. */
+      if(griff){
+        const gStd=(griffeOf(exId)||[])[0]||null;
+        const gDamals=lg[it.key+"-griff"]||gStd;
+        if(gDamals!==griff)return;
+      }
       let top=0, reps=0, saetze=0;
       for(let s=1;s<=(it.sets||0)+2;s++){
         if(lg[`${it.key}-x${s}`])continue;
@@ -2647,7 +2692,8 @@ function verlaufAn(ath,exId,bisDatum,eq,anzahl){
         saetze++;
         if(w>top){top=w;reps=r;}
       }
-      if(top)out.push({date:d,kg:top,reps,saetze,eq:damals});
+      if(top)out.push({date:d,kg:top,reps,saetze,eq:damals,
+        griff:lg[it.key+"-griff"]||((griffeOf(exId)||[])[0]||null)});
     });
   });
   return anzahl?out.slice(-anzahl):out;
@@ -2683,13 +2729,20 @@ function verlaufBild(punkte,farbe){
    als Vorgabe. */
 const EQ_FAKTOR={langhantel:1, multipresse:1.05, smith:1.05, chestpress:.95,
   kurzhantel:.42, kabel:.9, maschine:.95, kabelturm:.9, sz:.8};
-function erwartetAn(ath,exId,bisDatum,eqZiel){
+/* Griffbreite verändert Hebel und Weg: eng fordert den Trizeps allein,
+   breit verkürzt den Weg. Die Werte sind Erfahrungswerte, keine Messung. */
+const GRIFF_FAKTOR={breit:1, schulter:.95, eng:.88, einarm:1, neutral:.97,
+  ober:1, unter:.95, kammgriff:.97};
+function erwartetAn(ath,exId,bisDatum,eqZiel,griffZiel){
   const alle=verlaufAn(ath,exId,bisDatum,null,0);
   if(!alle.length)return null;
   const letzte=alle[alle.length-1];
   const fVon=EQ_FAKTOR[letzte.eq]||1, fZu=EQ_FAKTOR[eqZiel]||1;
-  const roh=letzte.kg/fVon*fZu;
-  return {kg:Math.round(roh/2.5)*2.5, aus:letzte, grob:!(EQ_FAKTOR[letzte.eq]&&EQ_FAKTOR[eqZiel])};
+  const gVon=GRIFF_FAKTOR[letzte.griff]||1, gZu=GRIFF_FAKTOR[griffZiel]||1;
+  const roh=letzte.kg/fVon*fZu/gVon*gZu;
+  const bekannt=(EQ_FAKTOR[letzte.eq]&&EQ_FAKTOR[eqZiel]);
+  return {kg:Math.round(roh/2.5)*2.5, aus:letzte, grob:!bekannt,
+    griffWechsel:(letzte.griff&&griffZiel&&letzte.griff!==griffZiel)};
 }
 
 function lastLine(ath,it,date,eqJetzt){
@@ -2853,7 +2906,24 @@ let page="heute", mehrView=null;
 
 /* Streifen in der Kopfzeile und Punkt am Namen – unabhängig davon,
    welche Seite gerade offen ist. */
+/* Hintergrundbild des gewählten Studios, falls eines hinterlegt ist */
+function gymBildZeichnen(){
+  const g=curGym();
+  let bg=document.getElementById("gymbg");
+  if(!bg&&document.body){
+    bg=document.createElement("div");
+    bg.id="gymbg";
+    document.body.appendChild(bg);
+  }
+  if(!bg)return;
+  if(g&&g.bild){
+    bg.style.backgroundImage=`url("${g.bild}")`;
+    bg.style.opacity=String((g.bildAlpha||6)/100);
+    bg.style.display="block";
+  } else bg.style.display="none";
+}
 function wBandZeichnen(){
+  gymBildZeichnen();
   const band=document.getElementById("wband");
   if(band){
     const wI=wiederInfo(me(),selDate);
@@ -3308,7 +3378,7 @@ function exCard(it,ath,lg,ses){
 
   if(it.type==="lift"||it.type==="circuit"){
     h+=`<div class="trk">`;
-    const ll=lastLine(ath,it,selDate,selEq)+verlaufBlock(ath,it,selDate,selEq);
+    const ll=lastLine(ath,it,selDate,selEq)+verlaufBlock(ath,it,selDate,selEq,lg[k+"-griff"]);
     if(ll)h+=ll;
     if(it.sch){
       h+=`<div class="hintl">${waveHint(it,ath)}</div>`;
@@ -3700,7 +3770,7 @@ function renderWO(){
   }
   if(wErg)h+=`<div style="font-size:12px;color:var(--dim);line-height:1.5;margin-top:8px">Zeit als Ziffern tippen: 205 wird zu 2:05.</div>`;
   else if(wwm.lang)h+=`<div style="font-size:12px;color:var(--me);line-height:1.5;margin-top:8px">${wwm.lang}</div>`;
-  const ll=lastLine(woAth,it,selDate,wEq)+verlaufBlock(woAth,it,selDate,wEq);
+  const ll=lastLine(woAth,it,selDate,wEq)+verlaufBlock(woAth,it,selDate,wEq,lg[it.key+"-griff"]);
   if(ll)h+=`<div style="margin-top:14px">${ll}</div>`;
   const pr=it.sch?null:progression(woAth,it,selDate,wEq);
   const hint=it.sch?waveHint(it,woAth):(pr?pr.txt:"");
@@ -4254,8 +4324,31 @@ function dayText(date,who){
   const parts=list.map(a=>{
     const r=reportDay(date,a);
     if(!r)return "";
+    /* Laufende Besonderheiten voranstellen – ohne sie lassen sich die Zahlen
+       von außen nicht richtig einordnen. */
+    const zusatz=[];
+    const wi=wiederInfo(a,date);
+    if(wi)zusatz.push(`Wiedereinstieg ${wi.n}, Tag ${wi.tag} von 14`+
+      (wi.grund?` nach ${wi.grund}`:"")+
+      ` · ${Math.round(wi.saetze*100)} % Sätze, ${Math.round(wi.last*100)} % Last`);
+    const tr=travelInfo(a,date);
+    if(tr)zusatz.push(`Auf Reise: ${tr.n}`);
+    const bel=belastung(a);
+    if(bel&&bel.stufe!=="gruen")zusatz.push(
+      `Belastung ${bel.stufe==="rot"?"rot":"gelb"}: ${bel.flags.map(f=>f.t).join(", ")}`);
+    const ci=(DB.checkins[a]||{})[date];
+    if(ci&&(ci.sleep||ci.energy||ci.sore||ci.rhr||ci.krank)){
+      const c=[];
+      if(ci.rhr)c.push(`Ruhepuls ${ci.rhr}`);
+      if(ci.sleep)c.push(`Schlaf ${ci.sleep}/5`);
+      if(ci.energy)c.push(`Energie ${ci.energy}/5`);
+      if(ci.sore)c.push(`Muskelkater ${ci.sore}/5`);
+      if(ci.krank)c.push("angeschlagen");
+      zusatz.push("Check-in: "+c.join(", "));
+    }
     // Name voranstellen, damit erkennbar bleibt, wessen Zahlen das sind
-    return ANAME[a].toUpperCase()+"\n"+r;
+    return ANAME[a].toUpperCase()+"\n"+
+      (zusatz.length?zusatz.map(z=>"  ["+z+"]").join("\n")+"\n":"")+r;
   }).filter(Boolean);
   if(!parts.length)return "";
   return "Training "+head+"\n\n"+parts.join("\n\n");
@@ -5214,7 +5307,8 @@ function rGyms(){
     Markiere, was tatsächlich dasteht. Fehlt ein Gerät für eine geplante Übung, schlägt die App
     im Plan eine Alternative vor und empfiehlt dir das Gym, in dem die Einheit am besten läuft.</div>
     <div class="gymbar">`;
-  DB.gyms.forEach(x=>h+=`<button class="${x.id===DB.gym?"on":""}" data-g="${x.id}">${esc(x.n.replace("Speedfit ","SF "))}<span class="gl">${x.eq.length} Geräte</span></button>`);
+  gymsSichtbar().forEach(x=>h+=`<button class="${x.id===DB.gym?"on":""}" data-g="${x.id}">${
+    esc(x.n.replace("Speedfit ","SF "))}<span class="gl">${x.eq.length} Geräte</span></button>`);
   h+=`</div>
     <div class="card">
       <div class="lbl">Name</div>
@@ -5284,6 +5378,35 @@ function rGyms(){
       Üblich sind 20 kg für die Langhantel, 10 für die SZ-Stange, 25 für die Trap-Bar.
       Kurze Heimstangen wiegen oft 15 kg, manche Studiostangen 15 oder 25.</div>
     </div>
+    <div class="sec">Hintergrundbild</div>
+    <div class="card">
+      <div style="font-size:12.5px;color:var(--mid);line-height:1.65;margin-bottom:11px">
+      Ein eigenes Bild, das abgedunkelt hinter der App liegt, solange dieses Studio
+      gewählt ist. Bleibt auf diesem Gerät und wird nicht abgeglichen.</div>
+      ${g.bild?`<div style="position:relative;border-radius:12px;overflow:hidden;
+        background:#000;margin-bottom:11px;height:92px">
+        <img src="${g.bild}" style="width:100%;height:100%;object-fit:contain;opacity:.55">
+      </div>`:""}
+      <label class="btn" style="display:block;text-align:center;cursor:pointer;margin:0">
+        ${g.bild?"Bild ersetzen":"Bild auswählen"}
+        <input type="file" id="gbild" accept="image/*" style="display:none">
+      </label>
+      ${g.bild?`<button class="btn btn-r" id="gbildweg" style="margin:8px 0 0">Bild entfernen</button>`:""}
+      <div class="erow" style="margin-top:12px"><span class="elbl" style="flex:1;width:auto">Deckkraft</span>
+        <div class="opts" style="flex:0 0 auto">
+          ${[3,6,10,16].map(p=>`<button class="opt${(g.bildAlpha||6)===p?" sel":""}" data-balpha="${p}">${p} %</button>`).join("")}
+        </div></div>
+    </div>
+    <div class="sec">Sichtbarkeit</div>
+    <div class="card">
+      <div style="font-size:12.5px;color:var(--mid);line-height:1.65;margin-bottom:11px">
+      Ausgeblendete Studios verschwinden aus der Auswahl. Eingetragene Trainings behalten
+      ihr Gerät – es geht nichts verloren.</div>
+      ${DB.gyms.map(x=>`<div class="erow">
+        <span class="elbl" style="flex:1;width:auto">${esc(x.n)}</span>
+        <button class="opt${x.aus?"":" sel"}" data-gvis="${x.id}" style="flex:0 0 auto;min-width:78px">${x.aus?"Aus":"Sichtbar"}</button>
+      </div>`).join("")}
+    </div>
     <div style="height:16px"></div>
     <button class="btn" id="gcopy">Geräteliste als Text kopieren</button>
     <button class="btn" id="gwa">Geräteliste an WhatsApp</button>
@@ -5291,6 +5414,31 @@ function rGyms(){
     <button class="btn" id="gnone">Alle abwählen</button>`;
   document.getElementById("p-mehr").innerHTML=h;
   document.querySelectorAll("[data-g]").forEach(b=>b.onclick=()=>{DB.gym=b.dataset.g;save();rGyms();scrollTop();});
+  document.getElementById("gbild")?.addEventListener("change",async e=>{
+    const f=e.target.files&&e.target.files[0];
+    if(!f)return;
+    if(f.size>1800000){toast("Bild zu groß – unter 1,5 MB wählen");return;}
+    try{
+      const datenUrl=await new Promise((res,rej)=>{
+        const r=new FileReader();
+        r.onload=()=>res(r.result); r.onerror=rej; r.readAsDataURL(f);
+      });
+      g.bild=datenUrl;
+      if(!g.bildAlpha)g.bildAlpha=6;
+      save();rGyms();render();toast("Bild gesetzt");
+    }catch(err){toast("Konnte nicht gelesen werden");}
+  });
+  document.getElementById("gbildweg")?.addEventListener("click",()=>{
+    delete g.bild;save();rGyms();render();toast("Entfernt");});
+  document.querySelectorAll("[data-balpha]").forEach(b=>b.onclick=()=>{
+    g.bildAlpha=+b.dataset.balpha;save();rGyms();render();});
+  document.querySelectorAll("[data-gvis]").forEach(b=>b.onclick=()=>{
+    const x=DB.gyms.find(y=>y.id===b.dataset.gvis);
+    if(!x)return;
+    if(!x.aus&&gymsSichtbar().length<=1){toast("Mindestens ein Studio muss sichtbar bleiben");return;}
+    x.aus=!x.aus;
+    if(x.aus&&DB.gym===x.id)DB.gym=(gymsSichtbar()[0]||{}).id;
+    save();rGyms();render();});
   document.querySelectorAll("[data-plate]").forEach(b=>b.onclick=()=>{
     const p=parseFloat(b.dataset.plate);
     const akt=(g.plates&&g.plates.length?g.plates.slice():PLATTEN_STD.slice());
