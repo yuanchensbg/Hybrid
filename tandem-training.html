@@ -121,6 +121,14 @@ header{flex:0 0 auto;background:var(--bg);border-bottom:1px solid var(--line);
 .rtile .rd{font-size:9.5px;color:var(--dim);letter-spacing:.06em;text-transform:uppercase}
 .rtile .rn{font-size:17px;font-weight:700;line-height:1}
 .rtile .rk{font-size:9px;color:var(--mid);line-height:1.1;text-align:center}
+/* Wiedereinstieg: die Tage sind durchgehend getönt, Woche 1 kräftiger als
+   Woche 2 – und der letzte Tag bekommt eine Kante, damit man sieht, ab wann
+   der Plan wieder normal läuft. */
+.rtile.wieder{border-color:var(--warn)}
+.rtile.wieder .cyc{color:var(--warn);font-weight:700}
+.rtile.wieder.w1{background:rgba(214,169,74,.16)}
+.rtile.wieder.w2{background:rgba(214,169,74,.08)}
+.rtile.wieder-ende{border-right:3px solid var(--warn)}
 .rtile.today{border-color:var(--me);background:var(--me-soft)}
 .rtile.today .rn{color:var(--me)}
 .rtile.sel{border-color:var(--ink)}
@@ -368,6 +376,7 @@ main{flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-b
 #player.on{display:block}
 #player.mini{width:48px;height:48px;border-radius:50%}
 #player.open{width:252px;height:auto;border-radius:18px}
+#player.weg{opacity:0;pointer-events:none}
 #player.gross{width:300px}
 #player.gross img{width:62px;height:62px;border-radius:11px}
 #player.gross .pt1{font-size:14.5px}
@@ -441,8 +450,12 @@ main{flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-b
 .wnav button{flex:1;padding:14px;border-radius:12px;border:1px solid var(--line);background:var(--surf);
   color:var(--ink);font-size:15px;font-weight:500;cursor:pointer}
 .wnav button.main{flex:2;background:var(--me);border-color:var(--me);color:#0E1116;font-weight:650}
-.wrest{position:absolute;inset:0;background:rgba(14,17,22,.97);display:none;flex-direction:column;
-  align-items:center;justify-content:center;z-index:5}
+/* Fest am Bildschirm verankert, nicht am Inhalt: Bei langen Übungsseiten
+   rutschte die Zeit sonst über den oberen Rand hinaus. */
+.wrest{position:fixed;inset:0;background:rgba(14,17,22,.97);display:none;flex-direction:column;
+  align-items:center;justify-content:center;z-index:60;
+  padding:max(18px,env(safe-area-inset-top)) 18px max(18px,env(safe-area-inset-bottom));
+  overflow-y:auto}
 .wrest.on{display:flex}
 .wrest .rl{font-size:12.5px;color:var(--mid);margin-bottom:8px}
 .wrest .rt{font-size:72px;font-weight:700;line-height:1;color:var(--ok);cursor:pointer;
@@ -459,7 +472,7 @@ main{flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-b
   background:transparent;border:none;color:var(--dim);font-size:19px;cursor:pointer}
 .wrest .rmin:active{color:var(--me)}
 /* Verkleinert: schwebende Pille, frei verschiebbar, Rest der Seite bedienbar */
-.wrest.mini{position:fixed;inset:auto;width:auto;background:none;display:block;z-index:180;
+.wrest.mini{position:fixed;padding:0;overflow:visible;position:fixed;inset:auto;width:auto;background:none;display:block;z-index:180;
   touch-action:none}
 .wrest.mini .rl,.wrest.mini .rb,.wrest.mini .rmin{display:none}
 .wrest.mini .rt{font-size:19px;font-weight:700;color:var(--ok);background:var(--surf2);
@@ -1473,7 +1486,7 @@ const ANAME={yuan:"Yuan",yara:"Yara"};
 /* ══════════ SPEICHER ══════════ */
 /* Versionsstand – steht unter Mehr ganz unten. Damit lässt sich prüfen,
    ob auf einem Gerät wirklich die aktuelle Datei läuft. */
-const BUILD={datum:"02.11.2026",nr:131};
+const BUILD={datum:"02.11.2026",nr:137};
 const DEF={
  me:"yuan", start:"2026-10-18", gyms:null, gym:"citygate",
  log:{}, archive:[], checkins:{yuan:{},yara:{}}, protein:{yuan:{},yara:{}},
@@ -1830,7 +1843,7 @@ function slotCount(slotIx,dateStr,ath){
 }
 const PRESTART={k:"rest",n:"Noch nicht gestartet",note:"Der Zyklus beginnt später",
  why:"<b>Dieser Tag liegt vor dem Zyklusstart.</b> Bis dahin gibt es keinen Plan – wenn du früher loslegen willst, verschieb das Startdatum unter Mehr → Zyklus & Ruhetage nach vorn."};
-function sessionFor(dateStr,ath,ohneShift){
+function sessionForBasis(dateStr,ath,ohneShift){
   ath=ath||me();
   if(dayNum(dateStr)<0)return {...PRESTART,fixed:1,slot:-1,date:dateStr,cyc:0,pre:1,ath};
   const sh=ohneShift?null:shiftOf(ath,dateStr);
@@ -2163,7 +2176,8 @@ function buildSession(ses,ath,raw,modeArg){
   if(ses.run){
     const z=ses.run.zone;
     if(ses.run.isLong){
-      const km=longRun(ath,ses.date);
+      let km=longRun(ath,ses.date);
+      if(ses.kuerzer)km=Math.max(5,Math.round(km*ses.kuerzer));   // Wiedereinstieg
       const rr=raceInfo(ath,ses.date);
       if(rr&&!rr.past&&ses.whyRace&&!ses.why.includes("nicht weiter wächst"))
         ses={...ses,why:ses.why+ses.whyRace};
@@ -2271,9 +2285,15 @@ function buildSession(ses,ath,raw,modeArg){
         sets=setsFor(wave.s,mode,true); rep=wave.r;
         if(!raw){const mx=bestMax(ath,exId); if(mx)target=round25(mx*wave.pct);}
       }
+      // Nach einer Pause: weniger Sätze, etwas weniger Last, mehr Reserve
+      const wi=wiederInfo(ath,ses.date);
+      if(wi){
+        sets=Math.max(2,Math.round(sets*wi.saetze));
+        if(target)target=round25(target*wi.last);
+      }
       out.push({key:"C"+i,type:"lift",ex:exId,orig:it.e,name:x.n,lead:!!it.sch,unit:it.unit||"",
-        rpe:it.rpe||(wave?rpeFromPct(wave.pct,rep,sets):(it.unit?0:8)),
-        sets,rep,pause:it.p||"1:30",how:exId,
+        rpe:Math.max(5,(it.rpe||(wave?rpeFromPct(wave.pct,rep,sets):(it.unit?0:8)))-(wi?wi.rpeAb:0)),
+        sets,rep,pause:it.p||"1:30",how:exId,wieder:wi?wi.woche:0,
         sch:it.sch,wave,target,pct:wave?wave.pct:0});
     });
     if(ses.warm&&WARM[ses.warm])
@@ -2643,6 +2663,10 @@ function waveForLift(dateStr,sch,ath,exId){
   const n=roh+waveOffset(ath,exId);
   const W=(hyp?WAVE_HYP:WAVE);
   let i=((n%W.length)+W.length)%W.length;
+  /* Im Wiedereinstieg keine Spitze: Nach einer Pause ist der neuronale
+     Anteil der Kraft noch nicht zurück, und genau den fordert sie. */
+  const wiW=wiederInfo(ath,dateStr);
+  if(wiW&&i>=2)i=0;
   /* Eine Entlastung ergibt erst Sinn, wenn vorher genug Ermüdung entstanden
      ist. Durch einen Wellenversatz kann sie sonst schon nach zwei schweren
      Einheiten fallen – dann fehlt der Reiz, den sie abbauen soll.
@@ -2674,7 +2698,11 @@ function renderHead(){
     ? `Start am ${new Date(DB.start+"T12:00:00").toLocaleDateString("de-DE",{day:"numeric",month:"long"})}`
     : (()=>{
       const r=raceInfo(me(),selDate);
-      const tail=(r&&!r.past)?`${r.r.name} in ${r.weeks} Wo`:`Block ${bi.block}, Woche ${bi.week} von ${bi.total}`;
+      const wk=wiederInfo(me(),selDate);
+      // Im Wiedereinstieg zählt der Rückweg, nicht der Block
+      const tail=wk
+        ? `Wiedereinstieg · Tag ${wk.tag} von 14`
+        : (r&&!r.past)?`${r.r.name} in ${r.weeks} Wo`:`Block ${bi.block}, Woche ${bi.week} von ${bi.total}`;
       return c.mode!=="roll"
         ? `${WDL[d.getDay()]} · ${tail}`
         : (s.cyc?`Tag ${s.cyc} von ${rollPlanOf(me()).length} · `:"")+tail;
@@ -2701,11 +2729,15 @@ function renderHead(){
     const vergangen=ds<todayISO();
     const eintrag=vergangen&&((DB.log[ds]||{})[me()])&&
       Object.keys((DB.log[ds]||{})[me()]).some(k=>k!=="_t");
+    const wiTag=wiederInfo(me(),ds);
+    const wiEnde=wiTag&&wiTag.tag===14;        // letzter Tag der Phase
     b.className="rtile"+(ds===todayISO()?" today":"")+(ds===selDate?" sel":"")
-      +(ss.k==="rest"?" rest":" dual")+(vergangen?" past":"")+(eintrag?" filled":"");
+      +(ss.k==="rest"?" rest":" dual")+(vergangen?" past":"")+(eintrag?" filled":"")
+      +(wiTag?" wieder w"+wiTag.woche:"")+(wiEnde?" wieder-ende":"");
     const short={kraft:"Kraft",lauf:"Lauf",hybrid:"Hybrid",rest:"Frei"}[ss.k];
-    b.innerHTML=`<span class="cyc num">${ss.cyc}</span><span class="rd">${WD[dt.getDay()]}</span>
+    b.innerHTML=`<span class="cyc num">${wiTag?"W"+wiTag.woche:ss.cyc}</span><span class="rd">${WD[dt.getDay()]}</span>
       <span class="rn num">${dt.getDate()}</span><span class="rk">${short}</span>`;
+    if(wiTag)b.title=wiTag.n+" · Tag "+wiTag.tag+" von 14";
     b.onclick=()=>{selDate=ds;render();};
     rail.appendChild(b);
   }
@@ -2768,6 +2800,15 @@ function renderHeute(){
         ? `Ihr lauft dieselbe Einheit, nur in eurem jeweiligen Tempo. <b>${paceTxt("yuan",ses.run?ses.run.zone:"esy")}</b> und <b>${paceTxt("yara",ses.run?ses.run.zone:"esy")}</b> pro Kilometer.`
         : ses.circuit ? `Gleicher Zirkel, versetzter Start. Fangt an unterschiedlichen Stationen an, dann blockiert ihr euch nicht.`
         : `Gleiche Hauptübungen, im Wechsel am selben Rack. Danach laufen die Zusatzübungen getrennt.`}</div>
+    </div>`;
+  }
+  const wiHeute=wiederInfo(ath,selDate);
+  if(wiHeute){
+    h+=`<div class="together" style="border-left-color:var(--warn)">
+      <div class="avat" style="background:rgba(214,169,74,.18);color:var(--warn)">↻</div>
+      <div class="tw"><b>${esc(wiHeute.n)}</b> · Tag ${wiHeute.tag} von 14<br>
+      <span style="font-size:11.5px">${Math.round(wiHeute.saetze*100)} % der Sätze · ${Math.round(wiHeute.last*100)} % der Last · ${wiHeute.rpeAb} RPE weniger</span>
+      <button class="opt" style="margin-top:7px" onclick="go('mehr','wieder')">Ansehen</button></div>
     </div>`;
   }
   const bel=belastung(ath);
@@ -3571,6 +3612,8 @@ function woRest(p){
   wrTotal=secs;wrHalf=false;wrSaid=0;wrBeeped=false;
   DB.wrEnd=wrEndAt;save(true);
   document.getElementById("wrest").classList.add("on");
+  // Musikknopf würde sonst die Knopfzeile der Pausenanzeige überlagern
+  if(PL())PL().classList.add("weg");
   keepAliveStart();
   if(DB.cueOff!==true)beepStart();
   wrPaint();
@@ -3668,6 +3711,8 @@ function wrDragInit(){
 }
 function wrEnd(){
   clearInterval(wrId);wrId=null;wrEndAt=0;wrBeeped=false;wrHalf=false;wrSaid=0;
+  PL()&&PL().classList.remove("weg");
+  if(PL())PL().classList.remove("weg");
   keepAliveStop();
   wrSetMini(false);
   if(window.speechSynthesis){try{speechSynthesis.cancel();}catch(e){}}
@@ -3938,13 +3983,24 @@ function reportDay(date,ath){
         if(extra.length)parts.push("· "+extra.join(", "));
         if(g.runden&&g.runden.length>1){
           const pz=s=>Math.floor(s/60)+":"+String(Math.round(s%60)).padStart(2,"0");
-          parts.push("\n    Runden: "+g.runden.map(r=>
-            `${r.nr}. ${pz(r.sek/Math.max(.1,r.km))}${r.hr?" @"+r.hr:""}`).join(" · "));
+          parts.push("\n    Runden: "+g.runden.map(r=>{
+            const km=r.km>100?r.km/1000:r.km;      // je nach Quelle Meter oder km
+            return `${r.nr}. ${pz(r.sek/Math.max(.1,km))}${r.hr?" @"+r.hr:""}`;
+          }).join(" · "));
         }
         if(g.messpunkte&&g.messpunkte.length>3){
-          parts.push("\n    Alle Messpunkte (Sekunde, km, Puls, Tempo m/s, Höhe, Frequenz):\n    "+
-            g.messpunkte.map(p=>[p.sek,p.km,p.hr,p.tempo,p.hoehe,p.frequenz]
-              .map(v=>v==null?"":v).join(",")).join("\n    "));
+          // Tempo als Pace ausgeben – Meter pro Sekunde sagt niemandem etwas
+          const alsPace=v=>{
+            if(typeof v!=="number"||v<0.4)return "";
+            const s=Math.round(1000/v);
+            return Math.floor(s/60)+":"+String(s%60).padStart(2,"0");
+          };
+          parts.push("\n    Alle Messpunkte (Zeit, km, Puls, Pace/km, Höhe, Frequenz):\n    "+
+            g.messpunkte.map(p=>[
+              (p.sek!=null?Math.floor(p.sek/60)+":"+String(Math.round(p.sek%60)).padStart(2,"0"):""),
+              (typeof p.km==="number"?(p.km>100?(p.km/1000).toFixed(2):p.km.toFixed(2)):""),
+              p.hr??"", alsPace(p.tempo), p.hoehe??"", p.frequenz??""
+            ].join(",")).join("\n    "));
         }
         if(false&&g.messpunkte&&g.messpunkte.length>3){
           // Zusammenfassung der Messreihe statt hunderter Einzelwerte
@@ -4761,6 +4817,7 @@ function renderMehr(){
   if(v==="swaps")return rSwaps();
   if(v==="split")return rSplit();
   if(v==="last")return rBelastung();
+  if(v==="wieder")return rWieder();
   if(v==="shifts")return rShifts();
   if(v==="umrechnen")return rUmrechnen();
   if(v==="auto")return rAuto();
@@ -4778,6 +4835,7 @@ function renderMehr(){
     ${race(ath)?`<button class="mi" data-v="split"><span class="mg">⇄</span><span class="md">Rennplan Doubles<div class="ms">Aufteilung der Stationen und Renntempo</div></span><span class="ma">›</span></button>`:""}
     <button class="mi" data-v="last"><span class="mg">◐</span><span class="md">Belastung${(()=>{const b=belastung(ath);return b.stufe==="gruen"?"":` <span style="background:${b.stufe==="rot"?"var(--red)":"var(--warn)"};color:#0E1116;border-radius:9px;padding:1px 7px;font-size:11px;margin-left:5px">!</span>`;})()}<div class="ms">${(()=>{const b=belastung(ath);return BELTXT[b.stufe][0]+(b.flags.length?" · "+b.flags.length+" Auffälligkeit"+(b.flags.length===1?"":"en"):"");})()}</div></span><span class="ma">›</span></button>
     ${(()=>{const n=shiftGruppen(ath).length;return n?`<button class="mi" data-v="shifts"><span class="mg">↔</span><span class="md">Verschiebungen <span style="background:var(--both);color:#0E1116;border-radius:9px;padding:1px 7px;font-size:11px;margin-left:5px">${n}</span><div class="ms">verschobene Tage zurücknehmen</div></span><span class="ma">›</span></button>`:"";})()}
+    <button class="mi" data-v="wieder"><span class="mg">↻</span><span class="md">Wiedereinstieg${(()=>{const w=wiederInfo(ath,todayISO());return w?` <span style="background:var(--warn);color:#0E1116;border-radius:9px;padding:1px 7px;font-size:11px;margin-left:5px">W${w.woche}</span>`:"";})()}<div class="ms">${(()=>{const w=wiederInfo(ath,todayISO());return w?w.n+" · Tag "+w.tag+" von 14":"nach Krankheit oder Pause";})()}</div></span><span class="ma">›</span></button>
     <button class="mi" data-v="umrechnen"><span class="mg">÷</span><span class="md">Werte umrechnen<div class="ms">Kurzhanteln und Klimmzüge rückwirkend</div></span><span class="ma">›</span></button>
     <button class="mi" data-v="auto"><span class="mg">⇡</span><span class="md">Anpassungen${(()=>{const n=alleVorschlaege(ath).length;return n?` <span style="background:var(--me);color:#0E1116;border-radius:9px;padding:1px 7px;font-size:11px;margin-left:5px">${n}</span>`:"";})()}<div class="ms">${(()=>{const n=alleVorschlaege(ath).length;return n?n+" Vorschlag"+(n===1?"":"e")+" aus deinen Einträgen":"Vorgaben passen";})()}</div></span><span class="ma">›</span></button>
     <button class="mi" data-v="wissen"><span class="mg">§</span><span class="md">Warum so geplant<div class="ms">Die Studien hinter dem Plan</div></span><span class="ma">›</span></button>
@@ -5418,6 +5476,7 @@ const riZ=raceInfo(a);
       <div style="font-size:12.5px;color:var(--mid);line-height:1.55;margin:-4px 2px 10px">
       Diese Tage überschreiben den wandernden Zyklus.</div>`;
     [1,2,3,4,5,6,0].forEach(wd=>{
+      const wiZ=wiederInfo(ath,ds||todayISO());
       const isLong=wd===c.longDay, isRest=(c.rest||[]).includes(wd);
       const lbl=isLong?"Long Run":isRest?"Ruhetag":"aus dem Zyklus";
       const col=isLong?"var(--both)":isRest?"var(--dim)":"var(--mid)";
@@ -7697,6 +7756,83 @@ function shiftUndo(ath,dateStr){
   for(const k in _schedC)delete _schedC[k];
 }
 
+/* Hülle um den Terminplan: Nach einer Pause werden harte Einheiten ersetzt
+   oder gekürzt, bevor irgendetwas anderes damit arbeitet. */
+function sessionFor(dateStr,ath,ohneShift){
+  const s=sessionForBasis(dateStr,ath,ohneShift);
+  const wi=wiederInfo(ath,dateStr);
+  if(!wi||!s)return s;
+  // Am ersten Tag darf eine Wunscheinheit stehen – meist Oberkörper
+  const w=(DB.wieder||{})[ath];
+  if(wi.tag===1&&w&&w.ersterTag&&PRESETS.find(p=>p.n===w.ersterTag)){
+    const p=PRESETS.find(x=>x.n===w.ersterTag);
+    return {k:"kraft",n:p.n,note:"Erster Tag zurück",warm:p.w||"mixed",tpl:1,
+      items:p.items,sci:p.sci,fixed:1,slot:-1,date:dateStr,cyc:0,ath,wieder:wi,
+      why:`<div style="color:var(--warn)"><b>Erster Tag zurück nach ${wi.grund||"der Pause"}.</b> ${wi.d}</div><br>`+
+        "<b>Warum Kraft und nicht Laufen:</b> Die Kraft ist fast vollständig erhalten – der Abfall nach zwei Wochen beträgt vier bis acht Prozent und ist neuronal, nicht muskulär. Eine Krafteinheit gibt dir deshalb sofort ein verlässliches Gefühl zurück, während die Ausdauer über das Blutvolumen erst ein paar Tage braucht."};
+  }
+  if(s.k==="rest")return s;
+  const hinweis=`<div style="color:var(--warn)"><b>${wi.n} nach ${wi.grund||"der Pause"}.</b> ${wi.d}</div><br>`;
+  if(s.k==="lauf"&&s.run&&(s.run.zone==="ivl"||s.run.t==="intervall")){
+    if(wi.keineIntervalle){
+      // Woche 1: statt Intervallen ein lockerer Lauf – das Blutvolumen
+      // kommt über Umfang zurück, nicht über Tempo.
+      return {...s, n:"Lauf locker statt Intervalle", note:"Wiedereinstieg",
+        wieder:wi,
+        run:{...s.run, zone:"esy", t:"easy",
+             warm:"5 Min locker einlaufen",
+             main:"30 bis 40 Min durchgehend locker",
+             rest:"", cool:"5 Min auslaufen", hr:[.65,.75], hrRest:null},
+        why:hinweis+"<b>Diese Woche keine Intervalle.</b> Nach einem Infekt ist der Herzmuskel die Struktur, die man nicht herausfordert. Der Verlust an VO2max stammt überwiegend aus dem Blutvolumen, und das baut sich über lockere Dauerläufe auf, nicht über harte Belastung."};
+    }
+    if(wi.intervalleKurz){
+      return {...s, note:"Wiedereinstieg · ein Block weniger", wieder:wi,
+        run:{...s.run, main:(s.run.main||"").replace(/^4 ?×/,"3 ×")},
+        why:hinweis+(s.why||"")};
+    }
+  }
+  if(s.k==="lauf"&&s.run&&s.run.isLong){
+    return {...s, note:"Wiedereinstieg · kürzer", wieder:wi,
+      kuerzer:wi.woche===1?.6:.8,
+      why:hinweis+(s.why||"")};
+  }
+  return {...s, wieder:wi, why:hinweis+(s.why||"")};
+}
+
+/* ══════════ WIEDEREINSTIEG NACH PAUSE ══════════
+   Grundlage: Mujika & Padilla (2000, Sports Medicine). Kraft bleibt zwei bis
+   vier Wochen nahezu erhalten; der Abfall von vier bis acht Prozent ist
+   neuronal, nicht muskulär. Die Ausdauer verliert vier bis sieben Prozent
+   VO2max, überwiegend über das Blutvolumen, und holt das rasch auf.
+   Daraus folgt: Umfang deutlich herunter, Last nur leicht, Intensität
+   zuletzt – und nicht umgekehrt. */
+const WIEDER=[
+ {n:"Woche 1 · Ankommen", saetze:.67, last:.88, rpeAb:2,
+  d:"Zwei Drittel der Sätze, zehn Prozent weniger Gewicht, drei Wiederholungen in Reserve. Harte Intervalle entfallen – das Blutvolumen kommt über lockere Läufe zurück, nicht über Tempo.",
+  keineIntervalle:1},
+ {n:"Woche 2 · Aufbauen", saetze:.85, last:.96, rpeAb:1,
+  d:"Fast volle Sätze, Gewicht nahe am alten Niveau, zwei Wiederholungen in Reserve. Intervalle wieder dabei, aber mit einem Block weniger.",
+  intervalleKurz:1},
+];
+function wiederInfo(ath,dateStr){
+  const w=(DB.wieder||{})[ath];
+  if(!w||!w.start)return null;
+  const tage=Math.floor((new Date(dateStr+"T12:00:00")-new Date(w.start+"T12:00:00"))/86400000);
+  if(tage<0||tage>=WIEDER.length*7)return null;
+  const woche=Math.floor(tage/7);
+  return {...WIEDER[woche], woche:woche+1, tag:tage+1, start:w.start, grund:w.grund||""};
+}
+function wiederStarten(ath,grund,datum,ersterTag){
+  DB.wieder=DB.wieder||{};
+  DB.wieder[ath]={start:datum||todayISO(), grund:grund||"", at:Date.now(),
+                  ersterTag:ersterTag||null};
+  save(); for(const k in _schedC)delete _schedC[k];
+}
+function wiederBeenden(ath){
+  if(DB.wieder)delete DB.wieder[ath];
+  save(); for(const k in _schedC)delete _schedC[k];
+}
+
 /* ══════════ BELASTUNGSÜBERWACHUNG ══════════
    Kein einzelner Marker erkennt Übertraining zuverlässig – das ist die
    Kernaussage der gemeinsamen Stellungnahme von ECSS und ACSM (Meeusen et al.
@@ -7920,7 +8056,12 @@ function zeigeLaufBilanz(b,date,ath){
         <div class="klbl">Puls${(()=>{const w=b.gmn.messpunkte.map(p=>p.hr).filter(x=>x);
           return w.length?` · ${Math.round(Math.min(...w))} bis ${Math.round(Math.max(...w))}`:"";})()}</div>
         ${kurve(b.gmn.messpunkte.map(p=>p.hr),"var(--red)",54)}
-        <div class="klbl" style="margin-top:12px">Tempo</div>
+        <div class="klbl" style="margin-top:12px">Tempo${(()=>{
+          const w=b.gmn.messpunkte.map(p=>p.tempo).filter(x=>typeof x==="number"&&x>0.4);
+          if(!w.length)return "";
+          const p=v=>{const s=Math.round(1000/v);return Math.floor(s/60)+":"+String(s%60).padStart(2,"0");};
+          return ` · ${p(Math.max(...w))} bis ${p(Math.min(...w))} /km`;
+        })()}</div>
         ${kurve(b.gmn.messpunkte.map(p=>p.tempo),"var(--me)",48)}
         ${b.gmn.messpunkte.some(p=>p.hoehe)?`<div class="klbl" style="margin-top:12px">Höhe</div>
           ${kurve(b.gmn.messpunkte.map(p=>p.hoehe),"var(--ok)",36)}`:""}
@@ -8068,6 +8209,73 @@ function zeigeBilanzIntern(date,ath){
     <button class="btn btn-go" onclick="closeModal();shareDay('${date}')">Ergebnisse teilen</button>
     <button class="btn" onclick="closeModal();go('mehr','checkin')">Check-in eintragen</button>
     <button class="btn" onclick="closeModal()">Schließen</button>`);
+}
+
+/* ─── Wiedereinstieg ─── */
+function rWieder(){
+  const a=me(), w=(DB.wieder||{})[a], wi=wiederInfo(a,todayISO());
+  let h=back+`<h1 style="font-size:25px;font-weight:800;letter-spacing:-.02em;margin-bottom:5px">Wiedereinstieg</h1>
+    <div style="font-size:13px;color:var(--mid);line-height:1.65;margin-bottom:16px">
+    Nach einer Pause wird nicht dort weitergemacht, wo du aufgehört hast. Zwei Wochen lang
+    weniger Sätze, etwas weniger Gewicht und mehr Reserve – danach läuft der Plan normal weiter.</div>`;
+  if(wi){
+    h+=`<div class="card" style="border-color:var(--warn)">
+      <div class="lbl">Läuft seit ${new Date(wi.start+"T12:00:00").toLocaleDateString("de-DE")}</div>
+      <div style="font-size:18px;font-weight:700;margin:3px 0 8px">${esc(wi.n)}</div>
+      <div style="font-size:13px;color:var(--mid);line-height:1.75">${esc(wi.d)}</div>
+      <div style="display:flex;gap:16px;margin-top:12px">
+        <div><div class="num" style="font-size:21px;font-weight:700">${Math.round(wi.saetze*100)} %</div>
+          <div style="font-size:10.5px;color:var(--dim)">der Sätze</div></div>
+        <div><div class="num" style="font-size:21px;font-weight:700">${Math.round(wi.last*100)} %</div>
+          <div style="font-size:10.5px;color:var(--dim)">der Last</div></div>
+        <div><div class="num" style="font-size:21px;font-weight:700">Tag ${wi.tag}</div>
+          <div style="font-size:10.5px;color:var(--dim)">von 14</div></div>
+      </div>
+      <button class="btn" id="wbeenden" style="margin:14px 0 0">Vorzeitig beenden</button>
+    </div>`;
+  } else {
+    h+=`<div class="card">
+      <div class="lbl">Grund</div>
+      <input class="inp" id="wgrund" placeholder="z.B. dem Infekt, der Reise, der Pause"
+        value="${esc((w&&w.grund)||"")}" style="width:100%;margin-bottom:12px">
+      <div class="lbl">Womit willst du beginnen</div>
+      <div class="opts" style="margin-bottom:12px">
+        ${PRESETS.filter(p=>/Oberkörper|Brust|Druck|Zug & Bank|Ganzkörper · Grund/.test(p.n)).slice(0,5)
+          .map(p=>`<button class="opt" data-werst="${esc(p.n)}">${esc(p.n)}</button>`).join("")}
+        <button class="opt sel" data-werst="">Nach Plan</button>
+      </div>
+      <button class="btn btn-go" id="wstart">Ab heute einsteigen</button>
+    </div>`;
+  }
+  h+=`<div class="card"><h4>Was zwei Wochen Pause wirklich kosten</h4>
+    <div style="font-size:13px;color:var(--mid);line-height:1.85">
+    <b style="color:var(--ink)">Kraft:</b> vier bis acht Prozent, und der Verlust ist neuronal,
+    nicht muskulär. Die Muskelmasse bleibt zwei bis vier Wochen praktisch unverändert.
+    Entsprechend schnell kommt sie zurück – meist innerhalb von ein bis zwei Wochen.<br><br>
+    <b style="color:var(--ink)">Ausdauer:</b> vier bis sieben Prozent VO2max in zwei bis drei
+    Wochen, überwiegend über das Blutvolumen. Auch das füllt sich über lockere Dauerläufe
+    rasch wieder auf.<br><br>
+    <b style="color:var(--ink)">Deshalb die Reihenfolge:</b> erst Umfang zurückholen, dann Last,
+    zuletzt Intensität. Harte Intervalle in der ersten Woche bringen nichts, was die lockeren
+    Läufe nicht auch bringen – kosten aber Erholung, die gerade knapp ist.<br><br>
+    <span style="font-size:12px;color:var(--dim)">Mujika &amp; Padilla, Sports Medicine 2000,
+    Teil I und II zur Entwöhnung vom Training.</span></div></div>`;
+  document.getElementById("p-mehr").innerHTML=h;
+  let erst="";
+  document.querySelectorAll("[data-werst]").forEach(b=>b.onclick=()=>{
+    erst=b.dataset.werst;
+    document.querySelectorAll("[data-werst]").forEach(x=>x.classList.remove("sel"));
+    b.classList.add("sel");});
+  document.getElementById("wstart")?.addEventListener("click",()=>{
+    const g=(document.getElementById("wgrund")||{}).value||"";
+    wiederStarten(a,g.trim(),todayISO(),erst||null);
+    rWieder();render();toast("Wiedereinstieg gestartet");});
+  document.getElementById("wbeenden")?.addEventListener("click",()=>{
+    showModal(`<h3>Wiedereinstieg beenden?</h3>
+      <p style="font-size:13.5px;color:var(--mid);line-height:1.7;margin-bottom:14px">
+      Ab sofort stehen wieder die vollen Sätze und Gewichte im Plan.</p>
+      <button class="btn btn-r" onclick="closeModal();wiederBeenden(me());rWieder();render();toast('Beendet')">Ja, beenden</button>
+      <button class="btn" onclick="closeModal()">Abbrechen</button>`);});
 }
 
 /* ─── Verschiebungen ─── */
