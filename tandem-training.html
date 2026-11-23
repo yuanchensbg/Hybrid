@@ -255,6 +255,13 @@ main{flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-b
 .noterow button.rec{background:rgba(232,93,93,.16);border-color:var(--red);color:var(--red)}
 .notehint{font-size:11px;color:var(--dim);line-height:1.5;margin-top:7px}
 .hintl{font-size:11.5px;color:var(--me);padding:7px 13px;border-top:1px solid var(--line);background:var(--me-soft);line-height:1.5}
+.vwrap{padding:11px 13px 9px;border-top:1px solid var(--line)}
+.vhead{display:flex;justify-content:space-between;align-items:baseline;gap:8px;
+  font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--dim);margin-bottom:8px}
+.vhead .vd{text-transform:none;letter-spacing:0;font-size:11px}
+.vfoot{display:flex;justify-content:space-between;font-size:9px;color:var(--dim);margin-top:4px}
+.vfoot span{flex:1;min-width:0;text-align:center;white-space:nowrap;overflow:hidden}
+.vleer{font-size:12.5px;color:var(--mid);line-height:1.6}
 .lastl{font-size:11.5px;color:var(--mid);padding:7px 13px;border-top:1px solid var(--line);line-height:1.5}
 .lastl .lw{color:var(--dim)}
 .fillbtn{display:block;width:calc(100% - 26px);margin:0 13px 9px;padding:8px;background:var(--surf2);
@@ -1496,7 +1503,7 @@ const ANAME={yuan:"Yuan",yara:"Yara"};
 /* ══════════ SPEICHER ══════════ */
 /* Versionsstand – steht unter Mehr ganz unten. Damit lässt sich prüfen,
    ob auf einem Gerät wirklich die aktuelle Datei läuft. */
-const BUILD={datum:"02.11.2026",nr:144};
+const BUILD={datum:"02.11.2026",nr:147};
 const DEF={
  me:"yuan", start:"2026-10-18", gyms:null, gym:"citygate",
  log:{}, archive:[], checkins:{yuan:{},yara:{}}, protein:{yuan:{},yara:{}},
@@ -2523,6 +2530,7 @@ function progression(ath,it,date,eqJetzt){
   const inc=p.top<20?1.25:p.top<40?2.5:5;
   const kg=v=>v.toLocaleString("de-DE")+" kg";
   const fest=(lo===hi);                       // feste Wiederholungszahl statt Bereich
+  const womit=p.top?`${kg(p.top)}${amGeraet}`:`ohne Gewichtsangabe${amGeraet}`;
   if(p.minR>=hi){
     const neu=p.top+inc;
     /* Wenn die schwerste vorhandene Hantel erreicht ist, hilft mehr Gewicht
@@ -2530,23 +2538,23 @@ function progression(ath,it,date,eqJetzt){
     const gym=curGym();
     const grenze=(eqJetzt==="kurzhantel"&&gym&&gym.dbMax)?gym.dbMax:0;
     if(grenze&&neu>grenze)
-      return {kg:p.top,txt:`${kg(p.top)} ist die schwerste Hantel hier. Statt mehr Gewicht: zwei Wiederholungen mehr je Satz, oder dieselben ${hi} mit drei Sekunden Absenken. Beides erzeugt denselben Reiz.`};
+      return {kg:p.top,txt:`Letztes Mal ${womit}: alle Sätze auf ${hi}. ${kg(p.top)} ist die schwerste Hantel hier – statt mehr Gewicht zwei Wiederholungen mehr je Satz, oder dieselben ${hi} mit drei Sekunden Absenken. Beides erzeugt denselben Reiz.`};
     return {kg:neu,txt:fest
-      ? `Letztes Mal${amGeraet} alle Sätze auf ${hi} geschafft – heute ${kg(neu)} bei denselben ${hi} Wiederholungen.`
-      : `Letztes Mal${amGeraet} alle Sätze auf ${hi} – heute ${kg(neu)} und zurück auf ${lo} Wiederholungen.`};
+      ? `Letztes Mal ${womit}: alle Sätze auf ${hi} geschafft – heute ${kg(neu)} bei denselben ${hi} Wiederholungen.`
+      : `Letztes Mal ${womit}: alle Sätze auf ${hi} – heute ${kg(neu)} und zurück auf ${lo} Wiederholungen.`};
   }
   if(p.maxR<lo)
-    return {kg:Math.max(inc,p.top-inc),txt:`Letztes Mal${amGeraet} nur ${p.maxR} statt ${lo} – heute ${kg(Math.max(inc,p.top-inc))}, dafür sauber.`};
+    return {kg:Math.max(inc,p.top-inc),txt:`Letztes Mal ${womit}: nur ${p.maxR} statt ${lo} – heute ${kg(Math.max(inc,p.top-inc))}, dafür sauber.`};
   // Starker Abfall über die Sätze: das Einstiegsgewicht war zu hoch
   if(p.all>=2&&p.minR<=Math.ceil(lo*0.6)){
     const red=Math.max(inc,Math.round((p.top-inc)*2)/2);
-    return {kg:red,txt:`Letztes Mal${amGeraet} fiel es von ${p.maxR} auf ${p.minR} ab – das Startgewicht war zu hoch. Heute ${kg(red)} und alle Sätze auf ${lo}.`};
+    return {kg:red,txt:`Letztes Mal ${womit}: von ${p.maxR} auf ${p.minR} abgefallen – das Startgewicht war zu hoch. Heute ${kg(red)} und alle Sätze auf ${lo}.`};
   }
   if(fest){
     const fehlt=hi-p.minR;
-    return {kg:p.top,txt:`Letztes Mal${amGeraet} ${p.maxR===p.minR?p.maxR:p.minR+" bis "+p.maxR} statt ${hi} – heute wieder ${kg(p.top)}, Ziel sind ${hi} in jedem Satz${fehlt<=1?". Fehlt nur noch wenig.":"."}`};
+    return {kg:p.top,txt:`Letztes Mal ${womit}: ${p.maxR===p.minR?p.maxR:p.minR+" bis "+p.maxR} statt ${hi} – heute wieder ${kg(p.top)}, Ziel sind ${hi} in jedem Satz${fehlt<=1?". Fehlt nur noch wenig.":"."}`};
   }
-  return {kg:p.top,txt:`Gewicht halten bei ${kg(p.top)}${amGeraet} und je Satz eine Wiederholung mehr als letztes Mal.`};
+  return {kg:p.top,txt:`Letztes Mal ${womit}: ${p.minR} bis ${p.maxR} Wiederholungen. Gewicht halten und je Satz eine mehr als letztes Mal.`};
 }
 /* Letzte Ausführung je Gerät. Wer zwischen Langhantel und Maschine wechselt,
    soll beim Zurückwechseln sofort sehen, wo er dort stand. */
@@ -2573,17 +2581,131 @@ function eqHistorie(ath,exId,bisDatum){
   return map;
 }
 
-/* Kurzfassung der letzten Ausführung für die Übungskarte */
-function lastLine(ath,it,date){
-  const p=lastPerf(ath,it.ex,date);
-  if(!p)return "";
-  const dt=new Date(p.date+"T12:00:00");
-  const diff=Math.round((new Date(date+"T12:00:00")-dt)/86400000);
-  const when=diff===1?"gestern":diff<14?`vor ${diff} Tagen`:dt.toLocaleDateString("de-DE",{day:"numeric",month:"short"});
-  const txt=p.sets.map(s=>s.skip?"–":
+/* Kurzfassung der letzten Ausführung für die Übungskarte.
+   Zwei Zeilen, wenn das zuletzt genutzte Gerät ein anderes war als das
+   heute gewählte: Was zuletzt überhaupt lief, und was an genau diesem
+   Gerät zuletzt lief – das kann Wochen zurückliegen. */
+function satzText(p){
+  return p.sets.map(s=>s.skip?"–":
     s.t?(s.t+(s.r!=null?" / "+s.r+" m":"")):
     (s.w!=null?s.w+(p.unit?"":" kg"):"")+(s.r!=null?(s.w!=null?" × ":"")+s.r+(p.unit?" "+p.unit:""):"")).join(" · ");
-  return `<div class="lastl"><span class="lw">Letztes Mal ${when}</span> ${esc(txt)}</div>`;
+}
+function wannText(von,bis){
+  const dt=new Date(von+"T12:00:00");
+  const diff=Math.round((new Date(bis+"T12:00:00")-dt)/86400000);
+  return diff===1?"gestern":diff<14?`vor ${diff} Tagen`
+    :dt.toLocaleDateString("de-DE",{day:"numeric",month:"short"});
+}
+/* Block mit Verlaufskurve für das gewählte Gerät */
+function verlaufBlock(ath,it,date,eq){
+  if(it.unit||!eq)return "";
+  const v=verlaufAn(ath,it.ex,date,eq,10);
+  if(v.length>=2){
+    const erst=v[0], letzt=v[v.length-1];
+    const d=letzt.kg-erst.kg;
+    return `<div class="vwrap">
+      <div class="vhead"><span>Verlauf an ${esc(eqLabel(eq))}</span>
+        <span class="vd" style="color:${d>0?"var(--ok)":d<0?"var(--warn)":"var(--dim)"}">${
+          d>0?"+":""}${d.toLocaleString("de-DE")} kg über ${v.length} Einheiten</span></div>
+      ${verlaufBild(v,"var(--me)")}
+      <div class="vfoot">${v.map(p=>
+        `<span>${p.date.slice(8)}.${p.date.slice(5,7)}.</span>`).join("")}</div>
+    </div>`;
+  }
+  if(v.length===1){
+    return `<div class="vwrap"><div class="vhead"><span>An ${esc(eqLabel(eq))}</span>
+      <span class="vd">erst einmal eingetragen</span></div>
+      <div class="vleer">${v[0].kg.toLocaleString("de-DE")} kg × ${v[0].reps} am ${
+        new Date(v[0].date+"T12:00:00").toLocaleDateString("de-DE")} – ab der zweiten Einheit zeigt die App den Verlauf.</div></div>`;
+  }
+  const e=erwartetAn(ath,it.ex,date,eq);
+  return `<div class="vwrap"><div class="vhead"><span>An ${esc(eqLabel(eq))}</span>
+    <span class="vd">noch nichts eingetragen</span></div>
+    <div class="vleer">${e
+      ? `Zu erwarten wären etwa <b style="color:var(--me)">${e.kg.toLocaleString("de-DE")} kg</b>, abgeleitet aus ${e.aus.kg.toLocaleString("de-DE")} kg an ${esc(eqLabel(e.aus.eq))}.${
+          e.grob?" Die Umrechnung ist grob – nimm sie nur als Startpunkt.":" Tastend anfangen und nach dem ersten Satz nachjustieren."}`
+      : "Noch keine Daten zu dieser Übung. Such ein Gewicht, bei dem die Zielwiederholungen gerade noch sauber gehen."}</div></div>`;
+}
+
+/* Alle Ausführungen einer Übung an einem bestimmten Gerät, älteste zuerst */
+function verlaufAn(ath,exId,bisDatum,eq,anzahl){
+  const out=[];
+  Object.keys(DB.log||{}).sort().forEach(d=>{
+    if(d>=bisDatum)return;
+    const lg=(DB.log[d]||{})[ath]; if(!lg)return;
+    const ses=sessionFor(d,ath); if(ses.k!=="kraft")return;
+    buildSession(ses,ath,true).forEach(it=>{
+      if(it.ex!==exId||it.type!=="lift")return;
+      const standard=(EX[exId]&&EX[exId].o&&EX[exId].o[0])||null;
+      const damals=lg[it.key+"-eq"]||standard;
+      if(eq&&damals!==eq)return;
+      let top=0, reps=0, saetze=0;
+      for(let s=1;s<=(it.sets||0)+2;s++){
+        if(lg[`${it.key}-x${s}`])continue;
+        const w=parseFloat(lg[`${it.key}-w${s}`]), r=parseInt(lg[`${it.key}-r${s}`],10);
+        if(isNaN(w)||isNaN(r))continue;
+        saetze++;
+        if(w>top){top=w;reps=r;}
+      }
+      if(top)out.push({date:d,kg:top,reps,saetze,eq:damals});
+    });
+  });
+  return anzahl?out.slice(-anzahl):out;
+}
+/* Verlaufskurve mit Punkten und Beschriftung der Endwerte */
+function verlaufBild(punkte,farbe){
+  if(punkte.length<2)return "";
+  const B=300,H=72,r=6;
+  const kgs=punkte.map(p=>p.kg);
+  const min=Math.min(...kgs), max=Math.max(...kgs);
+  const spanne=(max-min)||1;
+  const xy=punkte.map((p,i)=>{
+    const x=r+(i/(punkte.length-1))*(B-2*r);
+    const y=H-r-((p.kg-min)/spanne)*(H-2*r-14);
+    return {x,y,p};
+  });
+  const linie=xy.map(o=>o.x.toFixed(1)+","+o.y.toFixed(1)).join(" ");
+  const flaeche=`${xy[0].x},${H} `+linie+` ${xy[xy.length-1].x},${H}`;
+  const letzte=xy[xy.length-1];
+  return `<svg viewBox="0 0 ${B} ${H}" preserveAspectRatio="none"
+      style="width:100%;height:${H}px;display:block;overflow:visible">
+    <polygon points="${flaeche}" fill="${farbe}" opacity=".12"/>
+    <polyline points="${linie}" fill="none" stroke="${farbe}" stroke-width="1.8"
+      stroke-linejoin="round" stroke-linecap="round"/>
+    ${xy.map(o=>`<circle cx="${o.x.toFixed(1)}" cy="${o.y.toFixed(1)}" r="2.6"
+      fill="${farbe}"/>`).join("")}
+    <text x="${letzte.x}" y="${Math.max(10,letzte.y-8)}" text-anchor="end"
+      font-size="11" fill="${farbe}" font-weight="700">${letzte.p.kg.toLocaleString("de-DE")} kg</text>
+  </svg>`;
+}
+/* Was wäre an einem noch unbenutzten Gerät zu erwarten?
+   Grobe Umrechnung über typische Lastverhältnisse – als Startpunkt, nicht
+   als Vorgabe. */
+const EQ_FAKTOR={langhantel:1, multipresse:1.05, smith:1.05, chestpress:.95,
+  kurzhantel:.42, kabel:.9, maschine:.95, kabelturm:.9, sz:.8};
+function erwartetAn(ath,exId,bisDatum,eqZiel){
+  const alle=verlaufAn(ath,exId,bisDatum,null,0);
+  if(!alle.length)return null;
+  const letzte=alle[alle.length-1];
+  const fVon=EQ_FAKTOR[letzte.eq]||1, fZu=EQ_FAKTOR[eqZiel]||1;
+  const roh=letzte.kg/fVon*fZu;
+  return {kg:Math.round(roh/2.5)*2.5, aus:letzte, grob:!(EQ_FAKTOR[letzte.eq]&&EQ_FAKTOR[eqZiel])};
+}
+
+function lastLine(ath,it,date,eqJetzt){
+  const alle=lastPerf(ath,it.ex,date);
+  if(!alle)return "";
+  const zeilen=[];
+  zeilen.push(`<div class="lastl"><span class="lw">Zuletzt ${wannText(alle.date,date)}${
+    alle.eq?" an "+eqLabel(alle.eq):""}</span> ${esc(satzText(alle))}</div>`);
+  // Am heute gewählten Gerät, falls das ein anderes war
+  if(eqJetzt&&alle.eq!==eqJetzt){
+    const hier=lastPerf(ath,it.ex,date,eqJetzt);
+    zeilen.push(hier
+      ? `<div class="lastl" style="border-top:none;padding-top:0"><span class="lw" style="color:var(--me)">An ${esc(eqLabel(eqJetzt))} ${wannText(hier.date,date)}</span> ${esc(satzText(hier))}</div>`
+      : `<div class="lastl" style="border-top:none;padding-top:0"><span class="lw" style="color:var(--me)">An ${esc(eqLabel(eqJetzt))}</span> noch nichts eingetragen</div>`);
+  }
+  return zeilen.join("");
 }
 
 function suggest(ath,it,date){
@@ -3186,7 +3308,7 @@ function exCard(it,ath,lg,ses){
 
   if(it.type==="lift"||it.type==="circuit"){
     h+=`<div class="trk">`;
-    const ll=lastLine(ath,it,selDate,selEq);
+    const ll=lastLine(ath,it,selDate,selEq)+verlaufBlock(ath,it,selDate,selEq);
     if(ll)h+=ll;
     if(it.sch){
       h+=`<div class="hintl">${waveHint(it,ath)}</div>`;
